@@ -11,14 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::create('doomlings_deck', function (Blueprint $table) {
         $table->id();
         $table->string('card_name');
         $table->integer('points');
         $table->string('img');
-        $table->string('text');
+        $table->string('text')->nullable();
         $table->string('color');
         $table->boolean('dominant');
         $table->boolean('action');
+        $table->timestamps();
+        });
     }
 
     /**
