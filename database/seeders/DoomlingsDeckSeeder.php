@@ -17,3 +17,5 @@ class DoomlingsDeckSeeder extends Seeder
         }
     }
 }
+// run php artisan db:seed --class=DoomlingsDeckSeeder to load cards into database
+//php artisan migrate:fresh --seed for loading all seeds fresh
