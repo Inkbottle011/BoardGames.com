@@ -2,7 +2,7 @@
     {
         "card_name": "Echolocation",
         "points": 4,
-        "img": "Echolocation.png",
+        "img": "images/doomlings_basegame_images/cards/images/doomlings_basegame_images/Ages/Echolocation.png",
         "text": "Until World's End: Draw 1 card at the start of each of your turns.",
         "color": "Blue",
         "dominant": true,
@@ -11,7 +11,7 @@
     {
         "card_name": "Imunity",
         "points": 4,
-        "img": "Imunity.png",
+        "img": "images/doomlings_basegame_images/cards/Imunity.png",
         "text": "+2 for each trait with a negative face value in your trait pile.",
         "color": "Blue",
         "dominant": true,
@@ -20,7 +20,7 @@
     {
         "card_name": "Tiny",
         "points": 17,
-        "img": "Tiny.png",
+        "img": "images/doomlings_basegame_images/cards/Tiny.png",
         "text": "-1 for each trait in your pile (including this one)",
         "color": "",
         "dominant": true,
@@ -29,7 +29,7 @@
     {
         "card_name": "Automimicry",
         "points": -1,
-        "img": "Automimicry.png",
+        "img": "images/doomlings_basegame_images/cards/Automimicry.png",
         "text": "You may play Automimicry from your hand at any time to prevent an action",
         "color": "Blue",
         "dominant": false,
@@ -38,7 +38,7 @@
     {
         "card_name": "Blubber",
         "points": 4,
-        "img": "Blubber.png",
+        "img": "images/doomlings_basegame_images/cards/Blubber.png",
         "text": "",
         "color": "Blue",
         "dominant": false,
@@ -47,7 +47,7 @@
     {
         "card_name": "Chromatophores",
         "points": 0,
-        "img": "Chromatophores.png",
+        "img": "images/doomlings_basegame_images/cards/Chromatophores.png",
         "text": "You may play Chromatophores from your hand at any time to prevent an action",
         "color": "Blue",
         "dominant": false,
@@ -56,7 +56,7 @@
     {
         "card_name": "Cold Blood",
         "points": 1,
-        "img": "Cold_Blood.png",
+        "img": "images/doomlings_basegame_images/cards/Cold_Blood.png",
         "text": "Draw 3 cards. You may play 1 Now",
         "color": "Blue",
         "dominant": false,
@@ -65,7 +65,7 @@
     {
         "card_name": "Costly Signaling",
         "points": -2,
-        "img": "Costly_Signaling.png",
+        "img": "images/doomlings_basegame_images/cards/Costly_Signaling.png",
         "text": "Return an opponent's trait to thier hand. Play another trait",
         "color": "Blue",
         "dominant": false,
@@ -74,7 +74,7 @@
     {
         "card_name": "Egg Clusters",
         "points": -1,
-        "img": "Egg_Clusters.png",
+        "img": "images/doomlings_basegame_images/cards/Egg_Clusters.png",
         "text": "+1 for each blue trait in your trait pile.(Including this one)",
         "color": "Blue",
         "dominant": false,
@@ -83,7 +83,7 @@
     {
         "card_name": "Flight",
         "points": 2,
-        "img": "Flight.png",
+        "img": "images/doomlings_basegame_images/cards/Flight.png",
         "text": "Swap hands with an opponent.",
         "color": "Blue",
         "dominant": false,
@@ -92,7 +92,7 @@
     {
         "card_name": "Gills",
         "points": 1,
-        "img": "Gills.png",
+        "img": "images/doomlings_basegame_images/cards/Gills.png",
         "text": "",
         "color": "Blue",
         "dominant": false,
@@ -101,7 +101,7 @@
     {
         "card_name": "Iridescent Scales",
         "points": 1,
-        "img": "Iridescent_Scales.png",
+        "img": "images/doomlings_basegame_images/cards/Iridescent_Scales.png",
         "text": "Draw 3 Cards.",
         "color": "Blue",
         "dominant": false,
@@ -110,7 +110,7 @@
     {
         "card_name": "Migratory",
         "points": 2,
-        "img": "Migratory.png",
+        "img": "images/doomlings_basegame_images/cards/Migratory.png",
         "text": "",
         "color": "Blue",
         "dominant": false,
@@ -119,7 +119,7 @@
     {
         "card_name": "Painted Shell",
         "points": 1,
-        "img": "Painted_Shell.png",
+        "img": "images/doomlings_basegame_images/cards/Painted_Shell.png",
         "text": "Play an Action from your trait pile.",
         "color": "Blue",
         "dominant": false,
@@ -128,7 +128,7 @@
     {
         "card_name": "Regenerative Tissue",
         "points": 0,
-        "img": "Regenerative_Tissue.png",
+        "img": "images/doomlings_basegame_images/cards/Regenerative_Tissue.png",
         "text": "Anytime you discard a trait from your trait pile(including this one), draw 1. Play it immediately,(Unless Restricted) and Ignore actions.",
         "color": "Blue",
         "dominant": false,
@@ -137,7 +137,7 @@
     {
         "card_name": "Saliva",
         "points": 1,
-        "img": "Saliva.png",
+        "img": "images/doomlings_basegame_images/cards/Saliva.png",
         "text": "+1 Gene Pool.",
         "color": "Blue",
         "dominant": false,
@@ -146,7 +146,7 @@
     {
         "card_name": "Scutes",
         "points": 3,
-        "img": "Scutes.png",
+        "img": "images/doomlings_basegame_images/cards/Scutes.png",
         "text": "Give an opponent 1 trait from your trait pile.",
         "color": "Blue",
         "dominant": false,
@@ -155,7 +155,7 @@
     {
         "card_name": "Selective Memory",
         "points": 0,
-        "img": "Selective_Memory.png",
+        "img": "images/doomlings_basegame_images/cards/Selective_Memory.png",
         "text": "Play 1 card from the discard pile. Play its action",
         "color": "Blue",
         "dominant": false,
@@ -164,7 +164,7 @@
     {
         "card_name": "Spiny",
         "points": 1,
-        "img": "Spiny.png",
+        "img": "images/doomlings_basegame_images/cards/Spiny.png",
         "text": "",
         "color": "Blue",
         "dominant": false,
@@ -173,7 +173,7 @@
     {
         "card_name": "Sweat",
         "points": 2,
-        "img": "Sweat.png",
+        "img": "images/doomlings_basegame_images/cards/Sweat.png",
         "text": "Discard 1 card from your hand.",
         "color": "Blue",
         "dominant": false,
@@ -182,7 +182,7 @@
     {
         "card_name": "Tentacles",
         "points": 1,
-        "img": "Tentacles.png",
+        "img": "images/doomlings_basegame_images/cards/Tentacles.png",
         "text": "Swap 1 trait from your trait pile with an opponent's trait of the same color.",
         "color": "",
         "dominant": false,
@@ -191,7 +191,7 @@
     {
         "card_name": "Heroic",
         "points": 7,
-        "img": "Heroic.png",
+        "img": "images/doomlings_basegame_images/cards/Heroic.png",
         "text": "To play, you must have 3 or more green traits in your trait pile.",
         "color": "Green",
         "dominant": true,
@@ -200,7 +200,7 @@
     {
         "card_name": "Pack Behavior",
         "points": 3,
-        "img": "Pack_Behavior.png",
+        "img": "images/doomlings_basegame_images/cards/Pack_Behavior.png",
         "text": "+1 for every color pair in your trait pile.",
         "color": "Green",
         "dominant": true,
@@ -209,7 +209,7 @@
     {
         "card_name": "Symbiosis",
         "points": 3,
-        "img": "Symbiosis.png",
+        "img": "images/doomlings_basegame_images/cards/Symbiosis.png",
         "text": "+2 for every trait in your lowest color count(must have 2 or more colors. If there's a tie, pick 1!)",
         "color": "Green",
         "dominant": true,
@@ -218,7 +218,7 @@
     {
         "card_name": "Apealing",
         "points": 3,
-        "img": "Apealing.png",
+        "img": "images/doomlings_basegame_images/cards/Apealing.png",
         "text": "",
         "color": "Green",
         "dominant": false,
@@ -227,7 +227,7 @@
     {
         "card_name": "Bark",
         "points": 2,
-        "img": "Bark.png",
+        "img": "images/doomlings_basegame_images/cards/Bark.png",
         "text": "",
         "color": "Green",
         "dominant": false,
@@ -236,7 +236,7 @@
     {
         "card_name": "Branches",
         "points": 2,
-        "img": "Branches.png",
+        "img": "images/doomlings_basegame_images/cards/Branches.png",
         "text": "+1 for each pair of green trait in each opponent's trait pile",
         "color": "Green",
         "dominant": false,
@@ -245,7 +245,7 @@
     {
         "card_name": "Deep Roots",
         "points": 2,
-        "img": "Deep_Roots.png",
+        "img": "images/doomlings_basegame_images/cards/Deep_Roots.png",
         "text": "",
         "color": "Green",
         "dominant": false,
@@ -254,7 +254,7 @@
     {
         "card_name": "Fecundity",
         "points": 1,
-        "img": "Fecundity.png",
+        "img": "images/doomlings_basegame_images/cards/Fecundity.png",
         "text": "+1 Gene Pool.",
         "color": "Green",
         "dominant": false,
@@ -263,7 +263,7 @@
     {
         "card_name": "Fortunate",
         "points": 0,
-        "img": "Fortunate.png",
+        "img": "images/doomlings_basegame_images/cards/Fortunate.png",
         "text": "Value is equal to the number of cards in your hand",
         "color": "Green",
         "dominant": false,
@@ -272,7 +272,7 @@
     {
         "card_name": "Leaves",
         "points": 1,
-        "img": "Leaves.png",
+        "img": "images/doomlings_basegame_images/cards/Leaves.png",
         "text": "",
         "color": "Green",
         "dominant": false,
@@ -281,7 +281,7 @@
     {
         "card_name": "Overgrowth",
         "points": -1,
-        "img": "Overgrowth.png",
+        "img": "images/doomlings_basegame_images/cards/Overgrowth.png",
         "text": "+1 for each green trait in your trait pile.(Including this one)",
         "color": "Green",
         "dominant": false,
@@ -290,7 +290,7 @@
     {
         "card_name": "Photosynthesis",
         "points": 1,
-        "img": "Photosynthesis.png",
+        "img": "images/doomlings_basegame_images/cards/Photosynthesis.png",
         "text": "Draw 2 cards. If either are green, play 1 immediatly(Unless restricted).",
         "color": "Green",
         "dominant": false,
@@ -299,7 +299,7 @@
     {
         "card_name": "Pollination",
         "points": 1,
-        "img": "Pollination.png",
+        "img": "images/doomlings_basegame_images/cards/Pollination.png",
         "text": "+1 for every card in your trait pile with a face value of 1(Including this one).",
         "color": "Green",
         "dominant": false,
@@ -308,7 +308,7 @@
     {
         "card_name": "Propagation",
         "points": 1,
-        "img": "Propagation.png",
+        "img": "images/doomlings_basegame_images/cards/Propagation.png",
         "text": "Play another trait",
         "color": "Green",
         "dominant": false,
@@ -317,7 +317,7 @@
     {
         "card_name": "Random Fertilization",
         "points": 0,
-        "img": "Random_Fertilization.png",
+        "img": "images/doomlings_basegame_images/cards/Random_Fertilization.png",
         "text": "Value is equal to the size of your Gene Pool.",
         "color": "Green",
         "dominant": false,
@@ -326,7 +326,7 @@
     {
         "card_name": "Self-Replicating",
         "points": 0,
-        "img": "Self_Replicating.png",
+        "img": "images/doomlings_basegame_images/cards/Self_Replicating.png",
         "text": "Play 1 card from hte discard pile. Ignore its action. When you play another green trait from your hand, you may return this to your hand.",
         "color": "Green",
         "dominant": false,
@@ -335,7 +335,7 @@
     {
         "card_name": "Swarm",
         "points": 0,
-        "img": "Swarm_Fur.png",
+        "img": "images/doomlings_basegame_images/cards/Swarm_Fur.png",
         "text": "Value is equal to the number of Swarm traits in all trait piles.(Including this One)",
         "color": "Green",
         "dominant": false,
@@ -344,7 +344,7 @@
     {
         "card_name": "Swarm",
         "points": 0,
-        "img": "Swarm_Horns.png",
+        "img": "images/doomlings_basegame_images/cards/Swarm_Horns.png",
         "text": "Value is equal to the number of Swarm traits in all trait piles.(Including this One)",
         "color": "Green",
         "dominant": false,
@@ -353,7 +353,7 @@
     {
         "card_name": "Swarm",
         "points": 0,
-        "img": "Swarm_Mindless.png",
+        "img": "images/doomlings_basegame_images/cards/Swarm_Mindless.png",
         "text": "Value is equal to the number of Swarm traits in all trait piles.(Including this One)",
         "color": "Green",
         "dominant": false,
@@ -362,7 +362,7 @@
     {
         "card_name": "Swarm",
         "points": 0,
-        "img": "Swarm_Spots.png",
+        "img": "images/doomlings_basegame_images/cards/Swarm_Spots.png",
         "text": "Value is equal to the number of Swarm traits in all trait piles.(Including this One)",
         "color": "Green",
         "dominant": false,
@@ -371,7 +371,7 @@
     {
         "card_name": "Swarm",
         "points": 0,
-        "img": "Swarm_Stripes.png",
+        "img": "images/doomlings_basegame_images/cards/Swarm_Stripes.png",
         "text": "Value is equal to the number of Swarm traits in all trait piles.(Including this One)",
         "color": "Green",
         "dominant": false,
@@ -380,7 +380,7 @@
     {
         "card_name": "Tiny Little Melons",
         "points": 1,
-        "img": "Tiny_Little_Melons.png",
+        "img": "images/doomlings_basegame_images/cards/Tiny_Little_Melons.png",
         "text": "Steal 1 green trait from an opponent's trait pile.",
         "color": "Green",
         "dominant": false,
@@ -389,7 +389,7 @@
     {
         "card_name": "Trunk",
         "points": 1,
-        "img": "Trunk.png",
+        "img": "images/doomlings_basegame_images/cards/Trunk.png",
         "text": "Play the top card from the discard pile. Ignore its action.",
         "color": "Green",
         "dominant": false,
@@ -398,7 +398,7 @@
     {
         "card_name": "Woody Stems",
         "points": 1,
-        "img": "Woody_Stems.png",
+        "img": "images/doomlings_basegame_images/cards/Woody_Stems.png",
         "text": "",
         "color": "Green",
         "dominant": false,
@@ -407,7 +407,7 @@
     {
         "card_name": "Denial",
         "points": 4,
-        "img": "Denial.png",
+        "img": "images/doomlings_basegame_images/cards/Denial.png",
         "text": "Ignore the next catastrophe. Warning: You cannot ignore The Four Horsemen",
         "color": "Colorless",
         "dominant": true,
@@ -416,7 +416,7 @@
     {
         "card_name": "Faith",
         "points": 4,
-        "img": "Faith.png",
+        "img": "images/doomlings_basegame_images/cards/Faith.png",
         "text": "At Worlds End: You mau change all of your traits of 1 color to 1 alternative color.",
         "color": "Colorless",
         "dominant": true,
@@ -425,7 +425,7 @@
     {
         "card_name": "Optimistic Nihilism",
         "points": 4,
-        "img": "Optimistic_Nihilism.png",
+        "img": "images/doomlings_basegame_images/cards/Optimistic_Nihilism.png",
         "text": "Bring about the next catastrophe. Skip all turns. Ignore all age effects along the way. Do not Stabalize",
         "color": "Colorless",
         "dominant": true,
@@ -434,7 +434,7 @@
     {
         "card_name": "Altruistic",
         "points": 0,
-        "img": "Altruistic.png",
+        "img": "images/doomlings_basegame_images/cards/Altruistic.png",
         "text": "Value is equal to the size of your Gene Pool",
         "color": "Colorless",
         "dominant": false,
@@ -443,7 +443,7 @@
     {
         "card_name": "Boredom",
         "points": 0,
-        "img": "Boredom.png",
+        "img": "images/doomlings_basegame_images/cards/Boredom.png",
         "text": "Value is equal to the number of cards with effects in your hand.",
         "color": "Colorless",
         "dominant": false,
@@ -452,7 +452,7 @@
     {
         "card_name": "Confusion",
         "points": -2,
-        "img": "Confusion.png",
+        "img": "images/doomlings_basegame_images/cards/Confusion.png",
         "text": "",
         "color": "Colorless",
         "dominant": false,
@@ -461,7 +461,7 @@
     {
         "card_name": "Delicious",
         "points": 4,
-        "img": "Delicious.png",
+        "img": "images/doomlings_basegame_images/cards/Delicious.png",
         "text": "To play, you must have at least 1 colorless trait in your trait pile.",
         "color": "Colorless",
         "dominant": false,
@@ -470,7 +470,7 @@
     {
         "card_name": "Doting",
         "points": 2,
-        "img": "Doting.png",
+        "img": "images/doomlings_basegame_images/cards/Doting.png",
         "text": "Give an opponent 1 card from your hand.",
         "color": "Colorless",
         "dominant": false,
@@ -479,7 +479,7 @@
     {
         "card_name": "Eloquence",
         "points": 1,
-        "img": "Eloquence.png",
+        "img": "images/doomlings_basegame_images/cards/Eloquence.png",
         "text": "At Worlds End: Play another trait. Ignore its action",
         "color": "Colorless",
         "dominant": false,
@@ -488,7 +488,7 @@
     {
         "card_name": "Fear",
         "points": 1,
-        "img": "Fear.png",
+        "img": "images/doomlings_basegame_images/cards/Fear.png",
         "text": "",
         "color": "Colorless",
         "dominant": false,
@@ -497,7 +497,7 @@
     {
         "card_name": "Flatulence",
         "points": 3,
-        "img": "Flatulence.png",
+        "img": "images/doomlings_basegame_images/cards/Flatulence.png",
         "text": "",
         "color": "Colorless",
         "dominant": false,
@@ -506,7 +506,7 @@
     {
         "card_name": "Gratitude",
         "points": 0,
-        "img": "Gratitude.png",
+        "img": "images/doomlings_basegame_images/cards/Gratitude.png",
         "text": "Value is equal to the number of different colors in your trait pile.",
         "color": "Colorless",
         "dominant": false,
@@ -515,7 +515,7 @@
     {
         "card_name": "Introspective",
         "points": 1,
-        "img": "Introspective.png",
+        "img": "images/doomlings_basegame_images/cards/Introspective.png",
         "text": "Draw 4 Cards",
         "color": "Colorless",
         "dominant": false,
@@ -524,7 +524,7 @@
     {
         "card_name": "Just",
         "points": 2,
-        "img": "Just.png",
+        "img": "images/doomlings_basegame_images/cards/Just.png",
         "text": "+1 Gene Pool.",
         "color": "Colorless",
         "dominant": false,
@@ -533,7 +533,7 @@
     {
         "card_name": "Late",
         "points": 1,
-        "img": "Late.png",
+        "img": "images/doomlings_basegame_images/cards/Late.png",
         "text": "You may play Late from your hand after you stabilize",
         "color": "Colorless",
         "dominant": false,
@@ -542,7 +542,7 @@
     {
         "card_name": "Mindful",
         "points": 0,
-        "img": "Mindful.png",
+        "img": "images/doomlings_basegame_images/cards/Mindful.png",
         "text": "+1 for each colorless trait in your trait pile.(Including this one)",
         "color": "Colorless",
         "dominant": false,
@@ -551,7 +551,7 @@
     {
         "card_name": "Mitochondrion",
         "points": 1,
-        "img": "Mitochondrion.png",
+        "img": "images/doomlings_basegame_images/cards/Mitochondrion.png",
         "text": "+1 Gene Pool.",
         "color": "Colorless",
         "dominant": false,
@@ -560,7 +560,7 @@
     {
         "card_name": "Morality",
         "points": 5,
-        "img": "Morality.png",
+        "img": "images/doomlings_basegame_images/cards/Morality.png",
         "text": "To play, you must give 1 postitive value trait from your trait pile to an opponent",
         "color": "Colorless",
         "dominant": false,
@@ -569,7 +569,7 @@
     {
         "card_name": "Prepper",
         "points": 2,
-        "img": "Prepper.png",
+        "img": "images/doomlings_basegame_images/cards/Prepper.png",
         "text": "At World's End: Chose a World's End effect from the 3 catastrophes played for all players to end on.",
         "color": "Colorless",
         "dominant": false,
@@ -578,7 +578,7 @@
     {
         "card_name": "Saudade",
         "points": 1,
-        "img": "Saudade.png",
+        "img": "images/doomlings_basegame_images/cards/Saudade.png",
         "text": "+1 for each different color in your hand",
         "color": "Colorless",
         "dominant": false,
@@ -587,7 +587,7 @@
     {
         "card_name": "Self-Awareness",
         "points": -1,
-        "img": "Self_Awareness.png",
+        "img": "images/doomlings_basegame_images/cards/Self_Awareness.png",
         "text": "You may play Self-Awareness from your hand into a n opponent's trait pile at any time.",
         "color": "Colorless",
         "dominant": false,
@@ -596,7 +596,7 @@
     {
         "card_name": "The Third Eye",
         "points": 0,
-        "img": "The_Third_Eye.png",
+        "img": "images/doomlings_basegame_images/cards/The_Third_Eye.png",
         "text": "Take a peek at the next age. Play another trait.",
         "color": "Colorless",
         "dominant": false,
@@ -605,7 +605,7 @@
     {
         "card_name": "Camouflage",
         "points": 1,
-        "img": "Camouflage.png",
+        "img": "images/doomlings_basegame_images/cards/Camouflage.png",
         "text": "+1 Gene Pool +1 for each card in your hand.",
         "color": "Purple",
         "dominant": true,
@@ -614,7 +614,7 @@
     {
         "card_name": "Vampirism",
         "points": 3,
-        "img": "Vampirism.png",
+        "img": "images/doomlings_basegame_images/cards/Vampirism.png",
         "text": "Steal a trait from an opponent's trait pile. Play its action.",
         "color": "Purple",
         "dominant": true,
@@ -623,7 +623,7 @@
     {
         "card_name": "Viral",
         "points": 2,
-        "img": "Viral.png",
+        "img": "images/doomlings_basegame_images/cards/Viral.png",
         "text": "At World's End: Choose a color. Opponents recieve -1 for each trait of that color in their trait pile.",
         "color": "Purple",
         "dominant": true,
@@ -632,7 +632,7 @@
     {
         "card_name": "Adorable",
         "points": 4,
-        "img": "Adorable.png",
+        "img": "images/doomlings_basegame_images/cards/Adorable.png",
         "text": "",
         "color": "Purple",
         "dominant": false,
@@ -641,7 +641,7 @@
     {
         "card_name": "Big Ears",
         "points": 1,
-        "img": "Big_Ears.png",
+        "img": "images/doomlings_basegame_images/cards/Big_Ears.png",
         "text": "",
         "color": "Purple",
         "dominant": false,
@@ -650,7 +650,7 @@
     {
         "card_name": "Clever",
         "points": 1,
-        "img": "Clever.png",
+        "img": "images/doomlings_basegame_images/cards/Clever.png",
         "text": "Opponents reveal 1 card in thier hand to all players. Steal 1 and play it immediately.",
         "color": "Purple",
         "dominant": false,
@@ -659,7 +659,7 @@
     {
         "card_name": "Directly Register",
         "points": 1,
-        "img": "Directly_Register.png",
+        "img": "images/doomlings_basegame_images/cards/Directly_Register.png",
         "text": "steal a trait with a face value of 1 from an opponent's trait pile.",
         "color": "Purple",
         "dominant": false,
@@ -668,7 +668,7 @@
     {
         "card_name": "Dreamer",
         "points": 1,
-        "img": "Dreamer.png",
+        "img": "images/doomlings_basegame_images/cards/Dreamer.png",
         "text": "+1 Gene Pool",
         "color": "Purple",
         "dominant": false,
@@ -677,7 +677,7 @@
     {
         "card_name": "Fine Motor Skills",
         "points": 2,
-        "img": "Fine_Motor_Skills.png",
+        "img": "images/doomlings_basegame_images/cards/Fine_Motor_Skills.png",
         "text": "",
         "color": "Purple",
         "dominant": false,
@@ -686,7 +686,7 @@
     {
         "card_name": "Impatience",
         "points": 1,
-        "img": "Impatience.png",
+        "img": "images/doomlings_basegame_images/cards/Impatience.png",
         "text": "Steal 2 random cards from an opponent's hand.",
         "color": "Purple",
         "dominant": false,
@@ -695,7 +695,7 @@
     {
         "card_name": "Inventive",
         "points": 1,
-        "img": "Inventive.png",
+        "img": "images/doomlings_basegame_images/cards/Inventive.png",
         "text": "Play an action from an opponent's trait pile.",
         "color": "Purple",
         "dominant": false,
@@ -704,7 +704,7 @@
     {
         "card_name": "Memory",
         "points": 2,
-        "img": "Memory.png",
+        "img": "images/doomlings_basegame_images/cards/Memory.png",
         "text": "You may discard your hand and stabilize.",
         "color": "Purple",
         "dominant": false,
@@ -713,7 +713,7 @@
     {
         "card_name": "Nocturnal",
         "points": 3,
-        "img": "Nocturnal.png",
+        "img": "images/doomlings_basegame_images/cards/Nocturnal.png",
         "text": "",
         "color": "Purple",
         "dominant": false,
@@ -722,7 +722,7 @@
     {
         "card_name": "Nosy",
         "points": 1,
-        "img": "Nosy.png",
+        "img": "images/doomlings_basegame_images/cards/Nosy.png",
         "text": "Look at 2 random cards from an opponent's hand. Steal 1 and play it Immediately.",
         "color": "Purple",
         "dominant": false,
@@ -731,7 +731,7 @@
     {
         "card_name": "Parasitic",
         "points": -2,
-        "img": "Parasitic.png",
+        "img": "images/doomlings_basegame_images/cards/Parasitic.png",
         "text": "You may play Parasitic from your hand when an opponenet plays a trait. Steal that trait. Stop its action.",
         "color": "Purple",
         "dominant": false,
@@ -740,7 +740,7 @@
     {
         "card_name": "Persuasive",
         "points": 1,
-        "img": "Persuasive.png",
+        "img": "images/doomlings_basegame_images/cards/Persuasive.png",
         "text": "Choose a color. All players discard all cards of that color from their hand.(Including yourself!).",
         "color": "Purple",
         "dominant": false,
@@ -749,7 +749,7 @@
     {
         "card_name": "Poisonous",
         "points": 2,
-        "img": "Poisonous.png",
+        "img": "images/doomlings_basegame_images/cards/Poisonous.png",
         "text": "Swap Poisonous with a trait from an opponent's trait pile.",
         "color": "Purple",
         "dominant": false,
@@ -758,7 +758,7 @@
     {
         "card_name": "Selfish",
         "points": 1,
-        "img": "Selfish.png",
+        "img": "images/doomlings_basegame_images/cards/Selfish.png",
         "text": "Steal a red trait from an opponenet's trait pile",
         "color": "Purple",
         "dominant": false,
@@ -767,7 +767,7 @@
     {
         "card_name": "Sneaky",
         "points": 2,
-        "img": "Sneaky.png",
+        "img": "images/doomlings_basegame_images/cards/Sneaky.png",
         "text": "At World's End: You may play Sneaky from your hand.",
         "color": "Purple",
         "dominant": false,
@@ -776,7 +776,7 @@
     {
         "card_name": "Sticky Secretions",
         "points": -1,
-        "img": "Sticky_Secretions.png",
+        "img": "images/doomlings_basegame_images/cards/Sticky_Secretions.png",
         "text": "+1 for each purple trait in your trait pile.(Including this one)",
         "color": "Purple",
         "dominant": false,
@@ -785,7 +785,7 @@
     {
         "card_name": "Super Spreader",
         "points": 2,
-        "img": "Super_Spreader.png",
+        "img": "images/doomlings_basegame_images/cards/Super_Spreader.png",
         "text": "All players recieve -1 Gene Pool(Including yourself.)",
         "color": "Purple",
         "dominant": false,
@@ -794,7 +794,7 @@
     {
         "card_name": "Teeth",
         "points": 1,
-        "img": "Teeth.png",
+        "img": "images/doomlings_basegame_images/cards/Teeth.png",
         "text": "+1 Gene Pool",
         "color": "Purple",
         "dominant": false,
@@ -803,7 +803,7 @@
     {
         "card_name": "Telekinetic",
         "points": 1,
-        "img": "Telekinetic.png",
+        "img": "images/doomlings_basegame_images/cards/Telekinetic.png",
         "text": "Swap 1 trait from your trait pile with an opponent's trait of a different color.",
         "color": "Purple",
         "dominant": false,
@@ -812,7 +812,7 @@
     {
         "card_name": "Ven0mous",
         "points": -2,
-        "img": "Ven0mous.png",
+        "img": "images/doomlings_basegame_images/cards/Ven0mous.png",
         "text": "Play another trait. Then move Venomous to an opponent's trait pile.",
         "color": "Purple",
         "dominant": false,
@@ -821,7 +821,7 @@
     {
         "card_name": "ApexPredator",
         "points": 4,
-        "img": "Apex_Predator.png",
+        "img": "images/doomlings_basegame_images/cards/Apex_Predator.png",
         "text": "+4 if you have more traits in your trait pile then your opponents.(Ties dont count!)",
         "color": "Red",
         "dominant": true,
@@ -830,7 +830,7 @@
     {
         "card_name": "Hyper-Intelligence",
         "points": 4,
-        "img": "Hyper_Intelligence.png",
+        "img": "images/doomlings_basegame_images/cards/Hyper_Intelligence.png",
         "text": "At World's End: Choose a color. Opponents discard 1 trait of that color from thier trait pile at random.",
         "color": "Red",
         "dominant": true,
@@ -839,7 +839,7 @@
     {
         "card_name": "Sentience",
         "points": 2,
-        "img": "Sentience.png",
+        "img": "images/doomlings_basegame_images/cards/Sentience.png",
         "text": "At World's End: Choose a color. +1 for all traits of that color in your trait pile.",
         "color": "Red",
         "dominant": true,
@@ -848,7 +848,7 @@
     {
         "card_name": "Antlers",
         "points": 3,
-        "img": "Antlers.png",
+        "img": "images/doomlings_basegame_images/cards/Antlers.png",
         "text": "",
         "color": "Red",
         "dominant": false,
@@ -857,7 +857,7 @@
     {
         "card_name": "Bad",
         "points": 1,
-        "img": "Bad.png",
+        "img": "images/doomlings_basegame_images/cards/Bad.png",
         "text": "Opponents discard 2 cards from thier hand at random.",
         "color": "Red",
         "dominant": false,
@@ -866,7 +866,7 @@
     {
         "card_name": "Brave",
         "points": 1,
-        "img": "Brave.png",
+        "img": "images/doomlings_basegame_images/cards/Brave.png",
         "text": "+2 for each dominant trait in your hand",
         "color": "Red",
         "dominant": false,
@@ -875,7 +875,7 @@
     {
         "card_name": "Brute Strength",
         "points": 4,
-        "img": "Brute_Strength.png",
+        "img": "images/doomlings_basegame_images/cards/Brute_Strength.png",
         "text": "-1 Gene Pool",
         "color": "Red",
         "dominant": false,
@@ -884,7 +884,7 @@
     {
         "card_name": "Endurance",
         "points": 1,
-        "img": "Endurance.png",
+        "img": "images/doomlings_basegame_images/cards/Endurance.png",
         "text": "Whenever you discard Endurance from your trait pile, return it to your trait pile.",
         "color": "Red",
         "dominant": false,
@@ -893,7 +893,7 @@
     {
         "card_name": "Fangs",
         "points": 1,
-        "img": "Fangs.png",
+        "img": "images/doomlings_basegame_images/cards/Fangs.png",
         "text": "",
         "color": "Red",
         "dominant": false,
@@ -902,7 +902,7 @@
     {
         "card_name": "Fire Skin",
         "points": 3,
-        "img": "Fire_Skin.png",
+        "img": "images/doomlings_basegame_images/cards/Fire_Skin.png",
         "text": "",
         "color": "Red",
         "dominant": false,
@@ -911,7 +911,7 @@
     {
         "card_name": "Heat Vision",
         "points": -1,
-        "img": "Heat_Vision.png",
+        "img": "images/doomlings_basegame_images/cards/Heat_Vision.png",
         "text": "+1 for each red trait in your trait pile.(Including this one)",
         "color": "Red",
         "dominant": false,
@@ -920,7 +920,7 @@
     {
         "card_name": "Hot Temper",
         "points": 2,
-        "img": "Hot Temper.png",
+        "img": "images/doomlings_basegame_images/cards/Hot Temper.png",
         "text": "Discard 2 Cards from your hand.",
         "color": "Red",
         "dominant": false,
@@ -929,7 +929,7 @@
     {
         "card_name": "Kidney",
         "points": 0,
-        "img": "Kidney_Beer_Helm.png",
+        "img": "images/doomlings_basegame_images/cards/Kidney_Beer_Helm.png",
         "text": "Value is equal to the number of Kidneys in your trait pile.(Including this one).",
         "color": "Red",
         "dominant": false,
@@ -938,7 +938,7 @@
     {
         "card_name": "Kidney",
         "points": 0,
-        "img": "Kidney_Chefs_Toque.png",
+        "img": "images/doomlings_basegame_images/cards/Kidney_Chefs_Toque.png",
         "text": "Value is equal to the number of Kidneys in your trait pile.(Including this one).",
         "color": "Red",
         "dominant": false,
@@ -947,7 +947,7 @@
     {
         "card_name": "Kidney",
         "points": 0,
-        "img": "Kidney_Combover.png",
+        "img": "images/doomlings_basegame_images/cards/Kidney_Combover.png",
         "text": "Value is equal to the number of Kidneys in your trait pile.(Including this one).",
         "color": "Red",
         "dominant": false,
@@ -956,7 +956,7 @@
     {
         "card_name": "Kidney",
         "points": 0,
-        "img": "Kidney_Elf_Hat.png",
+        "img": "images/doomlings_basegame_images/cards/Kidney_Elf_Hat.png",
         "text": "Value is equal to the number of Kidneys in your trait pile.(Including this one).",
         "color": "Red",
         "dominant": false,
@@ -965,7 +965,7 @@
     {
         "card_name": "Kidney",
         "points": 0,
-        "img": "Kidney_Party_Hat.png",
+        "img": "images/doomlings_basegame_images/cards/Kidney_Party_Hat.png",
         "text": "Value is equal to the number of Kidneys in your trait pile.(Including this one).",
         "color": "Red",
         "dominant": false,
@@ -974,7 +974,7 @@
     {
         "card_name": "Kidney",
         "points": 0,
-        "img": "Kidney_Tiara.png",
+        "img": "images/doomlings_basegame_images/cards/Kidney_Tiara.png",
         "text": "Value is equal to the number of Kidneys in your trait pile.(Including this one).",
         "color": "Red",
         "dominant": false,
@@ -983,7 +983,7 @@
     {
         "card_name": "Quick",
         "points": 2,
-        "img": "Quick.png",
+        "img": "images/doomlings_basegame_images/cards/Quick.png",
         "text": "",
         "color": "Red",
         "dominant": false,
@@ -992,7 +992,7 @@
     {
         "card_name": "Reckless",
         "points": 3,
-        "img": "Reckless.png",
+        "img": "images/doomlings_basegame_images/cards/Reckless.png",
         "text": "You and an opponent discard 1 trait from each other's trait pile.(Excluding this one.)",
         "color": "Red",
         "dominant": false,
@@ -1001,7 +1001,7 @@
     {
         "card_name": "Retractable Claws",
         "points": 5,
-        "img": "Retractable_Claws.png",
+        "img": "images/doomlings_basegame_images/cards/Retractable_Claws.png",
         "text": "To play, you must discard 1 red trait from your trait pile.",
         "color": "Red",
         "dominant": false,
@@ -1010,7 +1010,7 @@
     {
         "card_name": "Stone Skin",
         "points": 2,
-        "img": "Stone_Skin.png",
+        "img": "images/doomlings_basegame_images/cards/Stone_Skin.png",
         "text": "",
         "color": "Red",
         "dominant": false,
@@ -1019,7 +1019,7 @@
     {
         "card_name": "Terretorial",
         "points": 1,
-        "img": "Terretorial.png",
+        "img": "images/doomlings_basegame_images/cards/Terretorial.png",
         "text": "All opponents discard 1 red trait from thier trait pile.",
         "color": "Red",
         "dominant": false,
@@ -1028,7 +1028,7 @@
     {
         "card_name": "Voracious",
         "points": 2,
-        "img": "Voracious.png",
+        "img": "images/doomlings_basegame_images/cards/Voracious.png",
         "text": "Play another trait. Then discard 1 trait from your trait pile.",
         "color": "Red",
         "dominant": false,
@@ -1037,7 +1037,7 @@
     {
         "card_name": "Warm Blood",
         "points": -1,
-        "img": "Warm_Blood.png",
+        "img": "images/doomlings_basegame_images/cards/Warm_Blood.png",
         "text": "+2 Gene Pool",
         "color": "Red",
         "dominant": false,
