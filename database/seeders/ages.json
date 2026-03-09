@@ -1,0 +1,263 @@
+[
+    {
+        "age_name": "Age of Peace",
+        "img": "images/doomlings_basegame_images/ages/Age_of_Peace",
+        "text": "Ignore all trait actions",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Glacial Drift",
+        "img": "images/doomlings_basegame_images/ages/Glacial_Drift",
+        "text": "You may only play traits with a face value of 3 or lower",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Lunar Retreat",
+        "img": "images/doomlings_basegame_images/ages/Lunar_Retreat",
+        "text": "If you play an effectless trait, you may play another effectless trait.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "High Tides",
+        "img": "images/doomlings_basegame_images/ages/High_Tides",
+        "text": "Players cannot play purple traits.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Northern Winds",
+        "img": "images/doomlings_basegame_images/ages/Northern_Winds",
+        "text": "Draw 1 card discard 1 card from your hand",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Age of Wonder",
+        "img": "images/doomlings_basegame_images/ages/Age_of_Wonder",
+        "text": "You must end your turn with 4 cards in your hand.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Alien Terraform",
+        "img": "images/doomlings_basegame_images/ages/Alien_Terraform",
+        "text": "You may discard dominant cards from your hand. If you do, then stabilize immediately",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Awakening",
+        "img": "images/doomlings_basegame_images/ages/Awakening",
+        "text": "Preview the next age before your turn.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Galactic Drift",
+        "img": "images/doomlings_basegame_images/ages/Galactic_Drift",
+        "text": "If you play a colorless trait, you may play another colorless trait.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Birth of a Hero",
+        "img": "images/doomlings_basegame_images/ages/Birth_of_a_Hero",
+        "text": "If you hold Heroic, play it now without restriction.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Coastal Formations",
+        "img": "images/doomlings_basegame_images/ages/Coastal_Formations",
+        "text": "Draw 1 card after you stabilize.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Flourish",
+        "img": "images/doomlings_basegame_images/ages/Flourish",
+        "text": "Draw 2 Cards",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Natural Harmony",
+        "img": "images/doomlings_basegame_images/ages/Natural_Harmony",
+        "text": "You may not play a trait of the same color as the last trait played.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Prosperity",
+        "img": "images/doomlings_basegame_images/ages/Prosperity",
+        "text": "At the end of your turn, you may chose not to stabilize.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Reforestation",
+        "img": "images/doomlings_basegame_images/ages/Reforestation",
+        "text": "Traits in your trait pile cannot be swapped, stolen, or discarded.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Tectonic Shifts",
+        "img": "images/doomlings_basegame_images/ages/Tectonic_Shifts",
+        "text": "Players cannot play green traits.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Tropical Lands",
+        "img": "images/doomlings_basegame_images/ages/Tropical_Lands",
+        "text": "Players cannot play colorless traits.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Age of Dracula",
+        "img": "images/doomlings_basegame_images/ages/Age_of_Dracula",
+        "text": "Fiscard 1 random card fromm your hand. If Vampirism is in your trait pile, steal one random card from your opponent's hand.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Age of Nietzsche",
+        "img": "images/doomlings_basegame_images/ages/Age_of_Nietzsche",
+        "text": "Instead of stabilizing this turn, you may discard your hand and draw 3 cards.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Eclipse",
+        "img": "images/doomlings_basegame_images/ages/Eclipse",
+        "text": "Players cannot play red traits.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Enlightenment",
+        "img": "images/doomlings_basegame_images/ages/Enlightenment",
+        "text": "You may discard up to 2 cards from your hand before you stabilize.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Age of Reason",
+        "img": "images/doomlings_basegame_images/ages/Age_of_Reason",
+        "text": "Draw 3 cards. Keep 1. Discard the other 2.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Arid Lands",
+        "img": "images/doomlings_basegame_images/ages/Arid_Lands",
+        "text": "Players cannot play blue traits.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "Comet Showers",
+        "img": "images/doomlings_basegame_images/ages/Comet_Showers",
+        "text": "Discard 1 card from your hand at random.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "The Messiah",
+        "img": "images/doomlings_basegame_images/ages/The_Messiah",
+        "text": "Play this age in reverse: first player last and last player first.",
+        "catastrophe": false
+    },
+    {
+        "age_name": "The Big One",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/The_Big_One",
+        "text": "-1 Gene Pool. Give 1 card from your hand to the opponent(s) on your left and right.",
+        "catastrophe": true,
+        "World_End_text": "World's End: -2 to your score for each color missing from your trait pile. "
+    },
+    {
+        "age_name": "Deus Ex Machina",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/Deus_Ex_Machina",
+        "text": "+0 Gene Pool. Stabilize. Crisis Averted",
+        "catastrophe": true,
+        "World_End_text": "World's End: Draw a card. Add its face value to your final score(+5 max). Then discard it."
+    },
+    {
+        "age_name": "Overpopulation",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/Overpopulation",
+        "text": "+1 Gene Pool. Draw 1 card for every color type in your trait pile.",
+        "catastrophe": true,
+        "World_End_text": "World's End: +4 points to the player(s) with the fewest traits in thier trait pile."
+    },
+    {
+        "age_name": "Glacial Meltdown",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/Glacial_Meltdown",
+        "text": "-1 Gene Pool. Discard 2 cards from your hand at random.",
+        "catastrophe": true,
+        "World_End_text": "World's End: Discard 1 blue trait from your trait pile."
+    },
+    {
+        "age_name": "Ice Age",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/Ice_Age",
+        "text": "-1 Gene Pool. Discard 1 card from your hand for every red trait in your trait pile.",
+        "catastrophe": true,
+        "World_End_text": "World's End: -1 for every red trait in your trait pile."
+    },
+    {
+        "age_name": "Mega Tsunami",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/Mega_Tsunami",
+        "text": "-1 Gene Pool. Pass your hand to the right.",
+        "catastrophe": true,
+        "World_End_text": "World's End: Discard 1 red trait from your trait pile."
+    },
+    {
+        "age_name": "The Four Horsemen",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/The_Four_Horsemen",
+        "text": "-1 Gene Pool. Discard 1 trait from your trait pile.",
+        "catastrophe": true,
+        "World_End_text": "World's End: Discard 1 trait from your trait pile with a face value of 4 or higher."
+    },
+    {
+        "age_name": "Grey Goo",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/Grey_Goo",
+        "text": "+0 Gene Pool. Discard your hand and stabilize.",
+        "catastrophe": true,
+        "World_End_text": "World's End: -5 Points to the player(s) with the most traits in thier trait pile."
+    },
+    {
+        "age_name": "Mass Extinction",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/Mass_Extinction",
+        "text": "-1 Gene Pool. Discard 1 card from your hand for every colorless trait in your trait pile.",
+        "catastrophe": true,
+        "World_End_text": "World's End: Discard 1 green trait from your trait pile."
+    },
+    {
+        "age_name": "Nuclear Winter",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/Nuclear_Winter",
+        "text": "-1 Gene Pool. Stabilize. Then discard 1 card from your hand.",
+        "catastrophe": true,
+        "World_End_text": "World's End: Discard 1 colorless trait from your trait pile."
+    },
+    {
+        "age_name": "Solar Flare",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/Solar_Flare",
+        "text": "-1 Gene Pool. Discard half your hand rounded up.",
+        "catastrophe": true,
+        "World_End_text": "World's End: -1 for every purple trait in your trait pile."
+    },
+    {
+        "age_name": "Super Volcano",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/Super_Volcano",
+        "text": "Discard 1 card from your hand for every blue trait in your trait pile.",
+        "catastrophe": true,
+        "World_End_text": "World's End: -1 for every blue trait in your trait pile."
+    },
+    {
+        "age_name": "AI Takeover",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/AI_Takeover",
+        "text": "-1 Gene Pool. Discard all but 1 card from your hand.",
+        "catastrophe": true,
+        "World_End_text": "World's End: Each colorless trait is now worth 2. Ignore all colorless trait effects.(Excluding dominants.)"
+    },
+    {
+        "age_name": "Pulse Event",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/Pulse_Event",
+        "text": "-1 Gene Pool. Discard 1 card from your hand for every purple trait in your trait pile.",
+        "catastrophe": true,
+        "World_End_text": "World's End: Discard purple trait from your trait pile."
+    },
+    {
+        "age_name": "Retrovirus",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/Retrovirus",
+        "text": "-1 Gene Pool. Discard 1 card from your hand for every green trait in your trait pile.",
+        "catastrophe": true,
+        "World_End_text": "World's End: -1 for every green trait in your trait pile."
+    },
+    {
+        "age_name": "The Birth of Life",
+        "img": "images/doomlings_basegame_images/ages/images/doomlings_basegame_images/ages/The_Birth_of_Life",
+        "text": "Set your Gene Pool to 5. Play 1 trait each turn. Stabilize to end your turn.",
+        "catastrophe": false
+    }
+]
