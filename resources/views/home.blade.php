@@ -27,8 +27,8 @@
                                 <div class="card-body">
                                     <div class="small text-muted">Strategy Card Game</div>
                                     <h2 class="card-title h4">Doomlings</h2>
-                                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reiciendis aliquid atque, nulla.</p>
-                                    <a class="btn btn-primary" href="#!">Play →</a>
+                                    <p class="card-text">Build the highest-scoring species before the world ends. 2-4 players</p>
+                                    <a class="btn btn-primary" href="{{ route('doomling') }}">Play →</a>
                                 </div>
                             </div>
                         </div>
