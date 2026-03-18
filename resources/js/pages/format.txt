@@ -1,0 +1,13 @@
+resources/js/
+├── bootstrap.js         ← Axios global setup (Laravel default)
+├── echo.js              ← WebSocket connection to Reverb
+├── api.js               ← Axios instance + CSRF token + error handling
+├── game.js              ← GameAPI functions (move, attack, join, leave)
+└── pages/
+    └── game.js          ← puts it all together (wires up Echo + GameAPI to your UI)
+
+    Migrations + Models
+Routes + Controllers (basic responses first)
+Events + channel auth
+Blade views
+Frontend JS (lobby.js then game.js)

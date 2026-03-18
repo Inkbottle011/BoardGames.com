@@ -10,15 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('doomlings_deck', function (Blueprint $table) {
+        Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->string('card_name');
-            $table->integer('points');
-            $table->string('img');
-            $table->string('text')->nullable();
-            $table->string('color');
-            $table->boolean('dominant');
-            $table->boolean('action');
+            $table->foreignId('game_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->text('body');
             $table->timestamps();
         });
     }
@@ -28,6 +24,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('doomlings_deck');
+        Schema::dropIfExists('messages');
     }
 };
