@@ -7,3 +7,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::view('/doomling','doomling')->name('doomling');
+
+Route::get('/cards', function(){
+    return DB::table('doomlings_deck')->get();
+});

@@ -9,4 +9,5 @@
 
 <div id="app"></div>
 
-@vite('resources/js/app.js')
+@viteReactRefresh
+@vite('resources/js/app.jsx')
