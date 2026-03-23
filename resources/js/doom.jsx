@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+<<<<<<< HEAD
 //import Hand from "./Hand";
 import Board from "./components/board";
 import { useEffect } from "react";
@@ -32,4 +33,12 @@ export default function Doom() {
             ))}
         </div>
     );
+=======
+import Hand from "./Hand";
+import Board from "./Board";
+
+export default function Doom() {
+    // const [hand, setHand] = useState([
+    // ]);
+>>>>>>> 52b1dc2 (rebase)
 }
