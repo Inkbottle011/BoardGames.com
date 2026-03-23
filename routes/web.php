@@ -10,8 +10,9 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
-Route::view('/doomling', 'doomling')->name('doomling');
+Route::view('/doomling','doomling')->name('doomling');
 
+<<<<<<< HEAD
 Route::middleware(['auth'])->group(function () {
     // lobby
     Route::get('/lobby', [LobbyController::class, 'index']);
@@ -27,4 +28,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/cards', function(){
     return DB::table('doomlings_deck')->get();
 });
+=======
+Route::get('/cards', function(){
+    return DB::table('doomlings_deck')->get();
+>>>>>>> df8ac1f (test)
 });
