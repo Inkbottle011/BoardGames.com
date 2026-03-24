@@ -1,6 +1,5 @@
-@extends ('layouts.app')
+@extends('layouts.app')
 
-@section('blahhh')
-    
-
+@section('ughhh')
+    <div id="root"></div>
 @endsection

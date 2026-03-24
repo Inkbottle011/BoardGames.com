@@ -1,5 +1,6 @@
 import * as CardEffects from "./CardEffects.js";
 import * as Deck from "./Deck.js";
+import { saveGameState } from "./game.js";
 
 //================================================
 // DATA STRUCTURES
@@ -82,7 +83,7 @@ function checkGameOver() {
 // CARD PLAYING
 //================================================
 
-function play(index) {
+async function play(index) {
     let currentPlayer = GameState.currentPlayer;
     let players = GameState.players;
     if (index < 0 || index >= currentPlayer.cards.length) return;
@@ -91,6 +92,7 @@ function play(index) {
     onCardPlayed(card, currentPlayer, players);
     resolveCard(card, currentPlayer, players);
     endTurn();
+    await saveGameState(gameId, GameState, deck, discardPile, Ages);
 }
 
 function resolveCard(card, currentPlayer, players) {

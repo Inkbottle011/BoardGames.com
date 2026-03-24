@@ -23,4 +23,6 @@ Route::middleware(['auth'])->group(function () {
 
     // chat
     Route::post('/game/{game}/chat', [ChatController::class, 'send']);
+
+    Route::get('/cards/{id}', [GameController::class, 'getCard']);
 });

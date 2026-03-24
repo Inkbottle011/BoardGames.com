@@ -11,3 +11,34 @@ Routes + Controllers (basic responses first)
 Events + channel auth
 Blade views
 Frontend JS (lobby.js then game.js)
+
+resources/js/game.js        ← change the API endpoints or data being posted
+resources/js/api.js         ← change headers, base URL, error handling
+resources/js/pages/game.js  ← change what triggers the send and when
+
+
+
+
+npm run dev
+```
+
+---
+
+So every time you start development you need:
+```
+Herd          → running in background (automatic)
+reverb:start  → WebSocket server
+php artisan reverb:start
+
+queue:listen  → processes broadcast events
+php artisan queue:listen
+
+npm run dev   → compiles JS changes
+```
+
+If any of these aren't running:
+```
+Herd not running        → website won't load at all
+reverb:start missing    → WebSocket won't connect, no real time updates
+queue:listen missing    → events fire but never get broadcast to players
+npm run dev missing     → JS changes won't show up
