@@ -1,7 +1,7 @@
 import "./bootstrap";
-import "./echo";
-import React from "react";
-import { createRoot } from "react-dom/client";
-import GameBoard from "./components/GameBoard";
 
-createRoot(document.getElementById("root")).render(<GameBoard />);
+import React from "react";
+import ReactDOM from "react-dom/client";
+import Doom from "./doom";
+
+ReactDOM.createRoot(document.getElementById("app")).render(<Doom />);
