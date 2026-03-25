@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('games', function (Blueprint $table) {
+        Schema::create('gamecatalogues', function (Blueprint $table) {
             $table->id();
             $table->string('thumbnail')->nullable();
             $table->string('title');
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('games');
+        Schema::dropIfExists('gamecatalogues');
     }
 };
