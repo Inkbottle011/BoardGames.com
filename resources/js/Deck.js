@@ -105,7 +105,7 @@ function shuffleDeck() {
 //================================================
 
 async function draw(playerhand) {
-    if (playerhand.cards.length < playerhand.size && deck.length > 0) {
+    if (deck.length > 0) {
         let cardid = deck.pop();
         let newcard = await CreateCard(cardid);
         if (newcard) playerhand.cards.push(newcard);
@@ -143,3 +143,4 @@ export {
     getOpponents,
     buildDeck,
 };
+
