@@ -24,7 +24,16 @@ Route::middleware(['auth'])->group(function () {
 
     // chat
     Route::post('/game/{game}/chat', [ChatController::class, 'send']);
+<<<<<<< Updated upstream
     Route::get('/cards', function () {
         return DB::table('doomlings_deck')->get();
     });
 });
+=======
+    
+});
+
+Route::get('/cards', function(){
+    return DB::table('doomlings_deck')->get();
+});
+>>>>>>> Stashed changes

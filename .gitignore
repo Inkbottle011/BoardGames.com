@@ -22,4 +22,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+<<<<<<< Updated upstream
 package-lock.json
+=======
+package-lock.json
+>>>>>>> Stashed changes
