@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Models\Game;
+use App\Models\GameCatalogue;
 
 class GameController extends Controller
 {
     public function index()
 {
-    $games = Game::all();
+    $games = GameCatalogue::all();
     return view('home', compact('games'));
 }
 }
