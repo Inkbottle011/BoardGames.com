@@ -25,3 +25,4 @@ Thumbs.db
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+*.package-lock.json
