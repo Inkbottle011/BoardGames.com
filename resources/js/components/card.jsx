@@ -1,14 +1,24 @@
 export default function Card({ card, onPlay }) {
     return (
-        <div className="card" onClick={() => onPlay(card)}>
-            <h3>{card.name}</h3>
+        <div className="w-28 h-40 bg-white rounded-2xl shadow-xl p-2 flex flex-col justify-between hover:scale-105 transition">
+            {/*Name*/}
+            <h4 className="text-sm font bold text-gray-800">
+                {card.card_name}
+            </h4>
 
-            <p>{card.points}</p>
-            <p>{card.text}</p>
+            {/*image*/}
+            <div className="flex-1 flex items-center justify-center">
+                <img
+                    src={card.image_url}
+                    alt={card.card_namename}
+                    className="max-h-16 objects-contain"
+                />
+            </div>
 
-            <img src={card.image_url} alt={card.name} />
-
-            <p>{card.description}</p>
+            {/*points*/}
+            <div className="text-xs text-gray-600 text-right">
+                {card.points}pts
+            </div>
         </div>
     );
 }

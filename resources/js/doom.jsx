@@ -12,12 +12,18 @@ export default function Doom() {
     }, []);
     const testState = {
         age: 1,
-        currentPlayer: {
-            traits: [
-                { id: 1, name: "Spiky" },
-                { id: 2, name: "Swift" },
-            ],
-        },
+        players: [
+            { traits: [{ id: 1, name: "Spiky" }] },
+            { traits: [{ id: 2, name: "Swift" }] },
+            { traits: [{ id: 3, name: "Heavy" }] },
+            {
+                traits: [{ id: 4, name: "Smart" }],
+                hand: [
+                    { id: 1, card_name: "Claw", points: 2, img: "/img1.png" },
+                    { id: 2, card_name: "Wings", points: 3, img: "/img2.png" },
+                ],
+            },
+        ],
     };
 
     return (

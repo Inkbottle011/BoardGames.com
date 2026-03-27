@@ -22,7 +22,18 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+<<<<<<< HEAD
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
+<<<<<<< HEAD
 *.package-lock.json
+=======
+=======
+<<<<<<< Updated upstream
+package-lock.json
+=======
+package-lock.json
+>>>>>>> Stashed changes
+>>>>>>> eb33814 (temp)
+>>>>>>> 3d037f9 (temp)

@@ -5,15 +5,27 @@ use App\Http\Controllers\LobbyController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\GameCatalogueController;
 use App\Http\Controllers\ChatController;
+use Illuminate\Support\Facades\DB;
 
 Route::get('/', [GameCatalogueController::class, 'index'])->name('home');
 
-Route::get('/game/{game}', [GameController::class, 'show'])->name('game.show');
-Route::post('/game/{game}/turn', [GameController::class, 'playTurn'])->name('game.turn');
+Route::view('/doomling', 'doomling')->name('doomling');
 
-Route::get('/doomling', function () {
-    return view('doomling');
-})->name('doomling');
-Route::get('/login', function () {
-    return view('Authentification');
-})->name('authentication');
+Route::middleware(['auth'])->group(function () {
+    // lobby
+    Route::get('/lobby', [LobbyController::class, 'index']);
+    Route::post('/lobby/create', [LobbyController::class, 'create']);
+    Route::post('/lobby/join/{game}', [LobbyController::class, 'join']);
+
+    // game
+    Route::get('/game/{game}', [GameController::class, 'show']);
+    Route::post('/game/{game}/turn', [GameController::class, 'playTurn']);
+
+    // chat
+    Route::post('/game/{game}/chat', [ChatController::class, 'send']);
+    
+});
+
+Route::get('/cards', function(){
+    return DB::table('doomlings_deck')->get();
+});
