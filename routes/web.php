@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\DB;
 
 Route::get('/', [GameCatalogueController::class, 'index'])->name('home');
 
+Route::get('/doomling', function () {
+    return view('doomling');
+});
 Route::view('/doomling', 'doomling')->name('doomling');
 
 Route::middleware(['auth'])->group(function () {

@@ -1,15 +1,16 @@
 //import Hand from "./Hand";
 import Board from "./components/board";
 import { useEffect } from "react";
+import { useState } from "react";
 
 export default function Doom() {
     const [cards, setCards] = useState([]);
 
-    useEffect(() => {
-        fetch("/cards")
-            .then((response) => response.json())
-            .then((data) => setCards(data));
-    }, []);
+    // useEffect(() => {
+    //     fetch("/cards")
+    //         .then((response) => response.json())
+    //         .then((data) => setCards(data));
+    // }, []);
     const testState = {
         age: 1,
         players: [
@@ -27,13 +28,13 @@ export default function Doom() {
     };
 
     return (
-        <div>
+        <div className="w-screen h-screen">
             <h1>Doom Mfkr</h1>
             <Board gameState={testState} />
 
             <h2>Cards</h2>
             {cards.map((card) => (
-                <div key={card.id} card={card} />
+                <div key={card.id}>{card.name}</div>
             ))}
         </div>
     );

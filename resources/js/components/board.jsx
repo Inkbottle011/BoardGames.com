@@ -1,37 +1,42 @@
+console.log("BOARD RENDERING");
+
+import Card from "./card";
+import PlayerArea from "./playerArea";
+
 export default function Board({ gameState }) {
     if (!gameState) {
         return <div>Loading...</div>;
     }
     return (
-        <div className="h-screen bg-gradient-to-br from-green-200 to-green-400 p-4 flex flex-col justify-between">
+        <div className="h-screen w-screen bg-green-300 p-4 grid grid-cols-3 grid-rows-3 gap-4">
             {/* Top Player */}
-            <div className="flex justify-center">
+            <div className="col-start-2 row-start-1 flex justify-center items-center">
                 <PlayerArea player={gameState.players[1]} label="Player 2" />
             </div>
 
-            {/* Middle Row */}
-            <div className="flex justify-between items-center">
-                {/* Left Player */}
+            {/* Left Player */}
+            <div className="col-start-1 row-start-2 flex justify-center items-center">
                 <PlayerArea player={gameState.players[0]} label="Player 1" />
+            </div>
 
-                {/* Center Age */}
-                <div className="bg-white px-6 py-4 rounded-2xl shadow-xl text-center border">
-                    <h2 className="text-2xl font-bold text-gray-800">
-                        Age {gameState.age}
-                    </h2>
-                    <p className="text-sm text-gray-500">Event Phase</p>
+            {/* Center */}
+            <div className="col-start-2 row-start-2 flex justify-center items-center">
+                <div className="bg-white p-6 rounded-xl shadow-lg text-center">
+                    <h2 className="text-xl font-bold">Age {gameState.age}</h2>
+                    <p>Event Phase</p>
                 </div>
+            </div>
 
-                {/* Right Player */}
+            {/* Right Player */}
+            <div className="col-start-3 row-start-2 flex justify-center items-center">
                 <PlayerArea player={gameState.players[2]} label="Player 3" />
             </div>
 
-            {/* Bottom Player (YOU) */}
-            <div className="flex flex-col items-center gap-2">
-                <PlayerArea player={gameState.players[3]} label="You" isYou />
+            {/* Bottom Player */}
+            <div className="col-start-2 row-start-3 flex flex-col items-center">
+                <PlayerArea player={gameState.players[3]} label="You" />
 
-                {/* Player Hand */}
-                <div className="flex gap-3 mt-2 overflow-x-auto p-2">
+                <div className="flex gap-2 mt-2">
                     {gameState.players[3].hand?.map((card) => (
                         <Card key={card.id} card={card} />
                     ))}
