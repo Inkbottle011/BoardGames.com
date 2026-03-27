@@ -1,4 +1,4 @@
-import Card from "./Card";
+import Card from ".card";
 
 export default function Hand({ cards, gameId, playerId, onPlay }) {
     const playCard = (cardId) => {
