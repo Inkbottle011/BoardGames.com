@@ -26,6 +26,7 @@ class PlayerHand extends Deck.PlayerHand {
 }
 
 let GameState = {
+    startindex: null,
     players: [],
     currentPlayer: null,
     currentAge: null,
@@ -42,6 +43,7 @@ async function gamestart(numPlayers) {
         GameState.players.push(new PlayerHand(i));
     }
     let startIndex = Math.floor(Math.random() * numPlayers);
+    GameState.startindex = startIndex;
     GameState.currentPlayer = GameState.players[startIndex];
     for (let player of GameState.players) {
         await Deck.drawMultiple(player, player.size);
@@ -67,13 +69,24 @@ async function endTurn() {
     let currentIndex = GameState.players.indexOf(GameState.currentPlayer);
     let nextIndex = (currentIndex + 1) % GameState.players.length;
     GameState.currentPlayer = GameState.players[nextIndex];
+    stabilize();
+}
+export function stabilize() {
     Deck.drawMultiple(
         GameState.currentPlayer,
         GameState.currentPlayer.size - GameState.currentPlayer.cards.length,
     );
     discardCardMultiple(GameState.currentPlayer, GameState.currentPlayer.cards.length - GameState.currentPlayer.size);
+<<<<<<< HEAD
+    let lateIndex = handSearch(Late, GameState.currentPlayer)
+    if (lateIndex != -1) {
+        let card = GameState.currentPlayer.cards[lateIndex];
+        GameState.currentPlayer.cards.splice(lateIndex, 1)
+        GameState.currentPlayer.traitpool.push(card);
+=======
     if (cardSearch(Late, GameState.currentPlayer)) {
 
+>>>>>>> 17931ed74b7ff760a747646b2303843b7323b561
     }
 }
 
@@ -103,7 +116,11 @@ export function play(index) {
     endTurn();
 }
 
+<<<<<<< HEAD
+export function cardSearch(card_name, currentPlayer) {
+=======
 function cardSearch(card_name, currentPlayer) {
+>>>>>>> 17931ed74b7ff760a747646b2303843b7323b561
     for (i < 0; i < currentPlayer.traitpool.length; i++) {
         if (currentPlayer.traitpool[i].card_name === card_name) {
             return i;
@@ -112,11 +129,27 @@ function cardSearch(card_name, currentPlayer) {
     return -1;
 }
 
+<<<<<<< HEAD
+function handSearch(card_name, currentPlayer) {
+    for (i < 0; i < currentPlayer.cards.length; i++) {
+        if (currentPlayer.cards[i].card_name === card_name) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+=======
+>>>>>>> 17931ed74b7ff760a747646b2303843b7323b561
 function runAgeEffect(currentPlayer, players) {
     let functionName =
         Ages[0].replace(/\s+/g, "").replace(/-/g, "") + "_effect";
     if (AgesEffects[functionName]) {
+<<<<<<< HEAD
+        AgesEffects[functionName](card, currentPlayer, players);
+=======
         AgesEffects[functionName](currentPlayer, players);
+>>>>>>> 17931ed74b7ff760a747646b2303843b7323b561
     } else {
         console.warn(`No function found for card: ${Ages[0].age_name}`);
     }
@@ -163,6 +196,26 @@ export function discardCard(playerhand) {
 
 }
 
+<<<<<<< HEAD
+export function discardRandomCard(playerhand) {
+    let index = Math.round(Math.random * playerhand.cards.length);
+    let card = playerhand.cards[index];
+    playerhand.cards.splice(index, 1);
+    if (card.card_name != "Endurance") {
+        discardPile.push(card);
+        if (cardSearch(RegenerativeTissue, playerhand) != -1) {
+            Deck.draw(playerhand);
+            let card = playerhand.cards.pop();
+            playerhand.traitpool.push(card);
+            onCardPlayed(card, playerhand, GameState.players);
+            resolveCard(card, playerhand, GameState.players);
+        }
+    }
+
+}
+
+=======
+>>>>>>> 17931ed74b7ff760a747646b2303843b7323b561
 export function discardCardMultiple(playerhand, num) {
     for (i = 0; i < num; i++) {
         if (index < 0 || index >= currentPlayer.cards.length) return;
@@ -244,7 +297,7 @@ function onCardPlayed(playedCard, playingPlayer, allPlayers) {
 // CARD ACTIONS (used by CardEffects.js)
 //================================================
 
-function StealHandCard(fromHand, toHand) {
+export function StealHandCard(fromHand, toHand) {
     if (fromHand.cards.length === 0) return;
     let randomIndex = Math.floor(Math.random() * fromHand.cards.length);
     toHand.cards.push(fromHand.cards[randomIndex]);
