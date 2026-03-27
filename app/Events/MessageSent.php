@@ -11,26 +11,25 @@ use Illuminate\Queue\SerializesModels;
 
 class MessageSent implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(public Message $message) {}
+public function __construct(public Message $message) {}
 
-    public function broadcastOn()
-    {
-        return new PresenceChannel("game.{$this->message->game_id}");
-    }
+public function broadcastOn()
+{
+return new PrivateChannel("game.{$this->message->game_id}");    }
 
-    public function broadcastWith()
-    {
-        return [
-            'message' => [
-                'id'   => $this->message->id,
-                'body' => $this->message->body,
-                'user' => [
-                    'id'   => $this->message->user->id,
-                    'name' => $this->message->user->name,
-                ],
-            ],
-        ];
-    }
+public function broadcastWith()
+{
+return [
+'message' => [
+'id'   => $this->message->id,
+'body' => $this->message->body,
+'user' => [
+'id'   => $this->message->user->id,
+'name' => $this->message->user->name,
+],
+],
+];
+}
 }

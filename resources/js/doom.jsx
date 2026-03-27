@@ -1,41 +1,101 @@
-//import Hand from "./Hand";
+import { useState, useEffect } from "react";
 import Board from "./components/board";
-import { useEffect } from "react";
-import { useState } from "react";
+import { loadFromServer, serializeForServer, GameState, play, discardCard, discardTrait } from "./Doomlings.js";
 
 export default function Doom() {
-    const [cards, setCards] = useState([]);
+    const [gameState, setGameState] = useState(null);
 
-    // useEffect(() => {
-    //     fetch("/cards")
-    //         .then((response) => response.json())
-    //         .then((data) => setCards(data));
-    // }, []);
-    const testState = {
-        age: 1,
-        players: [
-            { traits: [{ id: 1, name: "Spiky" }] },
-            { traits: [{ id: 2, name: "Swift" }] },
-            { traits: [{ id: 3, name: "Heavy" }] },
-            {
-                traits: [{ id: 4, name: "Smart" }],
-                hand: [
-                    { id: 1, card_name: "Claw", points: 2, img: "/img1.png" },
-                    { id: 2, card_name: "Wings", points: 3, img: "/img2.png" },
-                ],
+    const gameId = 1;
+    const playerId = 0;
+
+    function csrfToken() {
+        return document.querySelector('meta[name="csrf-token"]').content;
+    }
+
+    function syncState() {
+        setGameState({
+            players: GameState.players.map(p => ({
+                id: p.id,
+                hand: p.cards,
+                traitpool: p.traitpool,
+                genepool: p.genepool,
+                points: p.points,
+            })),
+            current_turn: GameState.currentPlayer?.id,
+            age: GameState.currentAge,
+            catastrophe: GameState.catastropheCount >= 3,
+            catastrophe_count: GameState.catastropheCount,
+        });
+    }
+
+    function saveToServer() {
+        return fetch(`/game/${gameId}/turn`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": csrfToken(),
             },
-        ],
-    };
+            credentials: "include",
+            body: JSON.stringify(serializeForServer()),
+        }).then(res => res.json());
+    }
+
+    function fetchGameState() {
+        fetch(`/game/${gameId}`, {
+            headers: {
+                "Accept": "application/json",
+                "X-CSRF-TOKEN": csrfToken(),
+            },
+            credentials: "include",
+        })
+            .then(res => res.json())
+            .then(data => {
+                loadFromServer(data);
+                syncState();
+            });
+    }
+
+    useEffect(() => {
+        fetchGameState();
+
+        window.Echo.private(`game.${gameId}`)
+            .listenForWhisper("playCard", () => {
+                fetchGameState();
+            });
+
+        return () => {
+            window.Echo.leave(`game.${gameId}`);
+        };
+    }, [gameId]);
+
+    function handlePlay(cardIndex) {
+        play(cardIndex);
+        syncState();
+        saveToServer();
+    }
+
+    function handleDiscard(playerhand, index) {
+        discardCard(playerhand, index);
+        syncState();
+        saveToServer();
+    }
+
+    function handleDiscardTrait(playerhand, index) {
+        discardTrait(playerhand, index);
+        syncState();
+        saveToServer();
+    }
 
     return (
-        <div className="w-screen h-screen">
-            <h1>Doom Mfkr</h1>
-            <Board gameState={testState} />
-
-            <h2>Cards</h2>
-            {cards.map((card) => (
-                <div key={card.id}>{card.name}</div>
-            ))}
+        <div>
+            <Board
+                gameState={gameState}
+                gameId={gameId}
+                playerId={playerId}
+                onPlay={handlePlay}
+                onDiscard={handleDiscard}
+                onDiscardTrait={handleDiscardTrait}
+            />
         </div>
     );
 }

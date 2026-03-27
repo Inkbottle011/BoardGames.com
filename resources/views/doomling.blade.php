@@ -1,13 +1,10 @@
- @extends ('layouts.game')
+@extends('layouts.app')
 
-{{--@section('blahhh')
-    <div id="app"></div>
+@section('ughhh')
+    <div id="app" class="w-screen h-screen"></div>
+@endsection
 
-    @vite('resources/js/app.js')
-
-@endsection --}}
-
-<div id="app" class="w-screen h-screen"></div>
-
-@viteReactRefresh
-@vite('resources/js/app.jsx', 'resources/css/app.css')
+@push('scripts')
+    @viteReactRefresh
+    @vite(['resources/js/app.jsx', 'resources/css/app.css'])
+@endpush

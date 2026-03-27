@@ -1,5 +1,5 @@
 import "./bootstrap";
-// import "./echo";
+import "./echo";
 
 import React from "react";
 import ReactDOM from "react-dom/client";

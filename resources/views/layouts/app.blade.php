@@ -6,12 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
+    <!-- Add this line -->
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>PlayPlex</title>
     <!-- Favicon-->
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
     <!-- Core theme CSS (includes Bootstrap)-->
-    <link href="{{ asset('css/styles.css') }}"rel="stylesheet" />
-    <link href="{{ asset('css/home.css') }}"rel="stylesheet" />
+    <link href="{{ asset('css/styles.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/home.css') }}" rel="stylesheet" />
+    @stack('scripts')
 </head>
 
 <body>

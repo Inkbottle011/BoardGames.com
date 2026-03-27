@@ -13,22 +13,23 @@ Route::get('/doomling', function () {
     return view('doomling');
 });
 Route::view('/doomling', 'doomling')->name('doomling');
+Route::get('/game/{game}', [GameController::class, 'show']);
+
 
 Route::middleware(['auth'])->group(function () {
-    // lobby
-    Route::get('/lobby', [LobbyController::class, 'index']);
-    Route::post('/lobby/create', [LobbyController::class, 'create']);
-    Route::post('/lobby/join/{game}', [LobbyController::class, 'join']);
+// lobby
+Route::get('/lobby', [LobbyController::class, 'index']);
+Route::post('/lobby/create', [LobbyController::class, 'create']);
+Route::post('/lobby/join/{game}', [LobbyController::class, 'join']);
 
-    // game
-    Route::get('/game/{game}', [GameController::class, 'show']);
-    Route::post('/game/{game}/turn', [GameController::class, 'playTurn']);
+// game
+Route::post('/game/{game}/turn', [GameController::class, 'playTurn']);
 
-    // chat
-    Route::post('/game/{game}/chat', [ChatController::class, 'send']);
-    
+// chat
+Route::post('/game/{game}/chat', [ChatController::class, 'send']);
+
 });
 
 Route::get('/cards', function(){
-    return DB::table('doomlings_deck')->get();
+return DB::table('doomlings_deck')->get();
 });

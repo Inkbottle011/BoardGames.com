@@ -17,9 +17,9 @@ function colorcounter(color, currentPlayer, card) {
                 }
             }
         }
-
-        )
-    }
+        
+    )
+}
 
 }
 
@@ -31,9 +31,9 @@ function value_equal_size(currentPlayer, card) {
         player.worldsEndEffects.push(() => {
             points += currentPlayer.size;
         }
-
-        )
-    }
+        
+    )
+}
 }
 
 //completed
@@ -52,9 +52,9 @@ function Imunity_Effect(currentPlayer, players) {
                 }
             }
         }
-
-        )
-    }
+        
+    )
+}
 }
 function Tiny_Effect(currentPlayer, players) {
     if (worldsend) {
@@ -63,10 +63,10 @@ function Tiny_Effect(currentPlayer, players) {
         player.worldsEndEffects.push(() => {
             card.points -= currentPlayer.traitpool.length
         }
-        )
-
-
-    }
+    )
+    
+    
+}
 }
 
 
@@ -89,15 +89,15 @@ function EggClusters_Effect(currentPlayer, players) {
         player.worldsEndEffects.push(() => {
             colorcounter("blue", currentPlayer, this.card);
         }
-
-        )
-    }
+        
+    )
+}
 }
 function Flight_Effect(currentPlayer, players) {
     let tempcards = currentPlayer.cards
     currentPlayer.cards = players[Doomlings.chooseOpponent(currentPlayer, players)].cards
     players[Doomlings.chooseOpponent(currentPlayer, players)].cards = tempcards
-
+    
 }
 function IridescentScales_Effect(currentPlayer, players) {
     Deck.drawMultiple(currentPlayer, 3);
@@ -117,7 +117,7 @@ function Scutes_Effect(currentPlayer, players) {
     let card = currentPlayer.traitpool[index];
     currentPlayer.traitpool.splice(index, 1);
     player.traitpool.push(card);
-
+    
 }
 function SelectiveMemory_Effect(currentPlayer, players) {
     if (index < 0 || index >= discardPile.length) return;
@@ -134,7 +134,7 @@ function Sweat_Effect(currentPlayer, players) {
 
 function Fecundity_Effect(currentPlayer, players) {
     currentPlayer.size += 1
-
+    
 }
 
 
@@ -145,9 +145,9 @@ function Fortunate_Effect(currentPlayer, players) {
         player.worldsEndEffects.push(() => {
             points += currentPlayer.cards.length
         }
-
-        )
-    }
+        
+    )
+}
 }
 
 function Overgrowth_Effect(currentPlayer, players) {
@@ -157,9 +157,9 @@ function Overgrowth_Effect(currentPlayer, players) {
         player.worldsEndEffects.push(() => {
             colorcounter("green", currentPlayer, this.card);
         }
-
-        )
-    }
+        
+    )
+}
 
 }
 function Photosynthesis_Effect(currentPlayer, players) {
@@ -174,15 +174,15 @@ function Photosynthesis_Effect(currentPlayer, players) {
         Doomlings.onCardPlayed(card, currentPlayer, players);
         Doomlings.resolveCard(card, currentPlayer, players);
     }
-
+    
 }
 function Propagation_Effect(currentPlayer, players) {
     Doomlings.play(index);
-
+    
 }
 
 function Pollination_Effect(currentPlayer, players) {
-
+    
     if (worldsend) {
         for (i = 0; i < currentPlayer.traitpool.length; i++) {
             if (currentPlayer.traitpool[i].value == 1) {
@@ -197,13 +197,13 @@ function Pollination_Effect(currentPlayer, players) {
                 }
             }
         }
-
-        )
-    }
+        
+    )
+}
 }
 function RandomFertilization_Effect(currentPlayer, players) {
     value_equal_size(currentPlayer, this.card);
-
+    
 }
 function SelfReplicating_Effect(currentPlayer, players) {
     if (index < 0 || index >= discardPile.length) return;
@@ -213,7 +213,7 @@ function SelfReplicating_Effect(currentPlayer, players) {
     if (!card.action) {
         Doomlings.resolveCard(card, currentPlayer, players);
     }
-
+    
 }
 
 function Kidney_Effect(currentPlayer, players) {
@@ -231,9 +231,9 @@ function Kidney_Effect(currentPlayer, players) {
                 }
             }
         }
-
-        )
-    }
+        
+    )
+}
 }
 
 function Swarm_Effect(currentPlayer, players) {
@@ -255,9 +255,9 @@ function Swarm_Effect(currentPlayer, players) {
                 }
             }
         }
-
-        )
-    }
+        
+    )
+}
 }
 
 function Trunk_Effect(currentPlayer, players) {
@@ -266,7 +266,7 @@ function Trunk_Effect(currentPlayer, players) {
     if (!card.action) {
         Doomlings.resolveCard(card, currentPlayer, players);
     }
-
+    
 }
 
 function Altruistic_Effect(currentPlayer, players) {
@@ -288,20 +288,20 @@ function Boredom_Effect(currentPlayer, players) {
                 }
             }
         }
-
-        )
-    }
+        
+    )
+}
 
 }
 
 
 function Introspective_Effect(currentPlayer, players) {
     Deck.drawMultiple(currentPlayer, 4);
-
+    
 }
 
 function Doting_Effect(currentPlayer, players) {
-
+    
     if (index < 0 || index >= currentPlayer.cards.length) return;
     let card = currentPlayer.cards[index];
     currentPlayer.cards.splice(index, 1);
@@ -316,7 +316,7 @@ function Eloquence_Effect(currentPlayer, players) {
             Doomlings.onCardPlayed(card, currentPlayer, players);
             Doomlings.resolveCard(card, currentPlayer, players);
         }
-
+        
     } else {
         player.worldsEndEffects.push(() => {
             if (index < 0 || index >= currentPlayer.cards.length) return;
@@ -326,20 +326,20 @@ function Eloquence_Effect(currentPlayer, players) {
                 Doomlings.onCardPlayed(card, currentPlayer, players);
                 Doomlings.resolveCard(card, currentPlayer, players);
             }
-
+            
         }
-
-        )
-    }
+        
+    )
+}
 
 }
 
 
 function Gratitude_Effect(currentPlayer, players) {
-
+    
     if (worldsend) {
         let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
-
+        
         for (i = 0; i < currentPlayer.traitpool.length; i++) {
             for (j = 0; j < colors.length; j++) {
                 if (currentPlayer.traitpool[i].color === colors[j]) {
@@ -348,11 +348,11 @@ function Gratitude_Effect(currentPlayer, players) {
                 }
             }
         }
-
+        
     } else {
         player.worldsEndEffects.push(() => {
             let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
-
+            
             for (i = 0; i < currentPlayer.traitpool.length; i++) {
                 for (j = 0; j < colors.length; j++) {
                     if (currentPlayer.traitpool[i].color === colors[j]) {
@@ -361,16 +361,16 @@ function Gratitude_Effect(currentPlayer, players) {
                     }
                 }
             }
-
+            
         }
-
-        )
-    }
+        
+    )
+}
 
 }
 function Just_Effect(currentPlayer, players) {
     currentPlayer.size += 1
-
+    
 }
 function Mitochondrion_Effect(currentPlayer, players) {
     currentPlayer.size += 1;
@@ -382,7 +382,7 @@ function Mindful_Effect(currentPlayer, players) {
 function Saudade_Effect(currentPlayer, players) {
     if (worldsend) {
         let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
-
+        
         for (i = 0; i < currentPlayer.cards.length; i++) {
             for (j = 0; j < colors.length; j++) {
                 if (currentPlayer.cards[i].color === colors[j]) {
@@ -394,7 +394,7 @@ function Saudade_Effect(currentPlayer, players) {
     } else {
         player.worldsEndEffects.push(() => {
             let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
-
+            
             for (i = 0; i < currentPlayer.cards.length; i++) {
                 for (j = 0; j < colors.length; j++) {
                     if (currentPlayer.cards[i].color === colors[j]) {
@@ -403,17 +403,17 @@ function Saudade_Effect(currentPlayer, players) {
                     }
                 }
             }
-
+            
         })
-
+        
     }
-
+    
 }
 
 function Camouflage_Effect(currentPlayer, players) {
     currentPlayer.size += 1;
     value_equal_size(currentPlayer, this.card);
-
+    
 }
 
 
@@ -439,7 +439,7 @@ function Viral_Effect(currentPlayer, players) { //maybe works idk
                 }
             }
         }
-
+        
     } else {
         player.worldsEndEffects.push(() => {
             let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
@@ -452,10 +452,10 @@ function Viral_Effect(currentPlayer, players) { //maybe works idk
                     }
                 }
             }
-
-
+            
+            
         })
-
+        
     }
 }
 function DirectlyRegister_Effect(currentPlayer, players) { //unsure if this would work or not
@@ -473,7 +473,7 @@ function DirectlyRegister_Effect(currentPlayer, players) { //unsure if this woul
 
 function Dreamer_Effect(currentPlayer, players) {
     currentPlayer.size += 1;
-
+    
 }
 
 
@@ -494,7 +494,7 @@ function Inventive_Effect(currentPlayer, players) {
     if (index < 0 || index >= player.traitpool.length) return;
     let card = player.traitpool[index];
     Doomlings.resolveCard(card, currentPlayer, players);
-
+    
 }
 function Memory_Effect(currentPlayer, players) {
     //open window that asks player do you wish to discard?
@@ -504,16 +504,16 @@ function Memory_Effect(currentPlayer, players) {
             Doomlings.discardCard(currentPlayer);
         }
     }
-
+    
     while (currentPlayer.cards.length != currentPlayer.size) {
         Deck.draw(currentPlayer);
     }
-
+    
 }
 
 function StickySecretions_Effect(currentPlayer, players) {
     colorcounter("Purple", currentPlayer, this.card);
-
+    
 }
 
 function SuperSpreader_Effect(currentPlayer, players) {
@@ -526,12 +526,12 @@ function SuperSpreader_Effect(currentPlayer, players) {
 function Nosy_Effect(currentPlayer, players) {
     player = chooseOpponent(currentPlayer, players)
     let randomOne = Math.floor(Math.random() * player.cards.length);
-
+    
     let randomTwo = Math.floor(Math.random() * player.cards.length);
     while (randomTwo == randomOne) {
         randomTwo = Math.floor(Math.random() * player.cards.length);
     }
-
+    
     let choosenCards = [randomTwo, randomOne];
     if (index < 0 || index >= choosenCards.length) return;
     let card = player.cards[choosenCards[index]];
@@ -551,7 +551,7 @@ function Persuasive_Effect(currentPlayer, players) {
             currentPlayer.cards.splice(i, 1);
         }
     }
-
+    
     for (i = 0; i < players.length; i++) {
         for (k = 0; k < players[i].cards.length; k++) {
             if (players[i].cards[k].color === color) {
@@ -583,11 +583,11 @@ function ApexPredator_Effect(currentPlayer, players) {
                 break;
             }
         }
-
+        
         if (mostTrait) {
             points += 4;
         }
-
+        
     } else {
         player.worldsEndEffects.push(() => {
             let mostTrait = true;
@@ -597,13 +597,13 @@ function ApexPredator_Effect(currentPlayer, players) {
                     break;
                 }
             }
-
+            
             if (mostTrait) {
                 points += 4;
             }
-
+            
         })
-
+        
     }
 }
 function Bad_Effect(currentPlayer, players) {
@@ -619,7 +619,7 @@ function Brave_Effect(currentPlayer, players) {
                 points += 2
             }
         }
-
+        
     } else {
         player.worldsEndEffects.push(() => {
             for (i = 0; i < currentPlayer.cards.length; i++) {
@@ -628,7 +628,7 @@ function Brave_Effect(currentPlayer, players) {
                 }
             }
         })
-
+        
     }
 }
 
@@ -646,7 +646,7 @@ function HotTemper_Effect(currentPlayer, players) {
 function Reckless_Effect(currentPlayer, players) {
     Doomlings.discardTrait(currentPlayer);
     Doomlings.discardTrait(Doomlings.chooseOpponent(currentPlayer, players));
-
+    
 }
 
 function WarmBlood_Effect(currentPlayer, players) {
@@ -660,7 +660,7 @@ function Voracious_Effect(currentPlayer, players) {
     currentPlayer.cards.splice(index, 1);
     onCardPlayed(card, currentPlayer, players);
     resolveCard(card, currentPlayer, players);
-
+    
 }
 
 function Tentacles_Effect(currentPlayer, players) {
@@ -679,12 +679,12 @@ function Tentacles_Effect(currentPlayer, players) {
 }
 
 function Faith_Effect(currentPlayer, players) {
-
+    
     if (worldsend) {
         let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
         if (index < 0 || index >= colors.length) return;
         let color = colors[index];
-
+        
         colors.splice(index, 1);
         if (index < 0 || index >= colors.length) return;
         player_chosen_color = colors[index];
@@ -698,7 +698,7 @@ function Faith_Effect(currentPlayer, players) {
             let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
             if (index < 0 || index >= colors.length) return;
             let color = colors[index];
-
+            
             colors.splice(index, 1);
             if (index < 0 || index >= colors.length) return;
             player_chosen_color = colors[index];
@@ -709,7 +709,7 @@ function Faith_Effect(currentPlayer, players) {
             }
         });
     }
-
+    
 }
 
 function Selfish_Effect(currentPlayer, players) {
@@ -721,7 +721,7 @@ function Selfish_Effect(currentPlayer, players) {
     }
     currentPlayer.traitpool.push(player.traitpool[randomIndex]);
     player.traitpool.splice(randomIndex, 1);
-
+    
 } // steal a red card from an opponenents trait pile
 
 function Symbiosis_Effect(currentPlayer, players) {
@@ -756,8 +756,8 @@ function Symbiosis_Effect(currentPlayer, players) {
         } else {
             color = "Colorless";
         }
-
-
+        
+        
         for (i = 0; i < currentPlayer.traitpool.length; i++) {
             if (currentPlayer.traitpool[i].color === color) {
                 card.points += 1;
@@ -801,9 +801,9 @@ function Symbiosis_Effect(currentPlayer, players) {
                 }
             }
         }
-
-        )
-    }
+        
+    )
+}
 
 }// +2 for every trait in the lowest color count 
 function TinyLittleMelons_Effect(currentPlayer, players) {
@@ -837,7 +837,7 @@ function PackBehavior_Effect(currentPlayer, players) {
                 count[4] += 1;
             }
         }
-
+        
         for (i = 0; i < count.length; i++) {
             points += Math.round(count[i] / 2);
         }
@@ -861,13 +861,13 @@ function PackBehavior_Effect(currentPlayer, players) {
                     count[4] += 1;
                 }
             }
-
+            
             for (i = 0; i < count.length; i++) {
                 points += Math.round(count[i] / 2);
             }
         });
     }
-
+    
 } //+1 for every color pair
 
 function Branches_Effect(currentPlayer, players) {
@@ -877,9 +877,9 @@ function Branches_Effect(currentPlayer, players) {
             if (currentPlayer.traitpool[k] === "Green") {
                 count++;
             }
-
+            
         }
-
+        
         points += Math.round(count / 2);
     } else {
         currentPlayer.worldsEndEffects.push(() => {
@@ -888,13 +888,13 @@ function Branches_Effect(currentPlayer, players) {
                 if (currentPlayer.traitpool[k] === "Green") {
                     count++;
                 }
-
+                
             }
-
+            
             points += Math.round(count / 2);
         })
     }
-
+    
 } // +1 for every pair of green traits in each oppenents trait pile 
 
 function SelfAwareness_Effect(currentPlayer, players) {
@@ -908,14 +908,14 @@ function HyperIntelligence_Effect(currentPlayer, players) {
     for (i = 0; i < players.length; i++) {
         Doomlings.discardColor(players[i], color);
     }
-
+    
 } // choose a color players choose one trait of that color to remove 
 
 function Territorial_Effect(currentPlayer, players) {
     for (i = 0; i < players.length; i++) {
         Doomlings.discardColor(players[i], "Red");
     }
-
+    
 }  // all oppenents discard 1 red trait
 
 function Venomous_Effect(currentPlayer, players) {
@@ -928,7 +928,7 @@ function Telekinetic_Effect(currentPlayer, players) {
     if (index < 0 || index >= currentPlayer.traitpool.length) return;
     let card = currentPlayer.traitpool[index];
     currentPlayer.traitpool.splice(index, 1);
-
+    
     while (card.color === newCard.color) {
         if (index < 0 || index >= player.traitpool.length) return;
         newCard = player.traitpool[index];
@@ -974,14 +974,16 @@ function Quick_Effect(currentPlayer, players) { } // couldn't catch it
 function Automimicry_Effect(currentPlayer, players) { }
 function Chromatophores_Effect(currentPlayer, players) { }
 //not completed
-
+function Sentience_Effect() { }
 
 
 //REMOVE PROLLY IDK 
-// function SwarmHorns_Effect(currentPlayer, players) { }
-// function SwarmMindless_Effect(currentPlayer, players) { }
-// function SwarmSpots_Effect(currentPlayer, players) { }
-// function SwarmStripes_Effect(currentPlayer, players) { }
+function SwarmHorns_Effect(currentPlayer, players) { }
+function SwarmMindless_Effect(currentPlayer, players) { }
+function SwarmSpots_Effect(currentPlayer, players) { }
+function SwarmStripes_Effect(currentPlayer, players) { }
+function SwarmFur_Effect(currentPlayer, players) { }
+
 function Denial_Effect(currentPlayer, players) { } // Ignore the next catastrophe need to figure out how to make sure we only ignore the next catastraphy
 function Delicious_Effect(currentPlayer, players) { } // restricted 
 function RetractableClaws_Effect(currentPlayer, players) { } // restricted 
@@ -998,11 +1000,13 @@ function Parasitic_Effect(currentPlayer, players) { } // steal that card and sto
 function Sneaky_Effect(currentPlayer, players) { } // at worlds end play immediatly for free
 
 //delete prolly idk 
-// function KidneyChefsToque_Effect(currentPlayer, players) { }
-// function KidneyCombover_Effect(currentPlayer, players) { }
-// function KidneyElfHat_Effect(currentPlayer, players) { }
-// function KidneyPartyHat_Effect(currentPlayer, players) { }
-// function KidneyTiara_Effect(currentPlayer, players) { }
+function KidneyChefsToque_Effect(currentPlayer, players) { }
+function KidneyCombover_Effect(currentPlayer, players) { }
+function KidneyElfHat_Effect(currentPlayer, players) { }
+function KidneyPartyHat_Effect(currentPlayer, players) { }
+function KidneyTiara_Effect(currentPlayer, players) { }
+function KidneyBeerHelm_Effect(currentPlayer, players) { }
+
 
 
 //export function

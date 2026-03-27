@@ -2,7 +2,7 @@
     {
         "card_name": "Echolocation",
         "points": 4,
-        "img": "images/doomlings_basegame_images/cards/images/doomlings_basegame_images/Ages/Echolocation.png",
+        "img": "images/doomlings_basegame_images/cards/Echolocation.png",
         "text": "Until World's End: Draw 1 card at the start of each of your turns.",
         "color": "Blue",
         "dominant": true,

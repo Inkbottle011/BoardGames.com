@@ -11,34 +11,35 @@ use Illuminate\Queue\SerializesModels;
 
 class TurnPlayed implements ShouldBroadcast
 {
-    use Dispatchable, InteractsWithSockets, SerializesModels;
+use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public function __construct(public Game $game) {}
+public function __construct(public Game $game) {}
 
-    public function broadcastOn()
-    {
-        return new PresenceChannel("game.{$this->game->id}");
-    }
+public function broadcastOn()
+{
+return new PrivateChannel("game.{$this->game->id}");
+}
 
-    public function broadcastWith()
-    {
-        return [
-            'game' => [
-                'id'                => $this->game->id,
-                'status'            => $this->game->status,
-                'current_turn'      => $this->game->current_turn,
-                'catastrophe_count' => $this->game->catastrophe_count,
-                'current_age'       => $this->game->current_age,
-                'game_state'        => $this->game->game_state,
-            ],
-            'players' => $this->game->players->map(fn($p) => [
-                'id'         => $p->user->id,
-                'name'       => $p->user->name,
-                'seat'       => $p->seat,
-                'hand_cards' => $p->hand_cards,
-                'trait_pool' => $p->trait_pool,
-                'genepool'   => $p->genepool,
-            ]),
-        ];
-    }
+public function broadcastWith()
+{
+return [
+'game' => [
+'id'                => $this->game->id,
+'status'            => $this->game->status,
+'current_turn'      => $this->game->current_turn,
+'catastrophe_count' => $this->game->catastrophe_count,
+'current_age'       => $this->game->current_age,
+'game_state'        => $this->game->game_state,
+],
+'players' => $this->game->players->map(fn($p) => [
+'id'         => $p->user->id,
+'name'       => $p->user->name,
+'seat'       => $p->seat,
+'hand_cards' => $p->hand_cards,
+'trait_pool' => $p->trait_pool,
+'genepool'   => $p->genepool,
+'points'     => $p->points ?? 0,
+]),
+];
+}
 }

@@ -1,56 +1,98 @@
-console.log("BOARD RENDERING");
+import Hand from "./hand";
+import Deck from "./deck";
+import Scoreboard from "./scoreboard";
 
-import Card from "./card";
-import PlayerArea from "./playerArea";
-
-export default function Board({ gameState }) {
-    if (!gameState) {
+export default function Board({ gameState, gameId, playerId, onPlay }) {
+    if (!gameState || !gameState.players) {
         return <div>Loading...</div>;
     }
+    
+    const opponents = gameState.players.filter((_, i) => i !== playerId);
+    
+    // Position opponents around the board based on how many there are
+    const getOpponentPosition = (index, total) => {
+        if (total === 1) return "col-start-2 row-start-1"; // top center
+        if (total === 2) {
+            return index === 0
+            ? "col-start-1 row-start-2" // left
+            : "col-start-3 row-start-2"; // right
+        }
+        if (total === 3) {
+            if (index === 0) return "col-start-1 row-start-2"; // left
+            if (index === 1) return "col-start-2 row-start-1"; // top
+            if (index === 2) return "col-start-3 row-start-2"; // right
+        }
+        return "col-start-2 row-start-1";
+    };
+    
     return (
         <div className="h-screen w-screen bg-green-300 p-4 grid grid-cols-3 grid-rows-3 gap-4">
-            {/* Top Player */}
-            <div className="col-start-2 row-start-1 flex justify-center items-center">
-                <PlayerArea player={gameState.players[1]} label="Player 2" />
+        
+        {/* Opponents — positioned dynamically around the board */}
+        {opponents.map((player, i) => (
+            <div
+            key={player.id}
+            className={`${getOpponentPosition(i, opponents.length)} flex justify-center items-center`}
+            >
+            <div className="bg-white rounded-2xl shadow p-3 text-center min-w-24">
+            <p className="text-sm font-bold text-gray-700">Player {i + 1}</p>
+            {/* Hide opponent hand size */}
+            <p className="text-xs text-gray-500">{player.hand?.length ?? 0} cards</p>
+            {/* Show opponent traits */}
+            <div className="flex flex-wrap gap-1 mt-1 justify-center">
+            {player.traitpool?.map((trait, j) => (
+                <span key={j} className="text-xs bg-gray-100 rounded px-1">
+                {trait.card_name}
+                </span>
+            ))}
             </div>
-
-            {/* Left Player */}
-            <div className="col-start-1 row-start-2 flex justify-center items-center">
-                <PlayerArea player={gameState.players[0]} label="Player 1" />
             </div>
-
-            {/* Center */}
-            <div className="col-start-2 row-start-2 flex justify-center items-center">
-                <div className="bg-white p-6 rounded-xl shadow-lg text-center">
-                    <h2 className="text-xl font-bold">Age {gameState.age}</h2>
-                    <p>Event Phase</p>
-                </div>
             </div>
-
-            {/* Right Player */}
-            <div className="col-start-3 row-start-2 flex justify-center items-center">
-                <PlayerArea player={gameState.players[2]} label="Player 3" />
-            </div>
-
-            {/* Bottom Player */}
-            <div className="col-start-2 row-start-3 flex flex-col items-center">
-                <PlayerArea player={gameState.players[3]} label="You" />
-
-                <div className="flex gap-2 mt-2">
-                    {gameState.players[3].hand?.map((card) => (
-                        <Card key={card.id} card={card} />
-                    ))}
-                </div>
-            </div>
+        ))}
+        
+        {/* Center — age info, deck, scoreboard */}
+        <div className="col-start-2 row-start-2 flex flex-col justify-center items-center gap-2">
+        <div className="bg-white px-6 py-4 rounded-2xl shadow-xl text-center border">
+        <h2 className="text-2xl font-bold text-gray-800">Age {gameState.age}</h2>
+        {gameState.catastrophe && (
+            <p className="text-red-500 text-sm font-semibold">⚠ Catastrophe!</p>
+        )}
+        <p className="text-sm text-gray-500">Event Phase</p>
+        </div>
+        
+        <Deck
+        deckSize={gameState.deckSize}
+        discardPile={gameState.discardPile}
+        />
+        
+        <Scoreboard
+        players={gameState.players}
+        currentTurn={gameState.current_turn}
+        />
+        </div>
+        
+        {/* Bottom — current player */}
+        <div className="col-start-2 row-start-3 flex flex-col items-center gap-2">
+        <p className="text-sm font-bold text-gray-700">You</p>
+        
+        {/* Current player traits */}
+        <div className="flex gap-2 flex-wrap justify-center">
+        {gameState.players[playerId]?.traitpool?.map((trait, i) => (
+            <span key={i} className="text-xs bg-white rounded-xl px-2 py-1 shadow">
+            {trait.card_name}
+            </span>
+        ))}
+        </div>
+        
+        {/* Current player hand */}
+        <Hand
+        cards={gameState.players[playerId]?.hand}
+        gameId={gameId}
+        playerId={playerId}
+        onPlay={onPlay}
+        />
+        </div>
+        
         </div>
     );
 }
-//  <div className="h-screen bg-green-200 flex fle-col justify-between">
-//             <h4>Game Board </h4>
-//             <h2>{gameState.age}</h2>
-//             <div className="traits">
-//                 {gameState.currentPlayer?.traits.map((trait) => (
-//                     <div key={trait.id}>{trait.name}</div>
-//                 ))}
-//             </div>
-//         </div>

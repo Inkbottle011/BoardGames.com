@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class LobbyController extends Controller
 {
-    // show all open games
+    // Show all open games waiting for players
     public function index()
     {
         $games = Game::where('status', 'waiting')
@@ -18,29 +18,44 @@ class LobbyController extends Controller
         return view('lobby', ['games' => $games]);
     }
 
-    // create a new game
+    // Create a new game and join it as the host
     public function create()
     {
-        $game = Game::create(['status' => 'waiting']);
+        $game = Game::create([
+            'status'            => 'waiting',
+            'catastrophe_count' => 0,
+            'current_turn'      => auth()->id(),
+            'game_state'        => ['deckSize' => 118, 'discardPile' => []],
+        ]);
 
         GamePlayer::create([
-            'game_id' => $game->id,
-            'user_id' => auth()->id(),
-            'seat'    => 1,
+            'game_id'            => $game->id,
+            'user_id'            => auth()->id(),
+            'seat'               => 1,
+            'genepool'           => 0,
+            'points'             => 0,
+            'hand_cards'         => [],
+            'trait_pool'         => [],
+            'worlds_end_effects' => [],
         ]);
 
         return redirect("/game/{$game->id}");
     }
 
-    // join an existing game
+    // Join an existing game
     public function join(Game $game)
     {
-        // check game is still waiting
+        // Check game is still waiting for players
         if ($game->status !== 'waiting') {
             return back()->with('error', 'Game already started');
         }
 
-        // check player isnt already in the game
+        // Check game is not full
+        if ($game->players()->count() >= 4) {
+            return back()->with('error', 'Game is full');
+        }
+
+        // Check player isn't already in the game
         $alreadyIn = GamePlayer::where('game_id', $game->id)
                                ->where('user_id', auth()->id())
                                ->exists();
@@ -49,16 +64,19 @@ class LobbyController extends Controller
             return redirect("/game/{$game->id}");
         }
 
-        GamePlayer::create([
-            'game_id' => $game->id,
-            'user_id' => auth()->id(),
-            'seat'    => 2,
-        ]);
+        // Assign next available seat dynamically
+        $seat = $game->players()->count() + 1;
 
-        // start the game if we now have 2 players
-        if ($game->players()->count() >= 2) {
-            $game->update(['status' => 'active']);
-        }
+        GamePlayer::create([
+            'game_id'            => $game->id,
+            'user_id'            => auth()->id(),
+            'seat'               => $seat,
+            'genepool'           => 0,
+            'points'             => 0,
+            'hand_cards'         => [],
+            'trait_pool'         => [],
+            'worlds_end_effects' => [],
+        ]);
 
         return redirect("/game/{$game->id}");
     }
