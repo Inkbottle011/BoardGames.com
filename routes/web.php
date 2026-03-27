@@ -3,12 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LobbyController;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\GameCatalogueController;
 use App\Http\Controllers\ChatController;
 use Illuminate\Support\Facades\DB;
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
+Route::get('/', [GameCatalogueController::class, 'index'])->name('home');
 
 Route::view('/doomling', 'doomling')->name('doomling');
 
