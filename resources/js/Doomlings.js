@@ -37,6 +37,7 @@ let GameState = {
 //================================================
 
 async function gamestart(numPlayers) {
+    await Deck.loadAllCards();
     Deck.buildDeck();
     for (let i = 0; i < numPlayers; i++) {
         GameState.players.push(new PlayerHand(i));
@@ -73,7 +74,7 @@ async function endTurn() {
     );
     discardCardMultiple(GameState.currentPlayer, GameState.currentPlayer.cards.length - GameState.currentPlayer.size);
     if (cardSearch(Late, GameState.currentPlayer)) {
-
+        
     }
 }
 
@@ -104,7 +105,7 @@ export function play(index) {
 }
 
 function cardSearch(card_name, currentPlayer) {
-    for (i < 0; i < currentPlayer.traitpool.length; i++) {
+    for (let i = 0; i < currentPlayer.traitpool.length; i++) {
         if (currentPlayer.traitpool[i].card_name === card_name) {
             return i;
         }
@@ -114,7 +115,7 @@ function cardSearch(card_name, currentPlayer) {
 
 function runAgeEffect(currentPlayer, players) {
     let functionName =
-        Ages[0].replace(/\s+/g, "").replace(/-/g, "") + "_effect";
+    Ages[0].age_name.replace(/\s+/g, "").replace(/-/g, "") + "_effect";
     if (AgesEffects[functionName]) {
         AgesEffects[functionName](currentPlayer, players);
     } else {
@@ -122,7 +123,7 @@ function runAgeEffect(currentPlayer, players) {
     }
 }
 
-function takeback(currentplayer, players) {
+function takeback(currentplayer, players, index) {
     let player = players[chooseOpponent(currentPlayer, players)]
     if (index < 0 || index >= player.traitpool.length) return;
     let card = player.traitpool[index];
@@ -138,7 +139,7 @@ function resolveCard(card, currentPlayer, players) {
 
 function runCardEffect(card, currentPlayer, players) {
     let functionName =
-        card.card_name.replace(/\s+/g, "").replace(/-/g, "") + "_Effect";
+    card.card_name.replace(/\s+/g, "").replace(/-/g, "") + "_Effect";
     if (CardEffects[functionName]) {
         CardEffects[functionName](currentPlayer, players);
     } else {
@@ -146,7 +147,7 @@ function runCardEffect(card, currentPlayer, players) {
     }
 }
 
-export function discardCard(playerhand) {
+export function discardCard(playerhand,index) {
     if (index < 0 || index >= playerhand.cards.length) return;
     let card = playerhand.cards[index];
     playerhand.cards.splice(index, 1);
@@ -160,12 +161,12 @@ export function discardCard(playerhand) {
             resolveCard(card, playerhand, GameState.players);
         }
     }
-
+    
 }
 
-export function discardCardMultiple(playerhand, num) {
+export function discardCardMultiple(playerhand, num, index) {
     for (i = 0; i < num; i++) {
-        if (index < 0 || index >= currentPlayer.cards.length) return;
+        if (index < 0 || index >= playerhand.cards.length) return;
         let card = playerhand.cards[index];
         playerhand.cards.splice(index, 1);
         if (card.card_name != "Endurance") {
@@ -182,8 +183,8 @@ export function discardCardMultiple(playerhand, num) {
 }
 
 
-export function discardColor(playerhand, color) {
-
+export function discardColor(playerhand, color,index) {
+    
     if (index < 0 || index >= currentPlayer.cards.length) return;
     let card = playerhand.cards[index];
     while (card.color != color) {
@@ -203,7 +204,7 @@ export function discardColor(playerhand, color) {
     }
 }
 
-export function discardTrait(playerhand) {
+export function discardTrait(playerhand, index) {
     if (index < 0 || index >= playerhand.traitpool.length) return;
     let card = playerhand.traitpool[index];
     playerhand.traitpool.splice(index, 1);
@@ -229,9 +230,9 @@ function onCardPlayed(playedCard, playingPlayer, allPlayers) {
     for (let player of allPlayers) {
         if (player === playingPlayer) continue;
         for (let trait of player.cards) {
-            if (reactiveTraits.includes(trait.card_name) && card.action == true) {
+            if (reactiveTraits.includes(trait.card_name) && playedCard.action == true) {
                 let functionName =
-                    trait.card_name.replace(/\s+/g, "") + "_Effect";
+                trait.card_name.replace(/\s+/g, "") + "_Effect";
                 if (CardEffects[functionName]) {
                     CardEffects[functionName](player, allPlayers, playedCard);
                 }
@@ -281,14 +282,59 @@ function triggerWorldsEnd() {
 }
 
 //================================================
+// larvel reading
+//================================================
+
+// Load game state from Laravel into doomlings.js
+export function loadFromServer(serverState) {
+    GameState.players = serverState.players.map(p => {
+        let hand = new PlayerHand(p.id);
+        hand.cards = p.hand ?? [];
+        hand.traitpool = p.traitpool ?? [];
+        hand.genepool = p.genepool ?? 0;
+        hand.points = p.points ?? 0;
+        return hand;
+    });
+    GameState.currentPlayer = GameState.players.find(
+        p => p.id === serverState.current_turn
+    ) ?? GameState.players[0];
+    GameState.currentAge = serverState.age ?? null;
+    GameState.catastropheCount = serverState.catastrophe_count ?? 0;
+}
+
+// Serialize doomlings.js GameState back to Laravel format
+export function serializeForServer() {
+    return {
+        current_turn: GameState.currentPlayer?.id,
+        catastrophe_count: GameState.catastropheCount,
+        current_age: GameState.currentAge,
+        game_state: {
+            deckSize: Deck.deck?.length ?? 0,
+            discardPile: discardPile,
+        },
+        players: GameState.players.map(p => ({
+            id: p.id,
+            cards: p.cards,
+            traitpool: p.traitpool,
+            genepool: p.genepool,
+            points: p.points,
+        })),
+    };
+}
+//================================================
+// EXPORTS
+//================================================
+
+//================================================
 // EXPORTS
 //================================================
 
 export {
     resolveCard,
     GameState,
-    chooseOpponent,
     chooseCard,
     StealHandCard,
     StealTraitCard,
+    gamestart,
+    endTurn,
 };

@@ -1,13 +1,34 @@
-resources/js/
-├── bootstrap.js         ← Axios global setup (Laravel default)
-├── echo.js              ← WebSocket connection to Reverb
-├── api.js               ← Axios instance + CSRF token + error handling
-├── game.js              ← GameAPI functions (move, attack, join, leave)
-└── pages/
-    └── game.js          ← puts it all together (wires up Echo + GameAPI to your UI)
+Done
+Backend:
 
-    Migrations + Models
-Routes + Controllers (basic responses first)
-Events + channel auth
-Blade views
-Frontend JS (lobby.js then game.js)
+GameController — show returns JSON for React, playTurn saves state and validates moves
+LobbyController — create/join games with proper seat assignment and player limits
+GameController::startGame — host can start the game
+ChatController — send messages with player validation
+TurnPlayed and MessageSent events — fixed to use PrivateChannel and include points
+GamePlayer migration — added points column
+Card images — seeder fixed, paths corrected
+channels.php — game channel auth set up
+
+Frontend:
+
+Card.jsx — displays card, handles missing images
+Hand.jsx — renders hand, wired to Reverb
+Board.jsx — dynamic player count, age display, deck, scoreboard
+Deck.jsx — draw pile and discard pile display
+Scoreboard.jsx — points and genepool per player
+Doom.jsx — fetches game state, syncs with doomlings.js, saves to Laravel
+doomlings.js — bug fixes, loadFromServer, serializeForServer
+Deck.js — removed MySQL, loads cards from Laravel API
+
+
+❌ Still needed
+
+Auth/login system (another person handling)
+Lobby UI blade view
+Chat UI component in React
+Reverb auth (resolves automatically once login is set up)
+chooseOpponent and chooseCard in doomlings.js need real UI input instead of hardcoded opponents[0]
+Ages need to be wired into the game flow
+World's End trigger needs to be tested
+Full multiplayer testing with real users

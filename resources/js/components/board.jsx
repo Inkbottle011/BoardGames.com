@@ -1,51 +1,84 @@
-export default function Board({ gameState }) {
-    if (!gameState) {
+import Hand from "./Hand";
+import Deck from "./Deck";
+import Scoreboard from "./Scoreboard";
+export default function Board({ gameState, gameId, playerId, onPlay }) {
+    if (!gameState || !gameState.players) {
         return <div>Loading...</div>;
     }
+    
     return (
         <div className="h-screen bg-gradient-to-br from-green-200 to-green-400 p-4 flex flex-col justify-between">
-            {/* Top Player */}
-            <div className="flex justify-center">
-                <PlayerArea player={gameState.players[1]} label="Player 2" />
-            </div>
-
-            {/* Middle Row */}
-            <div className="flex justify-between items-center">
-                {/* Left Player */}
-                <PlayerArea player={gameState.players[0]} label="Player 1" />
-
-                {/* Center Age */}
-                <div className="bg-white px-6 py-4 rounded-2xl shadow-xl text-center border">
-                    <h2 className="text-2xl font-bold text-gray-800">
-                        Age {gameState.age}
-                    </h2>
-                    <p className="text-sm text-gray-500">Event Phase</p>
+        
+        {/* Top — opponents */}
+        <div className="flex justify-center gap-4">
+        {gameState.players
+            // Filter out the current player so we only show opponents
+            .filter((_, i) => i !== playerId)
+            .map((player, i) => (
+                <div key={i} className="bg-white rounded-2xl shadow p-3 text-center min-w-24">
+                <p className="text-sm font-bold text-gray-700">Player {i + 1}</p>
+                {/* Show card count without revealing opponent cards */}
+                <p className="text-xs text-gray-500">{player.hand?.length ?? 0} cards</p>
+                {/* Show opponent traits */}
+                <div className="flex flex-wrap gap-1 mt-1 justify-center">
+                {player.traitpool?.map((trait, j) => (
+                    <span key={j} className="text-xs bg-gray-100 rounded px-1">
+                    {trait.card_name}
+                    </span>
+                ))}
                 </div>
-
-                {/* Right Player */}
-                <PlayerArea player={gameState.players[2]} label="Player 3" />
-            </div>
-
-            {/* Bottom Player (YOU) */}
-            <div className="flex flex-col items-center gap-2">
-                <PlayerArea player={gameState.players[3]} label="You" isYou />
-
-                {/* Player Hand */}
-                <div className="flex gap-3 mt-2 overflow-x-auto p-2">
-                    {gameState.players[3].hand?.map((card) => (
-                        <Card key={card.id} card={card} />
-                    ))}
                 </div>
-            </div>
+            ))
+        }
+        </div>
+        
+        {/* Center — age info and deck */}
+        <div className="flex justify-center items-center gap-8">
+        <div className="bg-white px-6 py-4 rounded-2xl shadow-xl text-center border">
+        <h2 className="text-2xl font-bold text-gray-800">
+        Age {gameState.age}
+        </h2>
+        {/* Show catastrophe warning if applicable */}
+        {gameState.catastrophe && (
+            <p className="text-red-500 text-sm font-semibold">⚠ Catastrophe!</p>
+        )}
+        <p className="text-sm text-gray-500">Event Phase</p>
+        </div>
+        
+        {/* Deck and discard pile */}
+        <Deck
+        deckSize={gameState.deckSize}
+        discardPile={gameState.discardPile}
+        />
+        {/* Scoreboard */}
+        <Scoreboard
+        players={gameState.players}
+        currentTurn={gameState.current_turn}
+        />
+        </div>
+        
+        {/* Bottom — current player */}
+        <div className="flex flex-col items-center gap-2">
+        <p className="text-sm font-bold text-gray-700">You</p>
+        
+        {/* Current player's traits */}
+        <div className="flex gap-2 flex-wrap justify-center">
+        {gameState.players[playerId]?.traitpool?.map((trait, i) => (
+            <span key={i} className="text-xs bg-white rounded-xl px-2 py-1 shadow">
+            {trait.card_name}
+            </span>
+        ))}
+        </div>
+        
+        {/* Current player's hand wired to Reverb */}
+        <Hand
+        cards={gameState.players[playerId]?.hand}
+        gameId={gameId}
+        playerId={playerId}
+        onPlay={onPlay}
+        />
+        </div>
+        
         </div>
     );
 }
-//  <div className="h-screen bg-green-200 flex fle-col justify-between">
-//             <h4>Game Board </h4>
-//             <h2>{gameState.age}</h2>
-//             <div className="traits">
-//                 {gameState.currentPlayer?.traits.map((trait) => (
-//                     <div key={trait.id}>{trait.name}</div>
-//                 ))}
-//             </div>
-//         </div>
