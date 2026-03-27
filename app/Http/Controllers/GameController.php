@@ -9,11 +9,6 @@ use Illuminate\Http\Request;
 
 class GameController extends Controller
 {
-    public function index()
-    {
-        $games = Game::all();
-        return view('home', compact('games'));
-    }
 
     public function show(Game $game)
     {
