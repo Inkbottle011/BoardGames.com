@@ -20,7 +20,3 @@
 
 </div>
 @endsection
-
-            {{-- <div class="card-cta">
-                <a href="{{ route('doomling') }}" class="play-btn">PLAY ▶</a>
-            </div> --}}
