@@ -8,24 +8,18 @@
         <div class="game-grid">
 
             @foreach ($games as $game)
+            <a href="{{ route($game->slug) }}">
                 <div class="game-card" style="background-image: url('{{ asset('assets/thumbnails/' . $game->thumbnail) }}')">
                     <div class="pixel-border-left"></div>
                     <div class="card-main">
                         <div class="hover-text game-title">★ {{ $game->title }} ★</div>
                     </div>
                 </div>
-            @endforeach
-
-            <div class="card-cta">
-                <a href="{{ route('doomling') }}" class="play-btn">PLAY ▶</a>
-            </div>
-
+            </a>
+            
+            @endforeach                
 
         </div>
-
-        <div class="card-cta">
-                <a href="{{ route('doomling') }}" class="play-btn">PLAY ▶</a>
-            </div>
 
     </div>
 @endsection
