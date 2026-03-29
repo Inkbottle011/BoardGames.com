@@ -1,0 +1,293 @@
+/* --- overrides Bootstrap + global styles  --- */
+/* --- Google Font  --- */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap');
+
+:root {
+    --arcade-purple:   #411697;
+    --arcade-pink:     #ff0080;
+    --arcade-cyan:     #00f5ff;
+    --arcade-yellow:   #ffe600;
+    --arcade-dark:     #0a0010;
+    --arcade-dark-mid: #160030;
+    --arcade-mid:      #1e0050;
+    --glow-pink:       0 0 8px #ff0080, 0 0 20px #ff008066, 0 0 40px #ff008033;
+    --glow-cyan:       0 0 8px #00f5ff, 0 0 20px #00f5ff66;
+    --glow-purple:     0 0 12px #7b2ff7, 0 0 30px #7b2ff755;
+    --font-pixel:      'Press Start 2P', monospace;
+    --font-hud:        'Orbitron', sans-serif;
+}
+
+/* --- Base --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--arcade-dark);
+    color: #e0c8ff;
+    font-family: var(--font-hud);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Animated grid background */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(65, 22, 151, 0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(65, 22, 151, 0.15) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: gridScroll 20s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Radial glow center */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(123, 47, 247, 0.25) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes gridScroll {
+    0%   { background-position: 0 0; }
+    100% { background-position: 0 40px; }
+}
+
+/* Scanlines overlay */
+.scanlines {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.08) 2px,
+        rgba(0, 0, 0, 0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+    animation: scanFlicker 8s ease-in-out infinite;
+}
+
+@keyframes scanFlicker {
+    0%, 95%, 100% { opacity: 1; }
+    96% { opacity: 0.85; }
+    97% { opacity: 1; }
+    98% { opacity: 0.9; }
+}
+
+/* ============================================
+   NAVBAR — Overriding Bootstrap CSS variables
+   ============================================ */
+.navbar {
+    /* Override Bootstrap vars */
+    --bs-navbar-padding-y: 0;
+    --bs-navbar-padding-x: 0;
+    --bs-navbar-color: #ff0080;
+    --bs-navbar-hover-color: #00f5ff;
+    --bs-navbar-active-color: #ffe600;
+    --bs-navbar-disabled-color: rgba(255, 0, 128, 0.4);
+    --bs-navbar-brand-color: #ff0080;
+    --bs-navbar-brand-hover-color: #00f5ff;
+    --bs-navbar-toggler-border-color: rgba(255, 0, 128, 0.5);
+    /* Pink hamburger icon */
+    --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23ff0080' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+
+    background-color: var(--arcade-dark-mid);
+    border-bottom: 2px solid var(--arcade-pink);
+    box-shadow: var(--glow-pink), inset 0 -1px 0 rgba(255, 0, 128, 0.3);
+    position: relative;
+    z-index: 100;
+    padding: 12px 0;
+}
+
+/* Navbar inner glow line */
+.navbar::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--arcade-cyan), var(--arcade-pink), var(--arcade-cyan), transparent);
+    animation: navGlow 3s ease-in-out infinite;
+}
+
+@keyframes navGlow {
+    0%, 100% { opacity: 0.6; }
+    50%       { opacity: 1; }
+}
+
+/* Brand name */
+.navbar-brand {
+    font-family: var(--font-pixel);
+    font-size: 1rem !important;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    filter: drop-shadow(var(--glow-pink));
+    transition: filter 0.2s ease;
+}
+.navbar-brand:hover {
+    filter: drop-shadow(0 0 12px #00f5ff) drop-shadow(0 0 30px #00f5ff66);
+}
+
+.brand-pixel {
+    color: var(--arcade-pink);
+}
+
+.brand-accent {
+    color: var(--arcade-cyan);
+}
+
+/* Nav links */
+.navbar-nav .nav-link {
+    font-family: var(--font-pixel);
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--arcade-pink) !important;
+    padding: 6px 16px !important;
+    margin: 0 4px;
+    border: 1px solid transparent;
+    border-radius: 0;
+    position: relative;
+    transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.navbar-nav .nav-link::before {
+    content: '▶';
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.4rem;
+    opacity: 0;
+    transition: opacity 0.15s;
+    color: var(--arcade-cyan);
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--arcade-cyan) !important;
+    border-color: var(--arcade-cyan);
+    box-shadow: var(--glow-cyan);
+    background: rgba(0, 245, 255, 0.07);
+}
+
+.navbar-nav .nav-link:hover::before {
+    opacity: 1;
+}
+
+/* Toggler */
+.navbar-toggler {
+    border-color: rgba(255, 0, 128, 0.5);
+    transition: box-shadow 0.2s;
+}
+.navbar-toggler:focus {
+    box-shadow: var(--glow-pink);
+}
+
+.navbar .container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* ============================================
+   MAIN CONTENT CONTAINER
+   ============================================ */
+.largecontainer {
+    position: relative;
+    z-index: 1;
+    min-height: 60vh;
+    padding: 2rem 0;
+}
+
+/* ============================================
+   FOOTER
+   ============================================ */
+.site-footer {
+    background-color: var(--arcade-dark-mid) !important;
+    border-top: 2px solid var(--arcade-purple);
+    box-shadow: var(--glow-purple);
+    position: relative;
+    z-index: 1;
+}
+
+.footer-text {
+    font-family: var(--font-pixel);
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    color: rgba(255, 0, 128, 0.8);
+}
+
+.footer-blink {
+    color: var(--arcade-cyan);
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+}
+
+/* ============================================
+   UTILITY: Arcade-style headings & text
+   ============================================ */
+h1, h2, h3 {
+    font-family: var(--font-hud);
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* Glowing text utility */
+.text-glow-pink  { color: var(--arcade-pink);  text-shadow: var(--glow-pink); }
+.text-glow-cyan  { color: var(--arcade-cyan);  text-shadow: var(--glow-cyan); }
+
+/* Pixel text utility */
+.text-pixel {
+    font-family: var(--font-pixel);
+    font-size: 0.7rem;
+    line-height: 1.8;
+}
+
+/* Arcade card */
+.arcade-card {
+    background: var(--arcade-dark-mid);
+    border: 1px solid var(--arcade-purple);
+    box-shadow: var(--glow-purple);
+    padding: 1.5rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.arcade-card:hover {
+    border-color: var(--arcade-pink);
+    box-shadow: var(--glow-pink);
+}
+
+/* Arcade button */
+.btn-arcade {
+    font-family: var(--font-pixel);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--arcade-purple);
+    color: var(--arcade-pink);
+    border: 2px solid var(--arcade-pink);
+    padding: 0.6rem 1.4rem;
+    border-radius: 0;
+    cursor: pointer;
+    box-shadow: var(--glow-pink);
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.btn-arcade:hover {
+    background: var(--arcade-pink);
+    color: var(--arcade-dark);
+    box-shadow: var(--glow-pink), inset 0 0 20px rgba(255,255,255,0.1);
+}

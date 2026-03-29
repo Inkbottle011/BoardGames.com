@@ -1,0 +1,114 @@
+.feed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 70vh;
+    position: relative;
+    z-index: 1;
+}
+
+.feed-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 1rem;
+    color: var(--arcade-cyan);
+    text-shadow: var(--glow-cyan);
+    margin-bottom: 2.5rem;
+    letter-spacing: 0.2em;
+    animation: flicker 4s ease-in-out infinite;
+}
+
+@keyframes flicker {
+    0%, 90%, 100% { opacity: 1; }
+    92% { opacity: 0.6; }
+    94% { opacity: 1; }
+    96% { opacity: 0.7; }
+}
+
+.logBox {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    background: var(--arcade-dark-mid);
+    border: 1px solid var(--arcade-purple);
+    box-shadow: var(--glow-purple);
+    padding: 2rem 2.5rem;
+    width: 100%;
+    max-width: 380px;
+}
+
+.authFills {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.5rem;
+    color: var(--arcade-pink);
+    background: var(--arcade-dark);
+    border: 1px solid var(--arcade-purple);
+    padding: 0.75rem 1rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: text;
+}
+
+/* You'll need to make these actual inputs — see below */
+input.authFills::placeholder {
+    color: rgba(255, 0, 128, 0.4);
+}
+
+input.authFills:focus {
+    border-color: var(--arcade-cyan);
+    box-shadow: var(--glow-cyan);
+}
+
+.authButtons {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0.75rem;
+    cursor: pointer;
+    border: 2px solid;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.authButtons.login {
+    background: transparent;
+    color: var(--arcade-pink);
+    border-color: var(--arcade-pink);
+    box-shadow: var(--glow-pink);
+}
+
+.authButtons.login:hover {
+    background: var(--arcade-pink);
+    color: var(--arcade-dark);
+}
+
+.authButtons.play {
+    background: var(--arcade-purple);
+    color: var(--arcade-cyan);
+    border-color: var(--arcade-cyan);
+    box-shadow: var(--glow-cyan);
+}
+
+.authButtons.play:hover {
+    background: var(--arcade-cyan);
+    color: var(--arcade-dark);
+}
+
+.authSwitch {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 0.45rem;
+    color: rgba(255, 0, 128, 0.6);
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.authSwitch span {
+    color: var(--arcade-cyan);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.authSwitch span:hover {
+    color: var(--arcade-pink);
+}
