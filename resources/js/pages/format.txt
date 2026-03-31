@@ -32,3 +32,22 @@ chooseOpponent and chooseCard in doomlings.js need real UI input instead of hard
 Ages need to be wired into the game flow
 World's End trigger needs to be tested
 Full multiplayer testing with real users
+
+
+Here's where multiplayer stands:
+✅ Working:
+
+Game and player records in DB
+playTurn saves state and broadcasts via Reverb
+MessageSent and TurnPlayed events set up
+Channel auth in channels.php
+React listens for whispers via window.Echo
+
+❌ Not yet working:
+
+Reverb auth 403 — blocked until login system is done
+Real-time updates — won't trigger between players until Reverb auth is fixed
+playerId is hardcoded to 0 in doom.jsx — needs to come from Laravel auth session
+gameId is hardcoded to 1 in doom.jsx — needs to come from the URL or session
+Lobby UI — players can't create/join games from the browser yet
+Turn enforcement — UI doesn't visually block non-active players from playing

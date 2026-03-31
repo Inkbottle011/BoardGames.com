@@ -1,0 +1,221 @@
+/* ============================================
+DOOMLINGS GAME BOARD — Green Nature Theme
+============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap');
+
+:root {
+    --nature-dark:    #1a2e1a;
+    --nature-mid:     #2d4a2d;
+    --nature-light:   #4a7c4a;
+    --nature-green:   #6ab04c;
+    --nature-yellow:  #f9ca24;
+    --nature-brown:   #5c3d2e;
+    --nature-cream:   #f5f0e8;
+    --nature-red:     #c0392b;
+    --glow-green:     0 0 10px rgba(106, 176, 76, 0.4);
+    --font-title:     'Cinzel', serif;
+    --font-body:      'Lato', sans-serif;
+}
+
+/* --- Reset game area --- */
+#app {
+    background: linear-gradient(135deg, #1a2e1a 0%, #2d4a2d 50%, #1a2e1a 100%);
+    font-family: var(--font-body);
+    color: var(--nature-cream);
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle leaf texture overlay */
+#app::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(ellipse at 20% 50%, rgba(106,176,76,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(74,124,74,0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* --- Player panels --- */
+.player-panel {
+    background: rgba(45, 74, 45, 0.85);
+    border: 2px solid var(--nature-light);
+    border-radius: 12px;
+    padding: 12px;
+    backdrop-filter: blur(4px);
+    box-shadow: var(--glow-green);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.player-panel.active {
+    border-color: var(--nature-yellow);
+    box-shadow: 0 0 15px rgba(249, 202, 36, 0.4);
+}
+
+.player-name {
+    font-family: var(--font-title);
+    font-size: 0.85rem;
+    color: var(--nature-yellow);
+    letter-spacing: 0.05em;
+}
+
+/* --- Card styling --- */
+.game-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    border: 2px solid var(--nature-light);
+}
+
+.game-card:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5), var(--glow-green);
+    border-color: var(--nature-yellow);
+}
+
+/* --- Center area --- */
+.center-panel {
+    background: rgba(26, 46, 26, 0.9);
+    border: 2px solid var(--nature-light);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    backdrop-filter: blur(4px);
+}
+
+.age-title {
+    font-family: var(--font-title);
+    font-size: 1.4rem;
+    color: var(--nature-yellow);
+    text-shadow: 0 0 10px rgba(249,202,36,0.4);
+    letter-spacing: 0.08em;
+}
+
+.catastrophe-warning {
+    color: var(--nature-red);
+    font-size: 0.85rem;
+    font-weight: 700;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.5; }
+}
+
+/* --- Deck --- */
+.deck-pile {
+    background: var(--nature-mid);
+    border: 2px solid var(--nature-light);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-title);
+    font-size: 1.2rem;
+    color: var(--nature-yellow);
+    box-shadow: var(--glow-green);
+}
+
+.discard-pile {
+    border: 2px dashed var(--nature-light);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(245,240,232,0.4);
+    font-size: 0.75rem;
+}
+
+/* --- Scoreboard --- */
+.scoreboard {
+    background: rgba(26, 46, 26, 0.9);
+    border: 2px solid var(--nature-light);
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.scoreboard-title {
+    font-family: var(--font-title);
+    font-size: 0.75rem;
+    color: var(--nature-green);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    border-bottom: 1px solid var(--nature-light);
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+}
+
+.score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    font-size: 0.85rem;
+}
+
+.score-row.current-turn {
+    background: rgba(249, 202, 36, 0.1);
+    border-radius: 6px;
+    padding: 4px 6px;
+}
+
+.score-points {
+    font-family: var(--font-title);
+    color: var(--nature-yellow);
+    font-size: 1rem;
+}
+
+/* --- Hand area --- */
+.hand-area {
+    background: rgba(26, 46, 26, 0.7);
+    border-top: 2px solid var(--nature-light);
+    padding: 12px;
+    border-radius: 12px;
+}
+
+/* --- Trait chips --- */
+.trait-chip {
+    background: rgba(74, 124, 74, 0.5);
+    border: 1px solid var(--nature-green);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    color: var(--nature-cream);
+}
+
+/* --- Opponent cards count badge --- */
+.card-count-badge {
+    background: var(--nature-brown);
+    border: 1px solid var(--nature-light);
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    color: var(--nature-cream);
+}
+
+/* --- End turn button --- */
+.end-turn-btn {
+    font-family: var(--font-title);
+    background: transparent;
+    border: 2px solid var(--nature-green);
+    color: var(--nature-green);
+    padding: 10px 28px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.end-turn-btn:hover {
+    background: rgba(106, 176, 76, 0.15);
+    box-shadow: var(--glow-green);
+    color: var(--nature-yellow);
+    border-color: var(--nature-yellow);
+}
