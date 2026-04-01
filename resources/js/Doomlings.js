@@ -13,7 +13,7 @@ let Age = {
 };
 
 let Ages = [];
-let discardPile = [];
+export let discardPile = [];
 
 class PlayerHand extends Deck.PlayerHand {
     constructor(id) {
@@ -77,16 +77,11 @@ export function stabilize() {
         GameState.currentPlayer.size - GameState.currentPlayer.cards.length,
     );
     discardCardMultiple(GameState.currentPlayer, GameState.currentPlayer.cards.length - GameState.currentPlayer.size);
-<<<<<<< HEAD
     let lateIndex = handSearch(Late, GameState.currentPlayer)
     if (lateIndex != -1) {
         let card = GameState.currentPlayer.cards[lateIndex];
         GameState.currentPlayer.cards.splice(lateIndex, 1)
         GameState.currentPlayer.traitpool.push(card);
-=======
-    if (cardSearch(Late, GameState.currentPlayer)) {
-
->>>>>>> 17931ed74b7ff760a747646b2303843b7323b561
     }
 }
 
@@ -110,17 +105,34 @@ export function play(index) {
     }
     if (index < 0 || index >= currentPlayer.cards.length) return;
     let card = currentPlayer.cards[index];
-    currentPlayer.cards.splice(index, 1);
-    onCardPlayed(card, currentPlayer, players);
-    resolveCard(card, currentPlayer, players);
-    endTurn();
+    if (card.card_name === "Heroic") {
+        let green = 0;
+        for (i = 0; i < currentPlayer.cards.length; i++) {
+            if (currentPlayer.cards[i].color === "Green") {
+                green++;
+            }
+            if (green >= 3) {
+                currentPlayer.cards.splice(index, 1);
+                onCardPlayed(card, currentPlayer, players);
+                resolveCard(card, currentPlayer, players);
+                endTurn();
+            } else {
+                while (card.card_name != "Heroic") {
+                    if (index < 0 || index >= currentPlayer.cards.length) return;
+                    let card = currentPlayer.cards[index];
+                }
+            }
+        }
+    } else {
+        currentPlayer.cards.splice(index, 1);
+        onCardPlayed(card, currentPlayer, players);
+        resolveCard(card, currentPlayer, players);
+        endTurn();
+    }
+
 }
 
-<<<<<<< HEAD
 export function cardSearch(card_name, currentPlayer) {
-=======
-function cardSearch(card_name, currentPlayer) {
->>>>>>> 17931ed74b7ff760a747646b2303843b7323b561
     for (i < 0; i < currentPlayer.traitpool.length; i++) {
         if (currentPlayer.traitpool[i].card_name === card_name) {
             return i;
@@ -129,7 +141,6 @@ function cardSearch(card_name, currentPlayer) {
     return -1;
 }
 
-<<<<<<< HEAD
 function handSearch(card_name, currentPlayer) {
     for (i < 0; i < currentPlayer.cards.length; i++) {
         if (currentPlayer.cards[i].card_name === card_name) {
@@ -139,17 +150,11 @@ function handSearch(card_name, currentPlayer) {
     return -1;
 }
 
-=======
->>>>>>> 17931ed74b7ff760a747646b2303843b7323b561
 function runAgeEffect(currentPlayer, players) {
     let functionName =
         Ages[0].replace(/\s+/g, "").replace(/-/g, "") + "_effect";
     if (AgesEffects[functionName]) {
-<<<<<<< HEAD
         AgesEffects[functionName](card, currentPlayer, players);
-=======
-        AgesEffects[functionName](currentPlayer, players);
->>>>>>> 17931ed74b7ff760a747646b2303843b7323b561
     } else {
         console.warn(`No function found for card: ${Ages[0].age_name}`);
     }
@@ -179,7 +184,7 @@ function runCardEffect(card, currentPlayer, players) {
     }
 }
 
-export function discardCard(playerhand) {
+export function discardCard(playerhand, index) {
     if (index < 0 || index >= playerhand.cards.length) return;
     let card = playerhand.cards[index];
     playerhand.cards.splice(index, 1);
@@ -196,7 +201,6 @@ export function discardCard(playerhand) {
 
 }
 
-<<<<<<< HEAD
 export function discardRandomCard(playerhand) {
     let index = Math.round(Math.random * playerhand.cards.length);
     let card = playerhand.cards[index];
@@ -214,9 +218,7 @@ export function discardRandomCard(playerhand) {
 
 }
 
-=======
->>>>>>> 17931ed74b7ff760a747646b2303843b7323b561
-export function discardCardMultiple(playerhand, num) {
+export function discardCardMultiple(playerhand, num, index) {
     for (i = 0; i < num; i++) {
         if (index < 0 || index >= currentPlayer.cards.length) return;
         let card = playerhand.cards[index];

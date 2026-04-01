@@ -84,7 +84,7 @@ async function CreateCard(ID) {
 // DECK MANAGEMENT
 //================================================
 
-let deck = [];
+export let deck = [];
 
 function buildDeck() {
     for (let i = 1; i <= 118; i++) {
