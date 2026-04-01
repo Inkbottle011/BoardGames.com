@@ -6,8 +6,11 @@ export default function Doom() {
     const [gameState, setGameState] = useState(null);
     
     const appEl = document.getElementById('app');
-    const gameId = appEl.dataset.gameId || 1;
+    const gameId = parseInt(appEl.dataset.gameId);
+    const gameSlug = appEl.dataset.gameSlug;
     const playerId = parseInt(appEl.dataset.userId);
+    //temp
+    console.log('gameId:', gameId, 'gameSlug:', gameSlug, 'playerId:', playerId);
     
     function csrfToken() {
         return document.querySelector('meta[name="csrf-token"]').content;
@@ -30,7 +33,7 @@ export default function Doom() {
     }
     
     function saveToServer() {
-        return fetch(`/game/${gameId}/turn`, {
+        return fetch(`/game/${gameSlug}/turn`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -42,7 +45,7 @@ export default function Doom() {
     }
     
     function fetchGameState() {
-        fetch(`/game/${gameId}`, {
+        fetch(`/game/${gameSlug}`, {
             headers: {
                 "Accept": "application/json",
                 "X-CSRF-TOKEN": csrfToken(),

@@ -8,7 +8,7 @@
         <div class="game-grid">
 
             @foreach ($games as $game)
-                <a href="/{{ $game->slug }}">
+                <a href="/lobby">
                     <div class="game-card"
                         style="background-image: url('{{ asset('assets/thumbnails/' . $game->thumbnail) }}')">
                         <div class="pixel-border-left"></div>

@@ -15,6 +15,7 @@ class GamePlayer extends Model
         'hand_cards',
         'trait_pool',
         'worlds_end_effects',
+        'last_seen',
     ];
 
     protected $casts = [
