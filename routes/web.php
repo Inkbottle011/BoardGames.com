@@ -9,9 +9,9 @@ use App\Http\Controllers\AuthController;
 
 Route::get('/', [GameCatalogueController::class, 'index'])->name('home');
 
-Route::get('/doomling', function () {
-    return view('doomling');
-})->name('doomling');
+Route::get('/doomlings', function () {
+    return view('doomlings');
+})->name('doomlings');
 
 
 

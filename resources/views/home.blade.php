@@ -23,3 +23,5 @@
 
     </div>
 @endsection
+
+ {{-- might need to change code to <a href="{{ route('game.show', $game->slug) }}"> --}}
