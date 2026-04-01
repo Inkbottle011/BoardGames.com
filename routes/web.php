@@ -9,7 +9,6 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\DB;
 
 Route::get('/', [GameCatalogueController::class, 'index'])->name('home');
-
 Route::get('/doomlings', function () {
     return view('doomlings');
 })->name('doomlings');
@@ -25,7 +24,7 @@ Route::post('/profile/login', [AuthController::class, 'login']);
 Route::post('/profile/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Game routes — outside auth for now
+// Game show — outside auth so React can fetch JSON
 Route::get('/game/{game}', [GameController::class, 'show']);
 
 Route::middleware(['auth'])->group(function () {
@@ -35,6 +34,8 @@ Route::post('/lobby/join/{game}', [LobbyController::class, 'join']);
 Route::post('/game/{game}/turn', [GameController::class, 'playTurn']);
 Route::post('/game/{game}/start', [GameController::class, 'startGame']);
 Route::post('/game/{game}/chat', [ChatController::class, 'send']);
+Route::post('/game/{game}/leave', [GameController::class, 'leave']);
+Route::post('/game/{game}/heartbeat', [GameController::class, 'heartbeat']);
 });
 
 Route::get('/cards', function(){
@@ -44,3 +45,6 @@ return DB::table('doomlings_deck')->get();
 Route::get('/cards/{id}', function($id){
 return DB::table('doomlings_deck')->where('id', $id)->first();
 });
+Route::get('/login', function() {
+return redirect('/profile');
+})->name('login');
