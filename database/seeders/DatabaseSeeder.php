@@ -19,3 +19,9 @@ class DatabaseSeeder extends Seeder
         ]);
         }
 }
+
+// To sync databses: 
+// git pull
+// composer install
+// php artisan migrate
+// php artisan db:seed

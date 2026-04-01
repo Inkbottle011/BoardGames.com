@@ -9,7 +9,7 @@ class GameCatalogueSeeder extends Seeder
 {
 public function run(): void
 {
-DB::table('game_catalogues')->insertOrIgnore([[
+DB::table('gamecatalogues')->insertOrIgnore([[
 'title'       => 'Doomlings',
 'description' => 'Card Game',
 'genre'       => 'Strategy',

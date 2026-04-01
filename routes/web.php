@@ -10,8 +10,14 @@ use Illuminate\Support\Facades\DB;
 
 Route::get('/', [GameCatalogueController::class, 'index'])->name('home');
 Route::get('/doomlings', function () {
-return view('doomling');
+    return view('doomlings');
 })->name('doomlings');
+
+
+
+
+
+
 
 Route::get('/profile', [AuthController::class, 'showLogin'])->name('authentication');
 Route::post('/profile/login', [AuthController::class, 'login']);
