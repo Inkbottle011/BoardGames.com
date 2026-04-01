@@ -1,3 +1,6 @@
+import { deck } from "../Deck";
+import { draw } from "../Deck";
+import { GameState } from "../Doomlings";
 function Deck({ cards }) {
     return (
         <div className="deck">
@@ -5,4 +8,6 @@ function Deck({ cards }) {
             <p>{cards.length} cards remaining</p> */}
         </div>
     );
+
+
 }
