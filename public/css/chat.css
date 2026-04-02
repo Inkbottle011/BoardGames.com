@@ -1,0 +1,207 @@
+/* ============================================
+CHAT SIDEBAR — Doomlings Game
+============================================ */
+
+.chat-toggle {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 999;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--nature-mid);
+    border: 2px solid var(--nature-green);
+    color: var(--nature-cream);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--glow-green);
+    transition: all 0.2s;
+}
+
+.chat-toggle:hover {
+    background: var(--nature-light);
+    box-shadow: 0 0 16px rgba(106,176,76,0.5);
+}
+
+.chat-toggle .unread-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--nature-red);
+    color: white;
+    font-size: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: sans-serif;
+    font-weight: bold;
+}
+
+.chat-sidebar {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 300px;
+    background: rgba(26, 46, 26, 0.97);
+    border-left: 2px solid var(--nature-light);
+    display: flex;
+    flex-direction: column;
+    z-index: 998;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    backdrop-filter: blur(8px);
+}
+
+.chat-sidebar.open {
+    transform: translateX(0);
+}
+
+.chat-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--nature-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-title {
+    font-family: var(--font-title);
+    font-size: 0.9rem;
+    color: var(--nature-yellow);
+    letter-spacing: 0.05em;
+}
+
+.chat-close {
+    background: none;
+    border: none;
+    color: var(--text-muted, rgba(255,255,255,0.4));
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+
+.chat-close:hover {
+    color: var(--nature-cream);
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: var(--nature-light);
+    border-radius: 2px;
+}
+
+.chat-message {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.chat-message.own {
+    align-items: flex-end;
+}
+
+.chat-message-user {
+    font-size: 0.7rem;
+    color: var(--nature-green);
+    font-weight: 600;
+}
+
+.chat-message.own .chat-message-user {
+    color: var(--nature-yellow);
+}
+
+.chat-message-body {
+    background: rgba(74, 124, 74, 0.3);
+    border: 1px solid var(--nature-light);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.82rem;
+    color: var(--nature-cream);
+    max-width: 220px;
+    word-wrap: break-word;
+    line-height: 1.4;
+}
+
+.chat-message.own .chat-message-body {
+    background: rgba(106, 176, 76, 0.2);
+    border-color: var(--nature-green);
+}
+
+.chat-message-time {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.25);
+}
+
+.chat-input-area {
+    padding: 12px;
+    border-top: 1px solid var(--nature-light);
+    display: flex;
+    gap: 8px;
+}
+
+.chat-input {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--nature-light);
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: var(--nature-cream);
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.15s;
+}
+
+.chat-input:focus {
+    border-color: var(--nature-green);
+}
+
+.chat-input::placeholder {
+    color: rgba(255,255,255,0.25);
+}
+
+.chat-send {
+    background: transparent;
+    border: 1px solid var(--nature-green);
+    border-radius: 6px;
+    color: var(--nature-green);
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.15s;
+}
+
+.chat-send:hover {
+    background: rgba(106,176,76,0.15);
+    box-shadow: var(--glow-green);
+}
+.chat-system-message {
+    text-align: center;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    font-style: italic;
+    padding: 2px 0;
+}

@@ -5,79 +5,98 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\GamePlayer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class LobbyController extends Controller
 {
-    // Show all open games waiting for players
-    public function index()
-    {
-        $games = Game::where('status', 'waiting')
-                     ->with('players.user')
-                     ->get();
+public function index()
+{
+$games = Game::where('status', 'waiting')
+->where(function($q) {
+$q->where('visibility', 'public')
+->orWhereHas('players', function($q) {
+$q->where('user_id', auth()->id());
+});
+})
+->with('players.user')
+->get();
 
-        return view('lobby', ['games' => $games]);
-    }
+return view('lobby', ['games' => $games]);
+}
 
-    // Create a new game and join it as the host
-    public function create()
-    {
-        $game = Game::create([
-            'status'            => 'waiting',
-            'catastrophe_count' => 0,
-            'current_turn'      => auth()->id(),
-            'game_state'        => ['deckSize' => 118, 'discardPile' => []],
-        ]);
+public function create()
+{
+$visibility = request('visibility', 'public');
+$password = null;
 
-        GamePlayer::create([
-            'game_id'            => $game->id,
-            'user_id'            => auth()->id(),
-            'seat'               => 1,
-            'genepool'           => 0,
-            'points'             => 0,
-            'hand_cards'         => [],
-            'trait_pool'         => [],
-            'worlds_end_effects' => [],
-        ]);
+if ($visibility === 'private' && request('password')) {
+$password = bcrypt(request('password'));
+}
 
-        return redirect("/game/{$game->id}");
-    }
+$slug = strtoupper(substr(str_shuffle('ABCDEFGHJKLMNPQRSTUVWXYZ23456789'), 0, 6));
 
-    // Join an existing game
-    public function join(Game $game)
-    {
-        // Check game is still waiting for players
-        if ($game->status !== 'waiting') {
-            return back()->with('error', 'Game already started');
-        }
+$game = Game::create([
+'status'            => 'waiting',
+'slug'              => $slug,
+'catastrophe_count' => 0,
+'current_turn'      => auth()->id(),
+'game_state'        => ['deck' => [], 'deckSize' => 0, 'discardPile' => []],
+'visibility'        => $visibility,
+'password'          => $password,
+'max_players'       => request('max_players', 4),
+]);
 
-        // Check game is not full
-        if ($game->players()->count() >= 4) {
-            return back()->with('error', 'Game is full');
-        }
+GamePlayer::create([
+'game_id'            => $game->id,
+'user_id'            => auth()->id(),
+'seat'               => 1,
+'genepool'           => 5,
+'points'             => 0,
+'hand_cards'         => [],
+'trait_pool'         => [],
+'worlds_end_effects' => [],
+]);
 
-        // Check player isn't already in the game
-        $alreadyIn = GamePlayer::where('game_id', $game->id)
-                               ->where('user_id', auth()->id())
-                               ->exists();
+return redirect("/game/{$game->slug}");
+}
 
-        if ($alreadyIn) {
-            return redirect("/game/{$game->id}");
-        }
+public function join(Game $game)
+{
+if ($game->status !== 'waiting') {
+return back()->with('error', 'Game already started');
+}
 
-        // Assign next available seat dynamically
-        $seat = $game->players()->count() + 1;
+if ($game->players()->count() >= $game->max_players) {
+return back()->with('error', 'Game is full');
+}
 
-        GamePlayer::create([
-            'game_id'            => $game->id,
-            'user_id'            => auth()->id(),
-            'seat'               => $seat,
-            'genepool'           => 0,
-            'points'             => 0,
-            'hand_cards'         => [],
-            'trait_pool'         => [],
-            'worlds_end_effects' => [],
-        ]);
+if ($game->visibility === 'private') {
+if (!request('password') || !Hash::check(request('password'), $game->password)) {
+return back()->with('error', 'Incorrect password');
+}
+}
 
-        return redirect("/game/{$game->id}");
-    }
+$alreadyIn = GamePlayer::where('game_id', $game->id)
+->where('user_id', auth()->id())
+->exists();
+
+if ($alreadyIn) {
+return redirect("/game/{$game->slug}");
+}
+
+$seat = $game->players()->count() + 1;
+
+GamePlayer::create([
+'game_id'            => $game->id,
+'user_id'            => auth()->id(),
+'seat'               => $seat,
+'genepool'           => 5,
+'points'             => 0,
+'hand_cards'         => [],
+'trait_pool'         => [],
+'worlds_end_effects' => [],
+]);
+
+return redirect("/game/{$game->slug}");
+}
 }

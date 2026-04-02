@@ -68,13 +68,11 @@ async function endTurn() {
     let currentIndex = GameState.players.indexOf(GameState.currentPlayer);
     let nextIndex = (currentIndex + 1) % GameState.players.length;
     GameState.currentPlayer = GameState.players[nextIndex];
-    Deck.drawMultiple(
-        GameState.currentPlayer,
-        GameState.currentPlayer.size - GameState.currentPlayer.cards.length,
-    );
-    discardCardMultiple(GameState.currentPlayer, GameState.currentPlayer.cards.length - GameState.currentPlayer.size);
-    if (cardSearch(Late, GameState.currentPlayer)) {
-        
+    
+    
+    // Late card effect - player can play after stabilizing
+    if (cardSearch("Late", GameState.currentPlayer) !== -1) {
+        // TODO: implement Late effect
     }
 }
 
@@ -90,8 +88,8 @@ function checkGameOver() {
 // CARD PLAYING
 //================================================
 
-export function play(index) {
-    let currentPlayer = GameState.currentPlayer;
+export function play(index, player = null) {
+    let currentPlayer = player ?? GameState.currentPlayer;
     let players = GameState.players;
     if (cardSearch("Echolocation_Effect", currentPlayer) != -1) {
         Deck.draw(currentPlayer);
@@ -141,7 +139,11 @@ function runCardEffect(card, currentPlayer, players) {
     let functionName =
     card.card_name.replace(/\s+/g, "").replace(/-/g, "") + "_Effect";
     if (CardEffects[functionName]) {
-        CardEffects[functionName](currentPlayer, players);
+        try {
+            CardEffects[functionName](currentPlayer, players);
+        } catch (e) {
+            console.warn(`Effect failed for card: ${card.card_name} — ${e.message}`);
+        }
     } else {
         console.warn(`No function found for card: ${card.card_name}`);
     }
@@ -153,7 +155,7 @@ export function discardCard(playerhand,index) {
     playerhand.cards.splice(index, 1);
     if (card.card_name != "Endurance") {
         discardPile.push(card);
-        if (cardSearch(RegenerativeTissue, playerhand) != -1) {
+        if (cardSearch("Regenerative Tissue", playerhand) != -1) {
             Deck.draw(playerhand);
             let card = playerhand.cards.pop();
             playerhand.traitpool.push(card);
@@ -165,13 +167,13 @@ export function discardCard(playerhand,index) {
 }
 
 export function discardCardMultiple(playerhand, num, index) {
-    for (i = 0; i < num; i++) {
+    for (let i = 0; i < num; i++) {
         if (index < 0 || index >= playerhand.cards.length) return;
         let card = playerhand.cards[index];
         playerhand.cards.splice(index, 1);
         if (card.card_name != "Endurance") {
             discardPile.push(card);
-            if (cardSearch(RegenerativeTissue, playerhand) != -1) {
+            if (cardSearch("Regenerative Tissue", playerhand) != -1) {
                 Deck.draw(playerhand);
                 let card = playerhand.cards.pop();
                 playerhand.traitpool.push(card);
@@ -185,16 +187,16 @@ export function discardCardMultiple(playerhand, num, index) {
 
 export function discardColor(playerhand, color,index) {
     
-    if (index < 0 || index >= currentPlayer.cards.length) return;
+    if (index < 0 || index >= playerhand.cards.length) return;
     let card = playerhand.cards[index];
     while (card.color != color) {
-        if (index < 0 || index >= currentPlayer.cards.length) return;
+        if (index < 0 || index >= playerhand.cards.length) return;
         card = playerhand.cards[index];
     }
     playerhand.cards.splice(index, 1);
     if (card.card_name != "Endurance") {
         discardPile.push(card);
-        if (cardSearch(RegenerativeTissue, playerhand) != -1) {
+        if (cardSearch("Regenerative Tissue", playerhand) != -1) {
             Deck.draw(playerhand);
             let card = playerhand.cards.pop();
             playerhand.traitpool.push(card);
@@ -210,7 +212,7 @@ export function discardTrait(playerhand, index) {
     playerhand.traitpool.splice(index, 1);
     if (card.card_name != "Endurance") {
         discardPile.push(card);
-        if (cardSearch(RegenerativeTissue, playerhand) != -1) {
+        if (cardSearch("Regenerative Tissue", playerhand) != -1) {
             Deck.draw(playerhand);
             let card = playerhand.cards.pop();
             playerhand.traitpool.push(card);
@@ -273,7 +275,7 @@ function chooseCard(cards) {
 // WORLDS END
 //================================================
 
-function triggerWorldsEnd() {
+export function triggerWorldsEnd() {
     for (let player of GameState.players) {
         for (let effect of player.worldsEndEffects) {
             effect();
@@ -321,9 +323,7 @@ export function serializeForServer() {
         })),
     };
 }
-//================================================
-// EXPORTS
-//================================================
+
 
 //================================================
 // EXPORTS
