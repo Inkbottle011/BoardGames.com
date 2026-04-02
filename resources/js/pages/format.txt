@@ -51,3 +51,24 @@ playerId is hardcoded to 0 in doom.jsx — needs to come from Laravel auth sessi
 gameId is hardcoded to 1 in doom.jsx — needs to come from the URL or session
 Lobby UI — players can't create/join games from the browser yet
 Turn enforcement — UI doesn't visually block non-active players from playing
+
+
+Game Flow
+
+Age system — ages happen but nothin happens for each age
+Dominant cards — cards with dominant: 1 have special play conditions (e.g. Heroic requires 3 green traits) — not enforced at all
+
+UI/UX
+    4. Turn indicator — no clear visual showing whose turn it is
+    5. Opponent hand — opponents show card count but not face-down cards visually
+6. Card targeting — chooseOpponent always picks first opponent, needs a UI picker for multi-player
+    7. Card details — clicking a card should show its text/effect before playing
+8. Discard UI — handleDiscard and handleDiscardTrait exist but no UI buttons to trigger them
+Multiplayer
+9. Reconnection — if a player refreshes they rejoin fine, but if they close the tab the game gets stuck
+10. Spectator mode — games are visible but non-players can't watch
+11. 3-4 player layout — board.jsx has positioning for up to 4 players but untested
+Polish
+12. Card animations — no animations when playing cards
+13. Sound effects
+14. Mobile layout

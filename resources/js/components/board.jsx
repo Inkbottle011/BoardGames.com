@@ -48,11 +48,20 @@ export default function Board({ gameState, gameId, playerId, onPlay }) {
         {/* Center */}
         <div className="col-start-2 row-start-2 flex flex-col justify-center items-center gap-2">
         <div className="center-panel">
-        <h2 className="age-title">Age {gameState.age ?? '—'}</h2>
-        {gameState.catastrophe && (
-            <p className="catastrophe-warning">⚠ Catastrophe!</p>
+        {gameState.age ? (
+            <>
+            <h2 className="age-title">{gameState.age.age_name}</h2>
+            <p className="text-sm opacity-80 text-center">{gameState.age.text}</p>
+            {gameState.age.catastrophe && (
+                <p className="catastrophe-warning">⚠ Catastrophe!</p>
+            )}
+            </>
+        ) : (
+            <h2 className="age-title">—</h2>
         )}
-        <p className="text-sm opacity-60">Event Phase</p>
+        <p className="text-xs opacity-40 mt-1">
+        Catastrophes: {gameState.catastrophe_count ?? 0} / 3
+        </p>
         </div>
         
         <Deck

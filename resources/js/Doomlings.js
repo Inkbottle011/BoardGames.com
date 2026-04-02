@@ -30,6 +30,7 @@ let GameState = {
     currentPlayer: null,
     currentAge: null,
     catastropheCount: 0,
+    status: 'active'
 };
 
 //================================================
@@ -274,8 +275,10 @@ function chooseCard(cards) {
 //================================================
 // WORLDS END
 //================================================
+let isWorldsEnd = false;
 
 export function triggerWorldsEnd() {
+    isWorldsEnd = true;
     for (let player of GameState.players) {
         for (let effect of player.worldsEndEffects) {
             effect();
@@ -283,12 +286,16 @@ export function triggerWorldsEnd() {
     }
 }
 
+// Export the flag
+export { isWorldsEnd };
+
 //================================================
 // larvel reading
 //================================================
 
 // Load game state from Laravel into doomlings.js
 export function loadFromServer(serverState) {
+    GameState.status = serverState.status ?? 'active';
     GameState.players = serverState.players.map(p => {
         let hand = new PlayerHand(p.id);
         hand.cards = p.hand ?? [];
@@ -300,8 +307,15 @@ export function loadFromServer(serverState) {
     GameState.currentPlayer = GameState.players.find(
         p => p.id === serverState.current_turn
     ) ?? GameState.players[0];
+    
+    // Age is now a full object not just a string
     GameState.currentAge = serverState.age ?? null;
     GameState.catastropheCount = serverState.catastrophe_count ?? 0;
+    
+    // Handle game over
+    if (serverState.status === 'worlds_end') {
+        GameState.catastropheCount = 3;
+    }
 }
 
 // Serialize doomlings.js GameState back to Laravel format
