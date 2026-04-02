@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-export default function Chat({ gameId, gameSlug, playerId, username }) {
+export default function Chat({ gameId, gameSlug, playerId }) {
     const [open, setOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
@@ -11,7 +11,6 @@ export default function Chat({ gameId, gameSlug, playerId, username }) {
         return document.querySelector('meta[name="csrf-token"]').content;
     }
     
-    // Scroll to bottom when new messages arrive
     function scrollToBottom() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
@@ -21,25 +20,26 @@ export default function Chat({ gameId, gameSlug, playerId, username }) {
     }, [messages]);
     
     useEffect(() => {
+        if (!gameId) return;
+        
         const channel = window.Echo.private(`game.${gameId}`);
         
-        channel.listenToAll((event, data) => {
-            console.log("Channel event:", event, data);
-        });
-        
         channel.listen("MessageSent", (event) => {
-            console.log("MessageSent received:", event);
-            setMessages(prev => [...prev, event.message]);
-            if (!open) setUnread(prev => prev + 1);
+            // Only add if from another player — sender already added it immediately
+            if (event.message?.user?.id !== playerId) {
+                setMessages(prev => [...prev, event.message]);
+                setUnread(prev => prev + 1);
+            }
         });
         
         return () => {
-            channel.stopListening(".MessageSent");
+            channel.stopListening("MessageSent");
         };
-    }, [gameId]);
+    }, [gameId, playerId]);
     
-    // Load message history on mount
     useEffect(() => {
+        if (!gameSlug) return;
+        
         fetch(`/game/${gameSlug}/messages`, {
             headers: {
                 'Accept': 'application/json',
@@ -47,13 +47,23 @@ export default function Chat({ gameId, gameSlug, playerId, username }) {
             },
             credentials: 'include',
         })
-        .then(res => res.json())
-        .then(data => setMessages(data));
+        .then(res => {
+            if (!res.ok) throw new Error(`Messages fetch failed: ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            if (Array.isArray(data)) {
+                setMessages(data);
+            } else {
+                console.warn('Messages response was not an array:', data);
+                setMessages([]);
+            }
+        })
+        .catch(err => {
+            console.error('Failed to load messages:', err);
+            setMessages([]);
+        });
     }, [gameSlug]);
-    function handleOpen() {
-        setOpen(true);
-        setUnread(0);
-    }
     
     function sendMessage() {
         if (!input.trim()) return;
@@ -67,12 +77,18 @@ export default function Chat({ gameId, gameSlug, playerId, username }) {
             credentials: "include",
             body: JSON.stringify({ body: input }),
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error(`Send failed: ${res.status}`);
+            return res.json();
+        })
         .then(message => {
-            // Add own message immediately
-            setMessages(prev => [...prev, message]);
+            if (message && message.body) {
+                // Sender adds immediately — receiver gets it via broadcast
+                setMessages(prev => [...prev, message]);
+            }
             setInput("");
-        });
+        })
+        .catch(err => console.error('Failed to send message:', err));
     }
     
     function handleKeyDown(e) {
@@ -83,20 +99,20 @@ export default function Chat({ gameId, gameSlug, playerId, username }) {
     }
     
     function formatTime(timestamp) {
-        return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        try {
+            return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } catch {
+            return '';
+        }
     }
     
     return (
         <>
-        {/* Toggle button */}
         <button className="chat-toggle" onClick={() => { setOpen(prev => !prev); setUnread(0); }}>
         💬
-        {unread > 0 && (
-            <span className="unread-badge">{unread}</span>
-        )}
+        {unread > 0 && <span className="unread-badge">{unread}</span>}
         </button>
         
-        {/* Sidebar */}
         <div className={`chat-sidebar ${open ? 'open' : ''}`}>
         <div className="chat-header">
         <span className="chat-title">Game Chat</span>
@@ -110,18 +126,18 @@ export default function Chat({ gameId, gameSlug, playerId, username }) {
             </p>
         )}
         {messages.map((msg, i) => (
-            msg.type === 'system' ? (
+            msg?.type === 'system' ? (
                 <div key={i} className="chat-system-message">
                 ⚡ {msg.body}
                 </div>
             ) : (
-                <div key={i} className={`chat-message ${msg.user?.id === playerId ? 'own' : ''}`}>
+                <div key={i} className={`chat-message ${msg?.user?.id === playerId ? 'own' : ''}`}>
                 <span className="chat-message-user">
-                {msg.user?.username ?? 'Unknown'}
+                {msg?.user?.username ?? 'Unknown'}
                 </span>
-                <div className="chat-message-body">{msg.body}</div>
+                <div className="chat-message-body">{msg?.body}</div>
                 <span className="chat-message-time">
-                {formatTime(msg.created_at)}
+                {formatTime(msg?.created_at)}
                 </span>
                 </div>
             )
@@ -144,5 +160,4 @@ export default function Chat({ gameId, gameSlug, playerId, username }) {
         </div>
         </>
     );
-    
 }

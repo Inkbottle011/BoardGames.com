@@ -1,5 +1,6 @@
 import { resolveCard, GameState, chooseOpponent } from "./Doomlings.js";
 import * as Deck from "./Deck.js";
+import { triggerWorldsEnd } from "./Doomlings.js";
 //supplementary functions
 
 function colorcounter(color, currentPlayer, card) {

@@ -78,8 +78,6 @@ export default function Board({ gameState, gameId, playerId, onPlay }) {
         
         <Hand
         cards={currentPlayer?.hand}
-        gameId={gameId}
-        playerId={playerId}
         onPlay={onPlay}
         />
         </div>
