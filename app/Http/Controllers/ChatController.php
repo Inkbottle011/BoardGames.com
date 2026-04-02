@@ -12,7 +12,6 @@ class ChatController extends Controller
 {
 public function send(Request $request, Game $game)
 {
-// Check player is in this game
 $inGame = GamePlayer::where('game_id', $game->id)
 ->where('user_id', auth()->id())
 ->exists();
@@ -29,15 +28,25 @@ $message = Message::create([
 'game_id' => $game->id,
 'user_id' => auth()->id(),
 'body'    => $request->body,
+'type'    => 'user',
 ]);
 
 $message->load('user');
 
-// Broadcast to all other players in the game
 broadcast(new MessageSent($message))->toOthers();
 
-return response()->json($message);
+return response()->json([
+'id'         => $message->id,
+'body'       => $message->body,
+'type'       => $message->type,
+'created_at' => $message->created_at,
+'user'       => [
+'id'       => $message->user->id,
+'username' => $message->user->username,
+],
+]);
 }
+
 public function index(Game $game)
 {
 $messages = $game->messages()
@@ -47,20 +56,29 @@ $messages = $game->messages()
 ->map(fn($m) => [
 'id'         => $m->id,
 'body'       => $m->body,
+'type'       => $m->type ?? 'user',
 'created_at' => $m->created_at,
-'user'       => [
+'user'       => $m->user ? [
 'id'       => $m->user->id,
 'username' => $m->user->username,
-],
+] : null,
 ]);
 
 return response()->json($messages);
 }
+
 public static function systemMessage(Game $game, string $body)
 {
+// Use the host's user_id to satisfy the foreign key constraint
+$host = GamePlayer::where('game_id', $game->id)
+->orderBy('seat')
+->first();
+
+if (!$host) return;
+
 $message = Message::create([
 'game_id' => $game->id,
-'user_id' => null,
+'user_id' => $host->user_id,
 'body'    => $body,
 'type'    => 'system',
 ]);
