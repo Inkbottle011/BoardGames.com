@@ -10,6 +10,7 @@ class Message extends Model
         'game_id',
         'user_id',
         'body',
+        'type',
     ];
 
     public function user()

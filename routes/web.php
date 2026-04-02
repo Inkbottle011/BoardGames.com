@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 Route::get('/', [GameCatalogueController::class, 'index'])->name('home');
 Route::get('/doomlings', function () {
-    return view('doomlings');
+return view('doomlings');
 })->name('doomlings');
 
 
@@ -41,7 +41,7 @@ Route::post('/game/{game}/heartbeat', [GameController::class, 'heartbeat']);
 Route::get('/cards', function(){
 return DB::table('doomlings_deck')->get();
 });
-
+Route::get('/game/{game}/messages', [ChatController::class, 'index']);
 Route::get('/cards/{id}', function($id){
 return DB::table('doomlings_deck')->where('id', $id)->first();
 });

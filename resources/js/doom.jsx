@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Board from "./components/board";
+import Chat from "./components/chat";
 import { loadFromServer, serializeForServer, GameState, play, discardCard, discardTrait } from "./Doomlings.js";
 
 export default function Doom() {
@@ -33,6 +34,9 @@ export default function Doom() {
     }
     
     function saveToServer() {
+        const data = serializeForServer();
+        console.log('Sending to server:', JSON.stringify(data));
+        
         return fetch(`/game/${gameSlug}/turn`, {
             method: "POST",
             headers: {
@@ -40,9 +44,18 @@ export default function Doom() {
                 "X-CSRF-TOKEN": csrfToken(),
             },
             credentials: "include",
-            body: JSON.stringify(serializeForServer()),
-        }).then(res => res.json());
-    }
+            body: JSON.stringify(data),
+        })
+        .then(res => {
+            if (!res.ok) {
+                return res.json().then(err => {
+                    console.error('Validation error:', err);
+                    throw new Error(JSON.stringify(err));
+                });
+            }
+            return res.json();
+        });
+    } 
     
     function fetchGameState() {
         fetch(`/game/${gameSlug}`, {
@@ -72,12 +85,28 @@ export default function Doom() {
         };
     }, [gameId]);
     
-    function handlePlay(cardIndex) {
+    function handlePlay(cardId) {
+        // Find the current player in GameState
+        const currentPlayer = GameState.players.find(p => p.id === playerId);
+        if (!currentPlayer) {
+            console.error('Current player not found in GameState');
+            return;
+        }
+        
+        // Convert card ID to array index
+        const cardIndex = currentPlayer.cards.findIndex(c => c.id === cardId);
+        console.log('playerId:', playerId, 'cardId:', cardId, 'cardIndex:', cardIndex);
+        
+        if (cardIndex === -1) {
+            console.error('Card not found in hand');
+            return;
+        }
+        
         play(cardIndex);
+        console.log('GameState after play:', GameState);
         syncState();
         saveToServer();
     }
-    
     function handleDiscard(playerhand, index) {
         discardCard(playerhand, index);
         syncState();
@@ -99,6 +128,11 @@ export default function Doom() {
         onPlay={handlePlay}
         onDiscard={handleDiscard}
         onDiscardTrait={handleDiscardTrait}
+        />
+        <Chat
+        gameId={gameId}
+        gameSlug={gameSlug}
+        playerId={playerId}
         />
         </div>
     );

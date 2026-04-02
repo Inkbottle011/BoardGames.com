@@ -72,9 +72,11 @@ async function endTurn() {
         GameState.currentPlayer,
         GameState.currentPlayer.size - GameState.currentPlayer.cards.length,
     );
-    discardCardMultiple(GameState.currentPlayer, GameState.currentPlayer.cards.length - GameState.currentPlayer.size);
-    if (cardSearch(Late, GameState.currentPlayer)) {
-        
+    let discardCount = GameState.currentPlayer.cards.length - GameState.currentPlayer.size;
+    if (discardCount > 0) {
+        discardCardMultiple(GameState.currentPlayer, discardCount, 0);
+    }    if (cardSearch("Late", GameState.currentPlayer) !== -1) {
+        // Late card effect - player can play after stabilizing
     }
 }
 
@@ -153,7 +155,7 @@ export function discardCard(playerhand,index) {
     playerhand.cards.splice(index, 1);
     if (card.card_name != "Endurance") {
         discardPile.push(card);
-        if (cardSearch(RegenerativeTissue, playerhand) != -1) {
+        if (cardSearch("Regenerative Tissue", playerhand) != -1) {
             Deck.draw(playerhand);
             let card = playerhand.cards.pop();
             playerhand.traitpool.push(card);
@@ -165,13 +167,13 @@ export function discardCard(playerhand,index) {
 }
 
 export function discardCardMultiple(playerhand, num, index) {
-    for (i = 0; i < num; i++) {
+    for (let i = 0; i < num; i++) {
         if (index < 0 || index >= playerhand.cards.length) return;
         let card = playerhand.cards[index];
         playerhand.cards.splice(index, 1);
         if (card.card_name != "Endurance") {
             discardPile.push(card);
-            if (cardSearch(RegenerativeTissue, playerhand) != -1) {
+            if (cardSearch("Regenerative Tissue", playerhand) != -1) {
                 Deck.draw(playerhand);
                 let card = playerhand.cards.pop();
                 playerhand.traitpool.push(card);
@@ -185,10 +187,10 @@ export function discardCardMultiple(playerhand, num, index) {
 
 export function discardColor(playerhand, color,index) {
     
-    if (index < 0 || index >= currentPlayer.cards.length) return;
+    if (index < 0 || index >= playerhand.cards.length) return;
     let card = playerhand.cards[index];
     while (card.color != color) {
-        if (index < 0 || index >= currentPlayer.cards.length) return;
+        if (index < 0 || index >= playerhand.cards.length) return;
         card = playerhand.cards[index];
     }
     playerhand.cards.splice(index, 1);
@@ -321,9 +323,7 @@ export function serializeForServer() {
         })),
     };
 }
-//================================================
-// EXPORTS
-//================================================
+
 
 //================================================
 // EXPORTS

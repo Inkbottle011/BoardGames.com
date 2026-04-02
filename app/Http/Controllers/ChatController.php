@@ -38,4 +38,33 @@ broadcast(new MessageSent($message))->toOthers();
 
 return response()->json($message);
 }
+public function index(Game $game)
+{
+$messages = $game->messages()
+->with('user')
+->orderBy('created_at')
+->get()
+->map(fn($m) => [
+'id'         => $m->id,
+'body'       => $m->body,
+'created_at' => $m->created_at,
+'user'       => [
+'id'       => $m->user->id,
+'username' => $m->user->username,
+],
+]);
+
+return response()->json($messages);
+}
+public static function systemMessage(Game $game, string $body)
+{
+$message = Message::create([
+'game_id' => $game->id,
+'user_id' => null,
+'body'    => $body,
+'type'    => 'system',
+]);
+
+broadcast(new MessageSent($message))->toOthers();
+}
 }

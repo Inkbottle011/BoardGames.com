@@ -59,26 +59,21 @@ if (!$gamePlayer) {
 return response()->json(['error' => 'You are not in this game'], 403);
 }
 
-// Validate the card being played exists in the player's hand
-$hand = $gamePlayer->hand_cards ?? [];
-$cardId = $request->cardId;
-$cardInHand = collect($hand)->firstWhere('id', $cardId);
-
-if (!$cardInHand) {
-return response()->json(['error' => 'Card not in hand'], 400);
-}
-
 // Validate request data
-$request->validate([
-'current_turn'      => 'required',
-'catastrophe_count' => 'required|integer|min:0',
-'players'           => 'required|array',
-'players.*.id'      => 'required',
-'players.*.cards'   => 'required|array',
-'players.*.traitpool' => 'required|array',
+$validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+'current_turn'        => 'required',
+'catastrophe_count'   => 'required|integer|min:0',
+'players'             => 'required|array',
+'players.*.id'        => 'required',
+'players.*.cards'     => 'present|array',
+'players.*.traitpool' => 'present|array',
 'players.*.genepool'  => 'required|integer|min:0',
 'players.*.points'    => 'required|integer',
 ]);
+
+if ($validator->fails()) {
+return response()->json(['error' => $validator->errors()], 422);
+}
 
 // Update game state
 $game->update([
@@ -122,6 +117,8 @@ return response()->json([
 'points'    => $p->points ?? 0,
 ]),
 ]);
+// After updating game state, add system message
+ChatController::systemMessage($game, "Player {$gamePlayer->user->username} played a card");
 }
 public function startGame(Game $game)
 {
