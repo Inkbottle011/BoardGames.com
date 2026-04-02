@@ -1,5 +1,6 @@
 import * as CardEffects from "./CardEffects.js";
 import * as Deck from "./Deck.js";
+import axios from "axios";
 
 //================================================
 // DATA STRUCTURES
@@ -36,9 +37,20 @@ let GameState = {
 //================================================
 // GAME SETUP
 //================================================
+async function gameloop(numplayers) {
+    gamestart(numplayers);
+    while (!checkGameOver) {
+        for (i = 0; i < numplayers; i++) {
+            play(index);
+        }
+        startNewAge();
+    }
+}
 
 async function gamestart(numPlayers) {
     Deck.buildDeck();
+    AgesDeck();
+    GameState.currentAge = Ages[0];
     for (let i = 0; i < numPlayers; i++) {
         GameState.players.push(new PlayerHand(i));
     }
@@ -57,9 +69,54 @@ function startNewAge() {
         GameState.catastropheCount++;
     }
     checkGameOver();
+    if (GameState.currentAge.catastrophe || GameState.currentAge.age_name === "Birth of a Hero" || GameState.currentAge.age_name === "Northern Winds" || GameState.currentAge.age_name === "Awakening" || GameState.currentAge.age_name === "Flourish" || GameState.currentAge.age_name === "Age of Dracula" || GameState.currentAge.age_name === "Comet Showers" || GameState.currentAge.age_name === "The Messiah" || GameState.currentAge.age_name === "Age of Reason") {
+        runAgeEffect(null, GameState.currentPlayer, GameState.players);
+    }
 }
 
+function AgesDeck() {
+    Ages.push(CreateAges(41));
+    for (i = 0; i < 3; i++) {
+        let randomIndex = 0;
+        for (k = 0; k < 3; k++) {
+            randomIndex = Math.round(Math.random() * 25 + 1);
+            Ages.push(CreateAges(randomIndex));
+        }
+        randomIndex = Math.round(Math.random() * 40 + 26);
+    }
+}
 
+async function CreateAges(ID) {
+    return new Promise((resolve, reject) => {
+        con.query("SELECT * FROM doomlings_ages WHERE id = ?", [ID], (err, results) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            if (results.length > 0) {
+                const {
+                    age_name,
+                    text,
+                    card_name,
+                    img,
+                    catastrophe
+                } = results[0];
+                resolve(
+                    new Age(
+                        ID,
+                        age_name,
+                        text,
+                        card_name,
+                        img,
+                        catastrophe
+                    ),
+                );
+            } else {
+                resolve(null);
+            }
+        });
+    });
+}
 
 //================================================
 // TURN MANAGEMENT
@@ -69,6 +126,9 @@ async function endTurn() {
     let currentIndex = GameState.players.indexOf(GameState.currentPlayer);
     let nextIndex = (currentIndex + 1) % GameState.players.length;
     GameState.currentPlayer = GameState.players[nextIndex];
+    if (currentAge.age_name === "Prosperity" || currentAge.age_name === "Age of Nietzche" || currentAge.age_name === "Enlightenment" || currentAge.age_name === "Costal Formations" || currentAge.age_name === "Age of Wonder") {
+        runAgeEffect(null, GameState.currentPlayer, GameState.players);
+    }
     stabilize();
 }
 export function stabilize() {
@@ -105,6 +165,9 @@ export function play(index) {
     }
     if (index < 0 || index >= currentPlayer.cards.length) return;
     let card = currentPlayer.cards[index];
+    if (!GameState.currentAge.catastrophe || GameState.currentAge.age_name != "Birth of a Hero" || GameState.currentAge.age_name != "Northern Winds" || GameState.currentAge.age_name != "Awakening" || GameState.currentAge.age_name != "Flourish" || GameState.currentAge.age_name != "Age of Dracula" || GameState.currentAge.age_name != "Comet Showers" || GameState.currentAge.age_name != "The Messiah" || GameState.currentAge.age_name != "Age of Reason" || currentAge.age_name != "Prosperity" || currentAge.age_name != "Age of Nietzche" || currentAge.age_name != "Enlightenment" || currentAge.age_name != "Costal Formations" || currentAge.age_name != "Age of Wonder") {
+        runAgeEffect(card, currentPlayer, players);
+    }
     if (card.card_name === "Heroic") {
         let green = 0;
         for (i = 0; i < currentPlayer.cards.length; i++) {
@@ -117,10 +180,13 @@ export function play(index) {
                 resolveCard(card, currentPlayer, players);
                 endTurn();
             } else {
-                while (card.card_name != "Heroic") {
+                while (card.card_name === "Heroic") {
                     if (index < 0 || index >= currentPlayer.cards.length) return;
-                    let card = currentPlayer.cards[index];
+                    card = currentPlayer.cards[index];
                 }
+                onCardPlayed(card, currentPlayer, players);
+                resolveCard(card, currentPlayer, players);
+                endTurn();
             }
         }
     } else {
@@ -150,7 +216,7 @@ function handSearch(card_name, currentPlayer) {
     return -1;
 }
 
-function runAgeEffect(currentPlayer, players) {
+function runAgeEffect(card, currentPlayer, players) {
     let functionName =
         Ages[0].replace(/\s+/g, "").replace(/-/g, "") + "_effect";
     if (AgesEffects[functionName]) {
