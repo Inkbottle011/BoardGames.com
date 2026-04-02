@@ -1,10 +1,9 @@
-import { resolveCard, GameState, chooseOpponent } from "./Doomlings.js";
 import * as Deck from "./Deck.js";
-import { triggerWorldsEnd } from "./Doomlings.js";
+import { resolveCard, GameState, chooseOpponent, triggerWorldsEnd } from "./Doomlings.js";
 //supplementary functions
 
 function colorcounter(color, currentPlayer, card) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         for (i = 0; i < currentPlayer.traitpool.length; i++) {
             if (currentPlayer.traitpool[i].color === color) {
                 card.points += 1;
@@ -26,7 +25,7 @@ function colorcounter(color, currentPlayer, card) {
 
 
 function value_equal_size(currentPlayer, card) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         points += currentPlayer.size;
     } else {
         player.worldsEndEffects.push(() => {
@@ -39,7 +38,7 @@ function value_equal_size(currentPlayer, card) {
 
 //completed
 function Imunity_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         for (i = 0; i < currentPlayer.traitpool.length; i++) {
             if (currentPlayer.traitpool[i].value < 0) {
                 card.points += 2;
@@ -58,7 +57,7 @@ function Imunity_Effect(currentPlayer, players) {
 }
 }
 function Tiny_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         card.points -= currentPlayer.traitpool.length
     } else {
         player.worldsEndEffects.push(() => {
@@ -84,7 +83,7 @@ function CostlySignaling_Effect(currentPlayer, players) {
     Doomlings.play(index);
 }
 function EggClusters_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         colorcounter("blue", currentPlayer, this.card);
     } else {
         player.worldsEndEffects.push(() => {
@@ -140,7 +139,7 @@ function Fecundity_Effect(currentPlayer, players) {
 
 
 function Fortunate_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         points += currentPlayer.cards.length
     } else {
         player.worldsEndEffects.push(() => {
@@ -152,7 +151,7 @@ function Fortunate_Effect(currentPlayer, players) {
 }
 
 function Overgrowth_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         colorcounter("green", currentPlayer, this.card);
     } else {
         player.worldsEndEffects.push(() => {
@@ -184,7 +183,7 @@ function Propagation_Effect(currentPlayer, players) {
 
 function Pollination_Effect(currentPlayer, players) {
     
-    if (worldsend) {
+    if (isWorldsEnd) {
         for (i = 0; i < currentPlayer.traitpool.length; i++) {
             if (currentPlayer.traitpool[i].value == 1) {
                 card.points += 1;
@@ -218,7 +217,7 @@ function SelfReplicating_Effect(currentPlayer, players) {
 }
 
 function Kidney_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         for (i = 0; i < currentPlayer.traitpool.length; i++) {
             if (currentPlayer.traitpool[i].card_name === "kidney") {
                 points += 1;
@@ -238,7 +237,7 @@ function Kidney_Effect(currentPlayer, players) {
 }
 
 function Swarm_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         for (k = 0; k < players.length; k++) {
             for (i = 0; i < players[k].traitpool.length; i++) {
                 if (players[k].traitpool[i].card_name === "swarm") {
@@ -275,7 +274,7 @@ function Altruistic_Effect(currentPlayer, players) {
 }
 
 function Boredom_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         for (i = 0; i < players[k].cards.length; i++) {
             if (players[k].cards[i].text != null) {
                 points += 1;
@@ -309,7 +308,7 @@ function Doting_Effect(currentPlayer, players) {
     players[Doomlings.chooseOpponent(currentPlayer, players)].cards.push(card);
 }
 function Eloquence_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         if (index < 0 || index >= currentPlayer.cards.length) return;
         let card = currentPlayer.cards[index];
         currentPlayer.cards.splice(index, 1);
@@ -338,7 +337,7 @@ function Eloquence_Effect(currentPlayer, players) {
 
 function Gratitude_Effect(currentPlayer, players) {
     
-    if (worldsend) {
+    if (isWorldsEnd) {
         let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
         
         for (i = 0; i < currentPlayer.traitpool.length; i++) {
@@ -381,7 +380,7 @@ function Mindful_Effect(currentPlayer, players) {
 }
 
 function Saudade_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
         
         for (i = 0; i < currentPlayer.cards.length; i++) {
@@ -429,7 +428,7 @@ function Vampirism_Effect(currentPlayer, players) {
 }
 
 function Viral_Effect(currentPlayer, players) { //maybe works idk
-    if (worldsend) {
+    if (isWorldsEnd) {
         let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
         if (index < 0 || index >= colors.length) return;
         let color = colors[index];
@@ -576,7 +575,7 @@ function Teeth_Effect(currentPlayer, players) {
 }
 
 function ApexPredator_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         let mostTrait = true;
         for (i = 0; i < players.length; i++) {
             if (currentPlayer.traitpool.length < players[i].traitpool.length) {
@@ -614,7 +613,7 @@ function Bad_Effect(currentPlayer, players) {
     }
 }
 function Brave_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         for (i = 0; i < currentPlayer.cards.length; i++) {
             if (currentPlayer.cards[i].dominate) {
                 points += 2
@@ -681,7 +680,7 @@ function Tentacles_Effect(currentPlayer, players) {
 
 function Faith_Effect(currentPlayer, players) {
     
-    if (worldsend) {
+    if (isWorldsEnd) {
         let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
         if (index < 0 || index >= colors.length) return;
         let color = colors[index];
@@ -726,7 +725,7 @@ function Selfish_Effect(currentPlayer, players) {
 } // steal a red card from an opponenents trait pile
 
 function Symbiosis_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         let count = [0, 0, 0, 0, 0]
         for (k = 0; k < currentPlayer.traitpool.length; k++) {
             if (currentPlayer.traitpool[k] === "Blue") {
@@ -819,7 +818,7 @@ function TinyLittleMelons_Effect(currentPlayer, players) {
 }
 
 function PackBehavior_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         let count = [0, 0, 0, 0, 0]
         for (k = 0; k < currentPlayer.traitpool.length; k++) {
             if (currentPlayer.traitpool[k] === "Blue") {
@@ -872,7 +871,7 @@ function PackBehavior_Effect(currentPlayer, players) {
 } //+1 for every color pair
 
 function Branches_Effect(currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         let count = 0;
         for (k = 0; k < currentPlayer.traitpool.length; k++) {
             if (currentPlayer.traitpool[k] === "Green") {

@@ -29,9 +29,10 @@ export default function Doom() {
                 points: p.points,
             })),
             current_turn: GameState.currentPlayer?.id,
-            age: GameState.currentAge,
+            age: GameState.currentAge,         // now a full object
             catastrophe: GameState.catastropheCount >= 3,
             catastrophe_count: GameState.catastropheCount,
+            status: GameState.status ?? 'active',
         });
     }
     
@@ -173,6 +174,40 @@ export default function Doom() {
         saveToServer()
         .then(data => { loadFromServer(data); syncState(); })
         .catch(() => fetchGameStateRef.current());
+    }
+    
+    
+    if (gameState?.status === 'worlds_end') {
+        const winner = [...(gameState.players ?? [])]
+        .sort((a, b) => b.points - a.points)[0];
+        
+        return (
+            <div className="flex flex-col items-center justify-center h-screen gap-6">
+            <h1 className="text-4xl font-bold">🌍 World's End</h1>
+            <p className="text-xl">The world has ended after {gameState.catastrophe_count} catastrophes</p>
+            {winner && (
+                <div className="center-panel text-center">
+                <p className="text-lg opacity-60">Winner</p>
+                <p className="text-2xl font-bold">Player {winner.id}</p>
+                <p className="text-xl">{winner.points} points</p>
+                </div>
+            )}
+            <div className="flex flex-col gap-2 w-64">
+            {[...(gameState.players ?? [])].sort((a, b) => b.points - a.points).map((p, i) => (
+                <div key={p.id} className="score-row">
+                <span>#{i + 1} Player {p.id}</span>
+                <span>{p.points}pts</span>
+                </div>
+            ))}
+            </div>
+            <button 
+            className="chat-send px-6 py-2"
+            onClick={() => window.location.href = '/lobby'}
+            >
+            Back to Lobby
+            </button>
+            </div>
+        );
     }
     
     return (

@@ -60,10 +60,13 @@ if ($validator->fails()) {
 return response()->json(['error' => $validator->errors()], 422);
 }
 
-// Get current deck from game_state
 $gameState   = $game->game_state ?? [];
 $deck        = $gameState['deck'] ?? [];
 $discardPile = $gameState['discardPile'] ?? [];
+$ageDeck     = $gameState['age_deck'] ?? [];
+$roundPlayers = $gameState['round_players'] ?? [];
+$playerOrder  = $gameState['player_order'] ?? [];
+$currentAge   = $game->current_age;
 
 // Update each player's state, dealing cards to the player who just played
 foreach ($request->players as $playerData) {
@@ -71,7 +74,6 @@ $playerId = (int) $playerData['id'];
 $hand     = $playerData['cards'];
 $genepool = (int) $playerData['genepool'];
 
-// Deal cards back up to genepool size for the player who just played
 if ($playerId === (int) auth()->id()) {
 $cardsToDraw = max(0, $genepool - count($hand));
 for ($i = 0; $i < $cardsToDraw; $i++) {
@@ -90,29 +92,77 @@ GamePlayer::where('game_id', $game->id)
 ]);
 }
 
-// Update game state with remaining deck
+// Track who has played this round
+$roundPlayers[] = (int) auth()->id();
+$roundPlayers = array_unique($roundPlayers);
+
+$nextPlayerId    = (int) $request->current_turn;
+$catastropheCount = (int) $request->catastrophe_count;
+$newAge          = $currentAge;
+$gameStatus      = $game->status;
+
+// Check if all players have played this round
+$allPlayerIds = collect($playerOrder)->map(fn($id) => (int) $id)->toArray();
+$roundComplete = count(array_intersect($allPlayerIds, $roundPlayers)) === count($allPlayerIds);
+
+if ($roundComplete) {
+// Reset round tracking
+$roundPlayers = [];
+
+// Flip next age
+if (!empty($ageDeck)) {
+$newAge = array_shift($ageDeck);
+
+// Handle catastrophe
+if ($newAge['catastrophe']) {
+$catastropheCount++;
+
+// Rotate turn order — move first player to end
+if (!empty($playerOrder)) {
+$first = array_shift($playerOrder);
+$playerOrder[] = $first;
+$nextPlayerId = $playerOrder[0];
+}
+
+// Check game over
+if ($catastropheCount >= 3) {
+$gameStatus = 'worlds_end';
+}
+}
+
+// Log age flip in chat
+try {
+ChatController::systemMessage($game, "A new age begins: {$newAge['age_name']}");
+} catch (\Exception $e) {}
+} else {
+// No more ages — trigger worlds end
+$catastropheCount = 3;
+$gameStatus = 'worlds_end';
+}
+}
+
+// Update game
 $game->update([
-'current_turn'      => (int) $request->current_turn,
-'catastrophe_count' => (int) $request->catastrophe_count,
-'current_age'       => $request->current_age,
+'current_turn'      => $nextPlayerId,
+'catastrophe_count' => $catastropheCount,
+'current_age'       => $newAge,
+'status'            => $gameStatus,
 'game_state'        => [
-'deck'        => $deck,
-'deckSize'    => count($deck),
-'discardPile' => $discardPile,
+'deck'         => $deck,
+'deckSize'     => count($deck),
+'discardPile'  => $discardPile,
+'age_deck'     => $ageDeck,
+'round_players' => $roundPlayers,
+'player_order'  => $playerOrder,
 ],
-'status' => $request->status ?? $game->status,
 ]);
 
 $game->load(['players.user']);
-
-// No toOthers() — client filters own broadcast echo via lastSentTurnRef
 broadcast(new TurnPlayed($game));
 
 try {
 ChatController::systemMessage($game, "Player {$gamePlayer->user->name} played a card");
-} catch (\Exception $e) {
-// Don't let chat failure break the game
-}
+} catch (\Exception $e) {}
 
 return response()->json($this->formatGameState($game));
 }
@@ -128,6 +178,7 @@ if ($game->players()->count() < 2) {
 return back()->with('error', 'Need at least 2 players to start');
 }
 
+// Build card deck
 $allCards = DB::table('doomlings_deck')->get()->map(fn($c) => [
 'id'        => $c->id,
 'card_name' => $c->card_name,
@@ -139,25 +190,92 @@ $allCards = DB::table('doomlings_deck')->get()->map(fn($c) => [
 'action'    => $c->action,
 ])->shuffle()->values()->toArray();
 
-$deck      = $allCards;
 $cardIndex = 0;
-
 foreach ($game->players as $player) {
 $handSize = $player->genepool > 0 ? $player->genepool : 5;
-$hand     = array_slice($deck, $cardIndex, $handSize);
+$hand     = array_slice($allCards, $cardIndex, $handSize);
 $cardIndex += $handSize;
 $player->update(['hand_cards' => $hand]);
 }
+$remainingDeck = array_slice($allCards, $cardIndex);
 
-$remainingDeck = array_slice($deck, $cardIndex);
+// Build age deck
+// Always start with Birth of Life
+$birthOfLife = DB::table('doomlings_ages')
+->where('age_name', 'The Birth of Life')
+->first();
+
+// Pick 3 random catastrophes
+$catastrophes = DB::table('doomlings_ages')
+->where('catastrophe', 1)
+->inRandomOrder()
+->limit(3)
+->get()
+->map(fn($a) => [
+'id'          => $a->id,
+'age_name'    => $a->age_name,
+'img'         => $a->img,
+'text'        => $a->text,
+'catastrophe' => (bool) $a->catastrophe,
+'world_end_text' => $a->World_End_text,
+])->toArray();
+
+// Pick 12 random normal ages
+$normalAges = DB::table('doomlings_ages')
+->where('catastrophe', 0)
+->where('age_name', '!=', 'The Birth of Life')
+->inRandomOrder()
+->limit(12)
+->get()
+->map(fn($a) => [
+'id'          => $a->id,
+'age_name'    => $a->age_name,
+'img'         => $a->img,
+'text'        => $a->text,
+'catastrophe' => (bool) $a->catastrophe,
+'world_end_text' => $a->World_End_text,
+])->toArray();
+
+// Shuffle normal ages and catastrophes together, Birth of Life always first
+$shuffledAges = collect(array_merge($normalAges, $catastrophes))
+->shuffle()
+->values()
+->toArray();
+
+$birthOfLifeFormatted = [
+'id'          => $birthOfLife->id,
+'age_name'    => $birthOfLife->age_name,
+'img'         => $birthOfLife->img,
+'text'        => $birthOfLife->text,
+'catastrophe' => (bool) $birthOfLife->catastrophe,
+'world_end_text' => $birthOfLife->World_End_text,
+];
+
+// Full age deck: Birth of Life first, then shuffled rest
+$ageDeck = array_merge([$birthOfLifeFormatted], $shuffledAges);
+
+// Flip Birth of Life immediately as starting age
+$currentAge = array_shift($ageDeck);
+
+// Player order — by seat
+$playerOrder = $game->players()
+->orderBy('seat')
+->pluck('user_id')
+->map(fn($id) => (int) $id)
+->toArray();
 
 $game->update([
-'status'       => 'active',
-'current_turn' => (int) $host->user_id,
-'game_state'   => [
-'deck'        => $remainingDeck,
-'deckSize'    => count($remainingDeck),
-'discardPile' => [],
+'status'            => 'active',
+'current_turn'      => (int) $host->user_id,
+'current_age'       => $currentAge,
+'catastrophe_count' => 0,
+'game_state'        => [
+'deck'          => $remainingDeck,
+'deckSize'      => count($remainingDeck),
+'discardPile'   => [],
+'age_deck'      => $ageDeck,
+'round_players' => [],
+'player_order'  => $playerOrder,
 ],
 ]);
 
