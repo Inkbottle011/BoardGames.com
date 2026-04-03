@@ -11,9 +11,11 @@ class GamePlayer extends Model
         'user_id',
         'seat',
         'genepool',
+        'points',
         'hand_cards',
         'trait_pool',
         'worlds_end_effects',
+        'last_seen',
     ];
 
     protected $casts = [

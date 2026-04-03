@@ -1,14 +1,15 @@
-function Hand({ cards }) {
-    const playCard = (id) => {
-        socket.emit("playCard", { cardId: id });
-    };
+import Card from "./card";
 
+export default function Hand({ cards, onPlay }) {
     return (
-        <div className="flex gap-3 overflow-x-auto p-2">
-            {cards.map((card) => (
-                <Card key={card.id} card={card} onPlay={playCard} />
-            ))}
+        <div className="hand-area flex gap-3 overflow-x-auto p-2">
+        {cards && cards.length > 0 ? (
+            cards.map((card) => (
+                <Card key={card.id} card={card} onPlay={onPlay} />
+            ))
+        ) : (
+            <p className="opacity-50 italic text-sm">No cards in hand</p>
+        )}
         </div>
     );
 }
-//<Card card={card} onClick={() => playCard(card)} />

@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,5 +13,15 @@ class DatabaseSeeder extends Seeder
             \Database\Seeders\DoomlingsAgesSeeder::class,
             \Database\Seeders\DoomlingsDeckSeeder::class,
         ]);
-    }
+
+        $this->call([
+            GameCatalogueSeeder::class,
+        ]);
+        }
 }
+
+// To sync databses: 
+// git pull
+// composer install
+// php artisan migrate
+// php artisan db:seed

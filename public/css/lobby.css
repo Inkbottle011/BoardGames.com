@@ -1,0 +1,144 @@
+/* ============================================
+   LOBBY — Arcade Theme
+   ============================================ */
+
+.lobby-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 2rem;
+}
+
+.lobby-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+}
+
+.lobby-card-left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.lobby-game-title {
+    font-family: var(--font-pixel);
+    font-size: 0.6rem;
+    color: var(--arcade-yellow);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.badge-your-game {
+    background: var(--arcade-cyan);
+    color: var(--arcade-dark);
+    font-family: var(--font-pixel);
+    font-size: 0.45rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.badge-private {
+    background: var(--arcade-pink);
+    color: white;
+    font-family: var(--font-pixel);
+    font-size: 0.45rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.lobby-host {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.5);
+}
+
+.lobby-host span {
+    color: var(--arcade-cyan);
+}
+
+.player-dots {
+    display: flex;
+    gap: 4px;
+    margin-top: 2px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px solid var(--arcade-purple);
+}
+
+.dot.filled {
+    background: #6ab04c;
+    border-color: #6ab04c;
+    box-shadow: 0 0 6px rgba(106,176,76,0.6);
+}
+
+.dot.empty {
+    background: transparent;
+    border-color: rgba(255,255,255,0.2);
+}
+
+.lobby-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.lobby-filter {
+    display: flex;
+    gap: 8px;
+    margin-top: 1.5rem;
+}
+
+.filter-btn {
+    font-family: var(--font-pixel);
+    font-size: 0.5rem;
+    padding: 6px 14px;
+    background: transparent;
+    border: 1px solid var(--arcade-purple);
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    letter-spacing: 0.08em;
+}
+
+.filter-btn.active {
+    border-color: var(--arcade-cyan);
+    color: var(--arcade-cyan);
+    box-shadow: 0 0 8px rgba(0,245,255,0.3);
+}
+
+.create-form {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.lobby-empty {
+    color: rgba(255,255,255,0.3);
+    font-size: 0.85rem;
+    font-style: italic;
+    padding: 2rem 0;
+    text-align: center;
+}
+
+.btn-arcade:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+#refresh-indicator {
+    font-family: var(--font-pixel);
+    font-size: 0.45rem;
+    color: rgba(255,255,255,0.3);
+    margin-left: auto;
+}

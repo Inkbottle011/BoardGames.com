@@ -1,20 +1,3 @@
-import mysql from "mysql";
-
-//================================================
-// DATABASE
-//================================================
-
-let con = mysql.createConnection({
-    host: "local",
-    user: "root",
-    password: "password",
-    database: "name_database",
-});
-con.connect((err) => {
-    if (err) throw err;
-    console.log("Database connected.");
-});
-
 //================================================
 // DATA STRUCTURES
 //================================================
@@ -41,46 +24,6 @@ class Card {
 }
 
 //================================================
-// DATABASE QUERIES
-//================================================
-
-async function CreateCard(ID) {
-    return new Promise((resolve, reject) => {
-        con.query("SELECT * FROM cards WHERE id = ?", [ID], (err, results) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            if (results.length > 0) {
-                const {
-                    points,
-                    text,
-                    card_name,
-                    color,
-                    img,
-                    dominate,
-                    action,
-                } = results[0];
-                resolve(
-                    new Card(
-                        ID,
-                        points,
-                        text,
-                        card_name,
-                        color,
-                        img,
-                        dominate,
-                        action,
-                    ),
-                );
-            } else {
-                resolve(null);
-            }
-        });
-    });
-}
-
-//================================================
 // DECK MANAGEMENT
 //================================================
 
@@ -104,11 +47,24 @@ function shuffleDeck() {
 // DRAWING
 //================================================
 
+// Cache all cards fetched at game start
+let cardCache = {};
+
+// Fetch all cards once at game start
+export async function loadAllCards() {
+    const res = await fetch('/cards');
+    const cards = await res.json();
+    cards.forEach(card => {
+        cardCache[card.id] = card;
+    });
+}
+
+// Draw uses cache instead of fetching each time
 async function draw(playerhand) {
     if (deck.length > 0) {
         let cardid = deck.pop();
-        let newcard = await CreateCard(cardid);
-        if (newcard) playerhand.cards.push(newcard);
+        let card = cardCache[cardid];
+        if (card) playerhand.cards.push(card);
     }
 }
 
@@ -142,5 +98,5 @@ export {
     increaseSize,
     getOpponents,
     buildDeck,
+    deck,
 };
-

@@ -2,16 +2,16 @@
     {
         "card_name": "Echolocation",
         "points": 4,
-        "img": "images/doomlings_basegame_images/cards/images/doomlings_basegame_images/Ages/Echolocation.png",
+        "img": "images/doomlings_basegame_images/cards/Echolocation.png",
         "text": "Until World's End: Draw 1 card at the start of each of your turns.",
         "color": "Blue",
         "dominant": true,
         "action": false
     },
     {
-        "card_name": "Imunity",
+        "card_name": "Immunity",
         "points": 4,
-        "img": "images/doomlings_basegame_images/cards/Imunity.png",
+        "img": "images/doomlings_basegame_images/cards/Immunity.png",
         "text": "+2 for each trait with a negative face value in your trait pile.",
         "color": "Blue",
         "dominant": true,
@@ -333,7 +333,7 @@
         "action": false
     },
     {
-        "card_name": "Swarm",
+        "card_name": "Swarm Fur",
         "points": 0,
         "img": "images/doomlings_basegame_images/cards/Swarm_Fur.png",
         "text": "Value is equal to the number of Swarm traits in all trait piles.(Including this One)",
@@ -342,7 +342,7 @@
         "action": false
     },
     {
-        "card_name": "Swarm",
+        "card_name": "Swarm Horns",
         "points": 0,
         "img": "images/doomlings_basegame_images/cards/Swarm_Horns.png",
         "text": "Value is equal to the number of Swarm traits in all trait piles.(Including this One)",
@@ -351,7 +351,7 @@
         "action": false
     },
     {
-        "card_name": "Swarm",
+        "card_name": "Swarm Mindless",
         "points": 0,
         "img": "images/doomlings_basegame_images/cards/Swarm_Mindless.png",
         "text": "Value is equal to the number of Swarm traits in all trait piles.(Including this One)",
@@ -360,7 +360,7 @@
         "action": false
     },
     {
-        "card_name": "Swarm",
+        "card_name": "Swarm Spots",
         "points": 0,
         "img": "images/doomlings_basegame_images/cards/Swarm_Spots.png",
         "text": "Value is equal to the number of Swarm traits in all trait piles.(Including this One)",
@@ -369,7 +369,7 @@
         "action": false
     },
     {
-        "card_name": "Swarm",
+        "card_name": "Swarm Stripes",
         "points": 0,
         "img": "images/doomlings_basegame_images/cards/Swarm_Stripes.png",
         "text": "Value is equal to the number of Swarm traits in all trait piles.(Including this One)",
@@ -425,7 +425,7 @@
     {
         "card_name": "Optimistic Nihilism",
         "points": 4,
-        "img": "images/doomlings_basegame_images/cards/Optimistic_Nihilism.png",
+        "img": "images/doomlings_basegame_images/cards/Optimistic Nihilism.png",
         "text": "Bring about the next catastrophe. Skip all turns. Ignore all age effects along the way. Do not Stabalize",
         "color": "Colorless",
         "dominant": true,
@@ -810,7 +810,7 @@
         "action": true
     },
     {
-        "card_name": "Ven0mous",
+        "card_name": "Venomous",
         "points": -2,
         "img": "images/doomlings_basegame_images/cards/Ven0mous.png",
         "text": "Play another trait. Then move Venomous to an opponent's trait pile.",
@@ -819,7 +819,7 @@
         "action": true
     },
     {
-        "card_name": "ApexPredator",
+        "card_name": "Apex Predator",
         "points": 4,
         "img": "images/doomlings_basegame_images/cards/Apex_Predator.png",
         "text": "+4 if you have more traits in your trait pile then your opponents.(Ties dont count!)",
@@ -920,14 +920,14 @@
     {
         "card_name": "Hot Temper",
         "points": 2,
-        "img": "images/doomlings_basegame_images/cards/Hot Temper.png",
+        "img": "images/doomlings_basegame_images/cards/Hot_Temper.png",
         "text": "Discard 2 Cards from your hand.",
         "color": "Red",
         "dominant": false,
         "action": true
     },
     {
-        "card_name": "Kidney",
+        "card_name": "Kidney Beer Helm",
         "points": 0,
         "img": "images/doomlings_basegame_images/cards/Kidney_Beer_Helm.png",
         "text": "Value is equal to the number of Kidneys in your trait pile.(Including this one).",
@@ -936,7 +936,7 @@
         "action": false
     },
     {
-        "card_name": "Kidney",
+        "card_name": "Kidney Chefs Toque",
         "points": 0,
         "img": "images/doomlings_basegame_images/cards/Kidney_Chefs_Toque.png",
         "text": "Value is equal to the number of Kidneys in your trait pile.(Including this one).",
@@ -945,7 +945,7 @@
         "action": false
     },
     {
-        "card_name": "Kidney",
+        "card_name": "Kidney Combover",
         "points": 0,
         "img": "images/doomlings_basegame_images/cards/Kidney_Combover.png",
         "text": "Value is equal to the number of Kidneys in your trait pile.(Including this one).",
@@ -954,7 +954,7 @@
         "action": false
     },
     {
-        "card_name": "Kidney",
+        "card_name": "Kidney Elf Hat",
         "points": 0,
         "img": "images/doomlings_basegame_images/cards/Kidney_Elf_Hat.png",
         "text": "Value is equal to the number of Kidneys in your trait pile.(Including this one).",
@@ -963,7 +963,7 @@
         "action": false
     },
     {
-        "card_name": "Kidney",
+        "card_name": "Kidney Party Hat",
         "points": 0,
         "img": "images/doomlings_basegame_images/cards/Kidney_Party_Hat.png",
         "text": "Value is equal to the number of Kidneys in your trait pile.(Including this one).",
@@ -972,7 +972,7 @@
         "action": false
     },
     {
-        "card_name": "Kidney",
+        "card_name": "Kidney Tiara",
         "points": 0,
         "img": "images/doomlings_basegame_images/cards/Kidney_Tiara.png",
         "text": "Value is equal to the number of Kidneys in your trait pile.(Including this one).",

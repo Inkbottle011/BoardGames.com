@@ -1,51 +1,96 @@
-export default function Board({ gameState }) {
-    if (!gameState) {
+import Hand from "./hand";
+import Deck from "./deck";
+import Scoreboard from "./scoreboard";
+
+export default function Board({ gameState, gameId, playerId, onPlay }) {
+    if (!gameState || !gameState.players) {
         return <div>Loading...</div>;
     }
+    
+    // Find current player by user ID not array index
+    const currentPlayer = gameState.players.find(p => p.id === playerId);
+    
+    // Filter out current player from opponents
+    const opponents = gameState.players.filter(p => p.id !== playerId);
+    
+    const getOpponentPosition = (index, total) => {
+        if (total === 1) return "col-start-2 row-start-1";
+        if (total === 2) return index === 0 ? "col-start-1 row-start-2" : "col-start-3 row-start-2";
+        if (total === 3) {
+            if (index === 0) return "col-start-1 row-start-2";
+            if (index === 1) return "col-start-2 row-start-1";
+            if (index === 2) return "col-start-3 row-start-2";
+        }
+        return "col-start-2 row-start-1";
+    };
+    
     return (
-        <div className="h-screen bg-gradient-to-br from-green-200 to-green-400 p-4 flex flex-col justify-between">
-            {/* Top Player */}
-            <div className="flex justify-center">
-                <PlayerArea player={gameState.players[1]} label="Player 2" />
+        <div className="h-screen w-screen p-4 grid grid-cols-3 grid-rows-3 gap-4">
+        
+        {/* Opponents */}
+        {opponents.map((player, i) => (
+            <div
+            key={player.id}
+            className={`${getOpponentPosition(i, opponents.length)} flex justify-center items-center`}
+            >
+            <div className="player-panel text-center min-w-24">
+            <p className="player-name">Player {i + 1}</p>
+            <span className="card-count-badge">{player.hand?.length ?? 0} cards</span>
+            <div className="flex flex-wrap gap-1 mt-2 justify-center">
+            {player.traitpool?.map((trait, j) => (
+                <span key={j} className="trait-chip">{trait.card_name}</span>
+            ))}
             </div>
-
-            {/* Middle Row */}
-            <div className="flex justify-between items-center">
-                {/* Left Player */}
-                <PlayerArea player={gameState.players[0]} label="Player 1" />
-
-                {/* Center Age */}
-                <div className="bg-white px-6 py-4 rounded-2xl shadow-xl text-center border">
-                    <h2 className="text-2xl font-bold text-gray-800">
-                        Age {gameState.age}
-                    </h2>
-                    <p className="text-sm text-gray-500">Event Phase</p>
-                </div>
-
-                {/* Right Player */}
-                <PlayerArea player={gameState.players[2]} label="Player 3" />
             </div>
-
-            {/* Bottom Player (YOU) */}
-            <div className="flex flex-col items-center gap-2">
-                <PlayerArea player={gameState.players[3]} label="You" isYou />
-
-                {/* Player Hand */}
-                <div className="flex gap-3 mt-2 overflow-x-auto p-2">
-                    {gameState.players[3].hand?.map((card) => (
-                        <Card key={card.id} card={card} />
-                    ))}
-                </div>
             </div>
+        ))}
+        
+        {/* Center */}
+        <div className="col-start-2 row-start-2 flex flex-col justify-center items-center gap-2">
+        <div className="center-panel">
+        {gameState.age ? (
+            <>
+            <h2 className="age-title">{gameState.age.age_name}</h2>
+            <p className="text-sm opacity-80 text-center">{gameState.age.text}</p>
+            {gameState.age.catastrophe && (
+                <p className="catastrophe-warning">⚠ Catastrophe!</p>
+            )}
+            </>
+        ) : (
+            <h2 className="age-title">—</h2>
+        )}
+        <p className="text-xs opacity-40 mt-1">
+        Catastrophes: {gameState.catastrophe_count ?? 0} / 3
+        </p>
+        </div>
+        
+        <Deck
+        deckSize={gameState.deckSize}
+        discardPile={gameState.discardPile}
+        />
+        
+        <Scoreboard
+        players={gameState.players}
+        currentTurn={gameState.current_turn}
+        />
+        </div>
+        
+        {/* Bottom — current player */}
+        <div className="col-start-2 row-start-3 flex flex-col items-center gap-2">
+        <p className="player-name">You</p>
+        
+        <div className="flex gap-2 flex-wrap justify-center">
+        {currentPlayer?.traitpool?.map((trait, i) => (
+            <span key={i} className="trait-chip">{trait.card_name}</span>
+        ))}
+        </div>
+        
+        <Hand
+        cards={currentPlayer?.hand}
+        onPlay={onPlay}
+        />
+        </div>
+        
         </div>
     );
 }
-//  <div className="h-screen bg-green-200 flex fle-col justify-between">
-//             <h4>Game Board </h4>
-//             <h2>{gameState.age}</h2>
-//             <div className="traits">
-//                 {gameState.currentPlayer?.traits.map((trait) => (
-//                     <div key={trait.id}>{trait.name}</div>
-//                 ))}
-//             </div>
-//         </div>

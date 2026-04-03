@@ -1,13 +1,74 @@
-resources/js/
-├── bootstrap.js         ← Axios global setup (Laravel default)
-├── echo.js              ← WebSocket connection to Reverb
-├── api.js               ← Axios instance + CSRF token + error handling
-├── game.js              ← GameAPI functions (move, attack, join, leave)
-└── pages/
-    └── game.js          ← puts it all together (wires up Echo + GameAPI to your UI)
+Done
+Backend:
 
-    Migrations + Models
-Routes + Controllers (basic responses first)
-Events + channel auth
-Blade views
-Frontend JS (lobby.js then game.js)
+GameController — show returns JSON for React, playTurn saves state and validates moves
+LobbyController — create/join games with proper seat assignment and player limits
+GameController::startGame — host can start the game
+ChatController — send messages with player validation
+TurnPlayed and MessageSent events — fixed to use PrivateChannel and include points
+GamePlayer migration — added points column
+Card images — seeder fixed, paths corrected
+channels.php — game channel auth set up
+
+Frontend:
+
+Card.jsx — displays card, handles missing images
+Hand.jsx — renders hand, wired to Reverb
+Board.jsx — dynamic player count, age display, deck, scoreboard
+Deck.jsx — draw pile and discard pile display
+Scoreboard.jsx — points and genepool per player
+Doom.jsx — fetches game state, syncs with doomlings.js, saves to Laravel
+doomlings.js — bug fixes, loadFromServer, serializeForServer
+Deck.js — removed MySQL, loads cards from Laravel API
+
+
+❌ Still needed
+
+Auth/login system (another person handling)
+Lobby UI blade view
+Chat UI component in React
+Reverb auth (resolves automatically once login is set up)
+chooseOpponent and chooseCard in doomlings.js need real UI input instead of hardcoded opponents[0]
+Ages need to be wired into the game flow
+World's End trigger needs to be tested
+Full multiplayer testing with real users
+
+
+Here's where multiplayer stands:
+✅ Working:
+
+Game and player records in DB
+playTurn saves state and broadcasts via Reverb
+MessageSent and TurnPlayed events set up
+Channel auth in channels.php
+React listens for whispers via window.Echo
+
+❌ Not yet working:
+
+Reverb auth 403 — blocked until login system is done
+Real-time updates — won't trigger between players until Reverb auth is fixed
+playerId is hardcoded to 0 in doom.jsx — needs to come from Laravel auth session
+gameId is hardcoded to 1 in doom.jsx — needs to come from the URL or session
+Lobby UI — players can't create/join games from the browser yet
+Turn enforcement — UI doesn't visually block non-active players from playing
+
+
+Game Flow
+
+Age system — ages happen but nothin happens for each age
+Dominant cards — cards with dominant: 1 have special play conditions (e.g. Heroic requires 3 green traits) — not enforced at all
+
+UI/UX
+    4. Turn indicator — no clear visual showing whose turn it is
+    5. Opponent hand — opponents show card count but not face-down cards visually
+6. Card targeting — chooseOpponent always picks first opponent, needs a UI picker for multi-player
+    7. Card details — clicking a card should show its text/effect before playing
+8. Discard UI — handleDiscard and handleDiscardTrait exist but no UI buttons to trigger them
+Multiplayer
+9. Reconnection — if a player refreshes they rejoin fine, but if they close the tab the game gets stuck
+10. Spectator mode — games are visible but non-players can't watch
+11. 3-4 player layout — board.jsx has positioning for up to 4 players but untested
+Polish
+12. Card animations — no animations when playing cards
+13. Sound effects
+14. Mobile layout
