@@ -1,4 +1,4 @@
-import { resolveCard, GameState, chooseOpponent, StealHandCard, discardCardMultiple, discardRandomCard, discardTrait, stabilize, discardCard, cardSearch } from "./Doomlings.js";
+import * as Doomlings from "./Doomlings.js";
 import * as Deck from "./Deck.js";
 import * as CardEffects from "./CardEffects.js";
 //auxillary functions 
@@ -204,9 +204,13 @@ function CometShowers_effect(card, currentPlayer, players) {
         discardRandomCard(players[i])
     }
 }
-//not completed
-
-
+function Prosperity_effect(card, currentPlayer, players) {
+    let agree = false;
+    if (agree) {
+        stabilize();
+    }
+    //prompt player if they would like to stablize if no they don't stabilize
+}
 
 function AlienTerraform_effect(card, currentPlayer, players) {
     //prompt player if they would like to discard their dominate cards from they're hand 
@@ -228,37 +232,60 @@ function AlienTerraform_effect(card, currentPlayer, players) {
                 }
             }
         }
+        stabilize();
     }
+
     //if they do remove dominates from their hand then stabilize
 }
 
-function Awakening_effect(card, currentPlayer, players) {
-    let PredictionAge = Doomlings.Ages[1];
-    //show age to current player 
-}
-
-
-function NaturalHarmony_effect(card, currentPlayer, players) {
-    //cannot play a color that the last player played  
-}
-function Prosperity_effect(card, currentPlayer, players) {
-    //prompt player if they would like to stablize if no they don't stabilize
-}
-function Reforestation_effect(card, currentPlayer, players) {
-    //Traits in your trait pile cannot by swaped stolen or discards IDK HOW THE FUCK THIS WILL WORK
-}
-
-
-
-
 function AgeofNietzsche_effect(card, currentPlayer, players) {
+    let agree = false;
+    if (agree) {
+        discardCardMultiple(currentPlayer, currentPlayer.cards.length, index);
+        Deck.drawMultiple(currentPlayer, 3);
+    } else {
+        stabilize();
+    }
     //instead of stablizing discard hand and draw 3 prompt player for this
 }
 
 function Enlightenment_effect(card, currentPlayer, players) {
+    let agree = false;
+    if (agree) {
+        let choice = 2;
+        discardCardMultiple(currentPlayerm, choice, index);
+    }
+    stabilize();
     //prompt player to choose to discard up to 2 cards in their hand
 }
 
+function CostalFormations_effect(card, currentPlayer, players) {
+    Doomlings.stabilize();
+    Deck.draw(currentPlayer);
+}
+
+
+function NaturalHarmony_effect(card, currentPlayer, players) {
+    while (card.color === players[startindex - 1].cards[cards.length - 1].color) {
+        if (index < 0 || index >= currentPlayer.cards.length) return;
+        card = currentPlayer.cards[index];
+    }
+    //cannot play a color that the last player played  
+}
+//not completed
+
+
+function Awakening_effect(card, currentPlayer, players) {
+    let PredictionAge = Doomlings.Ages[1];
+    // html show prediction age
+    //show age to current player 
+}
+
+
+
+function Reforestation_effect(card, currentPlayer, players) {
+    //Traits in your trait pile cannot by swaped stolen or discards IDK HOW THE FUCK THIS WILL WORK
+}
 
 
 //No IDEA if it works
@@ -274,7 +301,7 @@ function TheMessiah_effect(card, currentPlayer, players) {
 //Completed Catastraphies
 
 function TheBigOne_effect(card, currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         for (i = 0; i < players.length; i++) {
             let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
             for (k = 0; k < players[i].traitpool.length; k++) {
@@ -294,7 +321,7 @@ function TheBigOne_effect(card, currentPlayer, players) {
 
 }
 function DeusExMachina_effect(card, currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         Deck.draw(currentPlayer);
         if (currentPlayer.cards[currentPlayer.cards.length.value - 1] > 5) {
             let add = 5
@@ -307,7 +334,7 @@ function DeusExMachina_effect(card, currentPlayer, players) {
     }
 }
 function Overpopulation_effect(card, currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         let smallest = players[0].traitpool.length;
         let index = 0;
         for (i = 1; i < players.length; i++) {
@@ -322,9 +349,9 @@ function Overpopulation_effect(card, currentPlayer, players) {
         currentPlayer.size += 1;
         for (i = 0; i < players.length; i++) {
             let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
-            for (k = 0; k < currentPlayer.traitpool.length; k++) {
+            for (k = 0; k < players[i].traitpool.length; k++) {
                 for (j = 0; j < colors.length; j++) {
-                    if (currentPlayer.traitpool[k].color === colors[j]) {
+                    if (players[i].traitpool[k].color === colors[j]) {
                         colors.splice(j, 1);
                     }
                 }
@@ -335,7 +362,7 @@ function Overpopulation_effect(card, currentPlayer, players) {
 }
 
 function GlacialMeltdown_effect(card, currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         discardTraitcolor("Blue", players)
     } else {
         currentPlayer.size -= 1;
@@ -345,7 +372,7 @@ function GlacialMeltdown_effect(card, currentPlayer, players) {
 }
 
 function IceAge_effect(card, currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         discardHandcolor("Red", players)
     } else {
         for (k = 0; k < currentPlayer.traitpool.length; k++) {
@@ -357,7 +384,7 @@ function IceAge_effect(card, currentPlayer, players) {
 }
 
 function MegaTsunami_effect(card, currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         discardTraitcolor("Red", players)
     } else {
 
@@ -378,7 +405,7 @@ function MegaTsunami_effect(card, currentPlayer, players) {
 }
 
 function TheFourHorsemen_effect(card, currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         for (i = 0; i < players.length; i++) {
             let card = null
             while (card.value < 4) {
@@ -405,7 +432,7 @@ function TheFourHorsemen_effect(card, currentPlayer, players) {
 }
 
 function GreyGoo_effect(card, currentPlayer, players) {
-    if (worldsend) {
+    if (isWorldsEnd) {
         let largest = players[0].traitpool.length;
         let index = 0;
         for (i = 1; i < players.length; i++) {
@@ -422,7 +449,7 @@ function GreyGoo_effect(card, currentPlayer, players) {
 
 
     function MassExtinction_effect(card, currentPlayer, players) {
-        if (worldsend) {
+        if (isWorldsEnd) {
             discardTraitcolor("Green", players);
 
         } else {
@@ -431,7 +458,7 @@ function GreyGoo_effect(card, currentPlayer, players) {
     }
 
     function PulseEvent_effect(card, currentPlayer, players) {
-        if (worldsend) {
+        if (isWorldsEnd) {
             discardTraitcolor("Purple", players);
 
         } else {
@@ -440,7 +467,7 @@ function GreyGoo_effect(card, currentPlayer, players) {
     }
 
     function Retrovirus_effect(card, currentPlayer, players) {
-        if (worldsend) {
+        if (isWorldsEnd) {
             discardTraitcolor("Green", players);
 
         } else {
@@ -449,14 +476,14 @@ function GreyGoo_effect(card, currentPlayer, players) {
     }
 
     function SuperVolcano_effect(card, currentPlayer, players) {
-        if (worldsend) {
+        if (isWorldsEnd) {
             CountColor("Blue", players);
         } else {
             discardHandcolor("Blue", players);
         }
     }
     function NuclearWinter_effect(card, currentPlayer, players) {
-        if (worldsend) {
+        if (isWorldsEnd) {
             discardTraitcolor("Colorless", players);
         } else {
             currentPlayer.size -= 1;
@@ -465,7 +492,7 @@ function GreyGoo_effect(card, currentPlayer, players) {
         }
     }
     function SolarFlare_effect(card, currentPlayer, players) {
-        if (worldsend) {
+        if (isWorldsEnd) {
             discardTraitcolor("Colorless", players);
         } else {
             currentPlayer -= 1;
@@ -475,7 +502,13 @@ function GreyGoo_effect(card, currentPlayer, players) {
 }
 
 //Not Completeded Catastraphies
-function AITakeover_effect(card, currentPlayer, players) { }
+function AITakeover_effect(card, currentPlayer, players) {
+    if (isWorldsEnd) {
+        //remove colorless functions and change all point values of colorless cards to 2
+    } else {
+        currentPlayer.size -= 1;
+    }
+}
 
 
 

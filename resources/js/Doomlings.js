@@ -37,15 +37,15 @@ let GameState = {
 //================================================
 // GAME SETUP
 //================================================
-async function gameloop(numplayers) {
-    gamestart(numplayers);
-    while (!checkGameOver) {
-        for (i = 0; i < numplayers; i++) {
-            play(index);
-        }
-        startNewAge();
-    }
-}
+// async function gameloop(numplayers) {
+//     gamestart(numplayers);
+//     while (!checkGameOver) {
+//         for (i = 0; i < numplayers; i++) {
+//             play(index);
+//         }
+//         startNewAge();
+//     }
+// }
 
 async function gamestart(numPlayers) {
     Deck.buildDeck();
@@ -74,49 +74,49 @@ function startNewAge() {
     }
 }
 
-function AgesDeck() {
-    Ages.push(CreateAges(41));
-    for (i = 0; i < 3; i++) {
-        let randomIndex = 0;
-        for (k = 0; k < 3; k++) {
-            randomIndex = Math.round(Math.random() * 25 + 1);
-            Ages.push(CreateAges(randomIndex));
-        }
-        randomIndex = Math.round(Math.random() * 40 + 26);
-    }
-}
+// function AgesDeck() {
+//     Ages.push(CreateAges(41));
+//     for (i = 0; i < 3; i++) {
+//         let randomIndex = 0;
+//         for (k = 0; k < 3; k++) {
+//             randomIndex = Math.round(Math.random() * 25 + 1);
+//             Ages.push(CreateAges(randomIndex));
+//         }
+//         randomIndex = Math.round(Math.random() * 40 + 26);
+//     }
+// }
 
-async function CreateAges(ID) {
-    return new Promise((resolve, reject) => {
-        con.query("SELECT * FROM doomlings_ages WHERE id = ?", [ID], (err, results) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            if (results.length > 0) {
-                const {
-                    age_name,
-                    text,
-                    card_name,
-                    img,
-                    catastrophe
-                } = results[0];
-                resolve(
-                    new Age(
-                        ID,
-                        age_name,
-                        text,
-                        card_name,
-                        img,
-                        catastrophe
-                    ),
-                );
-            } else {
-                resolve(null);
-            }
-        });
-    });
-}
+// async function CreateAges(ID) {
+//     return new Promise((resolve, reject) => {
+//         con.query("SELECT * FROM doomlings_ages WHERE id = ?", [ID], (err, results) => {
+//             if (err) {
+//                 reject(err);
+//                 return;
+//             }
+//             if (results.length > 0) {
+//                 const {
+//                     age_name,
+//                     text,
+//                     card_name,
+//                     img,
+//                     catastrophe
+//                 } = results[0];
+//                 resolve(
+//                     new Age(
+//                         ID,
+//                         age_name,
+//                         text,
+//                         card_name,
+//                         img,
+//                         catastrophe
+//                     ),
+//                 );
+//             } else {
+//                 resolve(null);
+//             }
+//         });
+//     });
+// }
 
 //================================================
 // TURN MANAGEMENT
