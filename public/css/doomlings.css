@@ -2,20 +2,21 @@
 DOOMLINGS GAME BOARD — Green Nature Theme
 ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap");
 
 :root {
-    --nature-dark:    #1a2e1a;
-    --nature-mid:     #2d4a2d;
-    --nature-light:   #4a7c4a;
-    --nature-green:   #6ab04c;
-    --nature-yellow:  #f9ca24;
-    --nature-brown:   #5c3d2e;
-    --nature-cream:   #f5f0e8;
-    --nature-red:     #c0392b;
-    --glow-green:     0 0 10px rgba(106, 176, 76, 0.4);
-    --font-title:     'Cinzel', serif;
-    --font-body:      'Lato', sans-serif;
+    --nature-dark: #1a2e1a;
+    --nature-mid: #2d4a2d;
+    --nature-light: #4a7c4a;
+    --nature-green: #6ab04c;
+    --nature-yellow: #f9ca24;
+    --nature-brown: #5c3d2e;
+    --nature-cream: #f5f0e8;
+    --nature-red: #c0392b;
+    --glow-green: 0 0 10px rgba(106, 176, 76, 0.4);
+    --glow-blue: 0 0 10px rgba(59, 130, 246, 0.4);
+    --font-title: "Cinzel", serif;
+    --font-body: "Lato", sans-serif;
 }
 
 /* --- Reset game area --- */
@@ -30,11 +31,20 @@ DOOMLINGS GAME BOARD — Green Nature Theme
 
 /* Subtle leaf texture overlay */
 #app::before {
-    content: '';
+    content: "";
     position: fixed;
     inset: 0;
-    background-image: radial-gradient(ellipse at 20% 50%, rgba(106,176,76,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 20%, rgba(74,124,74,0.1) 0%, transparent 50%);
+    background-image:
+        radial-gradient(
+            ellipse at 20% 50%,
+            rgba(106, 176, 76, 0.08) 0%,
+            transparent 60%
+        ),
+        radial-gradient(
+            ellipse at 80% 20%,
+            rgba(74, 124, 74, 0.1) 0%,
+            transparent 50%
+        );
     pointer-events: none;
     z-index: 0;
 }
@@ -47,7 +57,9 @@ DOOMLINGS GAME BOARD — Green Nature Theme
     padding: 12px;
     backdrop-filter: blur(4px);
     box-shadow: var(--glow-green);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
 }
 
 .player-panel.active {
@@ -66,15 +78,19 @@ DOOMLINGS GAME BOARD — Green Nature Theme
 .game-card {
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
     cursor: pointer;
     border: 2px solid var(--nature-light);
 }
 
 .game-card:hover {
     transform: translateY(-4px) scale(1.03);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5), var(--glow-green);
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.5),
+        var(--glow-green);
     border-color: var(--nature-yellow);
 }
 
@@ -92,7 +108,7 @@ DOOMLINGS GAME BOARD — Green Nature Theme
     font-family: var(--font-title);
     font-size: 1.4rem;
     color: var(--nature-yellow);
-    text-shadow: 0 0 10px rgba(249,202,36,0.4);
+    text-shadow: 0 0 10px rgba(249, 202, 36, 0.4);
     letter-spacing: 0.08em;
 }
 
@@ -104,8 +120,13 @@ DOOMLINGS GAME BOARD — Green Nature Theme
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.5; }
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
 }
 
 /* --- Deck --- */
@@ -128,7 +149,27 @@ DOOMLINGS GAME BOARD — Green Nature Theme
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(245,240,232,0.4);
+    color: rgba(245, 240, 232, 0.4);
+    font-size: 0.75rem;
+}
+
+.age-deck {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+    border: 2px solid var(--nature-light);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--glow-blue);
+}
+
+.age-pile {
+    border: 2px dashed var(--nature-light);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(245, 240, 232, 0.4);
     font-size: 0.75rem;
 }
 
@@ -136,33 +177,35 @@ DOOMLINGS GAME BOARD — Green Nature Theme
 .scoreboard {
     background: rgba(26, 46, 26, 0.9);
     border: 2px solid var(--nature-light);
-    border-radius: 12px;
-    padding: 12px;
+    border-radius: 8px;
+    padding: 8px;
+    width: 180px;
+    font-size: 0.7rem;
 }
 
 .scoreboard-title {
     font-family: var(--font-title);
-    font-size: 0.75rem;
+    font-size: 0.6rem;
     color: var(--nature-green);
     text-transform: uppercase;
     letter-spacing: 0.12em;
     border-bottom: 1px solid var(--nature-light);
-    padding-bottom: 6px;
-    margin-bottom: 8px;
+    padding-bottom: 4px;
+    margin-bottom: 6px;
 }
 
 .score-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 4px 0;
-    font-size: 0.85rem;
+    padding: 2px 0;
+    font-size: 0.65rem;
 }
 
 .score-row.current-turn {
     background: rgba(249, 202, 36, 0.1);
-    border-radius: 6px;
-    padding: 4px 6px;
+    border-radius: 4px;
+    padding: 2px 4px;
 }
 
 .score-points {
@@ -177,6 +220,14 @@ DOOMLINGS GAME BOARD — Green Nature Theme
     border-top: 2px solid var(--nature-light);
     padding: 12px;
     border-radius: 12px;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: center !important;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    overflow-x: auto;
+    width: 100%;
 }
 
 /* --- Trait chips --- */
@@ -187,6 +238,16 @@ DOOMLINGS GAME BOARD — Green Nature Theme
     padding: 3px 10px;
     font-size: 0.75rem;
     color: var(--nature-cream);
+}
+
+/* --- Center piles horizontal layout --- */
+.center-piles {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-evenly !important;
+    gap: 1rem !important;
+    align-items: center !important;
 }
 
 /* --- Opponent cards count badge --- */
