@@ -62,6 +62,7 @@ export default function Doom() {
             agePile2: GameState.agePile2 ?? [],
             agePile3: GameState.agePile3 ?? [],
             deckSize: GameState.deckSize ?? 0,
+            ageDeckSize: GameState.ageDeckSize ?? 0,
             discardPile: GameState.discardPile ?? [],
         });
     }
@@ -111,9 +112,13 @@ export default function Doom() {
     }
     
     function applyBroadcastState(payload) {
+        console.log('broadcast agePiles:', 
+        payload.game.agePile1?.length, 
+        payload.game.agePile2?.length, 
+        payload.game.agePile3?.length
+    );
         const incomingCurrentTurn = parseInt(payload.game.current_turn);
-        
-        if (lastSentTurnRef.current === playerId && incomingCurrentTurn !== playerId) {
+        if (lastSentTurnRef.current === playerId) {
             console.log('Skipping own broadcast echo');
             lastSentTurnRef.current = null;
             return;
@@ -130,6 +135,7 @@ export default function Doom() {
             agePile1: payload.game.agePile1 ?? [],
             agePile2: payload.game.agePile2 ?? [],
             agePile3: payload.game.agePile3 ?? [],
+            ageDeckSize: payload.game.ageDeckSize ?? 0,
             deckSize: payload.game.deckSize ?? 0,
             discardPile: payload.game.discardPile ?? [],
         };

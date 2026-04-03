@@ -38,6 +38,7 @@ let GameState = {
     agePile2: [],
     agePile3: [],
     deckSize: 0,
+    ageDeckSize: 0,
     discardPile: [],
 };
 
@@ -233,7 +234,6 @@ function handSearch(card_name, currentPlayer) {
 
 function runAgeEffect(card, currentPlayer, players) {
     if (!GameState.currentAge) return;
-    
     let functionName = GameState.currentAge.age_name.replace(/\s+/g, "").replace(/-/g, "") + "_effect";
     if (AgeEffects[functionName]) {
         AgeEffects[functionName](card, currentPlayer, players);
@@ -450,6 +450,7 @@ export function loadFromServer(serverState) {
     GameState.agePile2 = serverState.agePile2 ?? [];
     GameState.agePile3 = serverState.agePile3 ?? [];
     GameState.deckSize = serverState.deckSize ?? 0;
+    GameState.ageDeckSize = serverState.ageDeckSize ?? 0;
     GameState.discardPile = serverState.discardPile ?? [];
     
     if (serverState.discardPile) {

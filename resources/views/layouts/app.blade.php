@@ -28,15 +28,12 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
-                    <span class="brand-pixel">PLAY</span><span class="brand-accent">PLEX</span>
+                <span class="brand-pixel">PLAY</span><span class="brand-accent">PLEX</span>
             </a>
 
-            <!-- Navbar toggle icon for mobile.: PLAYPLEX   ☰--> 
-            <button class="navbar-toggler" type="button" 
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent" 
-                aria-controls="navbarSupportedContent" 
-                aria-expanded="false"
+            <!-- Navbar toggle icon for mobile.: PLAYPLEX   ☰-->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
                 aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"> </span>
             </button>
@@ -52,7 +49,7 @@
 
                     @guest
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('authentification') }}">Login</a>
+                            <a class="nav-link" href="{{ route('profile') }}">Login</a>
                         </li>
                     @endguest
                 </ul>
@@ -60,9 +57,9 @@
         </div>
     </nav>
 
-<div class="largecontainer">
+    <div class="largecontainer">
         @yield('ughhh')
-</div>
+    </div>
 
     <!-- Footer-->
     <footer class="py-3 site-footer">

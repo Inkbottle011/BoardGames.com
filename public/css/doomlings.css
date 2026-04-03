@@ -284,3 +284,21 @@ DOOMLINGS GAME BOARD — Green Nature Theme
     color: var(--nature-yellow);
     border-color: var(--nature-yellow);
 }
+/* --- Override global arcade theme on game page --- */
+.scanlines {
+    display: none !important;
+}
+
+body::before,
+body::after {
+    display: none !important;
+}
+
+body {
+    background-color: transparent !important;
+    animation: none !important;
+}
+
+@keyframes gridScroll {
+    0%, 100% { background-position: 0 0; }
+} 

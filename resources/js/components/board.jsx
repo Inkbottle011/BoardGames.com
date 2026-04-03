@@ -1,139 +1,320 @@
 import Hand from "./hand";
-import Deck from "./deck";
-import PlayerArea from "./playerArea";
 import Scoreboard from "./scoreboard";
+import TraitPool from "./TraitPool";
+
+import { useState } from "react";
 
 export default function Board({ gameState, gameId, playerId, onPlay }) {
     if (!gameState || !gameState.players) {
         return <div>Loading...</div>;
     }
-    
+
     const currentPlayer = gameState.players.find((p) => p.id === playerId);
     const opponents = gameState.players.filter((p) => p.id !== playerId);
-    const topPlayer = opponents[0];
-    const leftPlayer = opponents[1];
-    const rightPlayer = opponents[2];
-    
-    const gridStyle = {
-        height: '100vh',
-        width: '100vw',
-        padding: '1rem',
-        display: 'grid',
-        gridTemplateColumns: '1fr 2fr 1fr',
-        gridTemplateRows: 'auto 1fr auto',
-        gap: '0.5rem',
-        position: 'relative',
-        background: 'linear-gradient(135deg, #1a2e1a 0%, #2d4a2d 50%, #1a2e1a 100%)',
-        color: 'white',
-        overflow: 'hidden',
-        boxSizing: 'border-box',
-    };
-    
+    const [hoveredCard, setHoveredCard] = useState(null);
+
     return (
-        <div style={gridStyle}>
-        
-        {/* TOP-LEFT — scoreboard */}
-        <div style={{ gridColumn: '1', gridRow: '1', display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-start' }}>
-        <Scoreboard
-        players={gameState.players}
-        currentTurn={gameState.current_turn}
-        />
-        </div>
-        
-        {/* TOP-CENTER — top opponent */}
-        <div style={{ gridColumn: '2', gridRow: '1', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
-        {topPlayer && <PlayerArea player={topPlayer} />}
-        </div>
-        
-        {/* TOP-RIGHT — empty or right opponent */}
-        <div style={{ gridColumn: '3', gridRow: '1', display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start' }}>
-        {rightPlayer && <PlayerArea player={rightPlayer} />}
-        </div>
-        
-        {/* CENTER ROW */}
         <div style={{
-            gridColumn: '1 / 4',
-            gridRow: '2',
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '1rem',
-            flexWrap: 'nowrap',
+            height: '100vh',
+            width: '100vw',
+            display: 'grid',
+            gridTemplateColumns: 'auto 1fr',
+            gridTemplateRows: '1fr auto',
+            background: 'linear-gradient(135deg, #1a2e1a 0%, #2d4a2d 50%, #1a2e1a 100%)',
+            color: 'white',
+            overflow: 'hidden',
+            boxSizing: 'border-box',
         }}>
-        {/* Draw + discard */}
-        <Deck
-        deckSize={gameState.deckSize}
-        discardPile={gameState.discardPile}
-        showDiscard={true}
-        inline={false}
-        />
-        
-        {/* Current Age */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
-        <div className="center-panel" style={{ minWidth: '9rem', maxWidth: '12rem', padding: '0.75rem', textAlign: 'center' }}>
-        {gameState.age ? (
-            <>
-            <p style={{ color: 'var(--nature-yellow)', fontFamily: 'var(--font-title)', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '0.25rem' }}>
-            {gameState.age.age_name}
-            </p>
-            <p style={{ fontSize: '0.7rem', opacity: 0.7, marginBottom: '0.25rem' }}>
-            {gameState.age.text}
-            </p>
-            {gameState.age.catastrophe && (
-                <p className="catastrophe-warning" style={{ fontSize: '0.75rem' }}>⚠ Catastrophe!</p>
-            )}
-            </>
-        ) : (
-            <p style={{ fontSize: '0.75rem', opacity: 0.5 }}>No Age</p>
-        )}
-        <p style={{ fontSize: '0.7rem', opacity: 0.4, marginTop: '0.5rem' }}>
-        💀 {gameState.catastrophe_count ?? 0} / 3
-        </p>
-        </div>
-        </div>
-        
-        {/* Age Deck */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
-        <div className="age-deck" style={{ width: '5rem', height: '7rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span style={{ color: 'white', fontWeight: 'bold', fontSize: '0.9rem' }}>AGE</span>
-        </div>
-        <p style={{ fontSize: '0.75rem', opacity: 0.6 }}>Age Deck</p>
-        </div>
-        
-        {/* Age pile slots */}
-        {[1, 2, 3].map(n => (
-            <div key={n} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
-            <div className="age-pile" style={{ width: '5rem', height: '7rem', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {gameState[`agePile${n}`]?.length > 0 ? (
-                <img
-                src={`/${gameState[`agePile${n}`][gameState[`agePile${n}`].length - 1].img}.png`}
-                alt="age"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-            ) : (
-                <span style={{ fontSize: '0.75rem', opacity: 0.5 }}>Age {n}</span>
-            )}
+
+            {/* LEFT COLUMN */}
+            <div style={{
+                gridColumn: '1',
+                gridRow: '1 / 3',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem',
+                background: 'rgba(0,0,0,0.25)',
+                borderRight: '1px solid rgba(74,124,74,0.3)',
+                overflowY: 'hidden',
+                width: 'fit-content',
+            }}>
+
+                {/* Age Deck */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem' }}>
+                    <div style={{ width: '7rem', height: '9.8rem', overflow: 'hidden', borderRadius: '10px', position: 'relative' }}>
+                        <img src="/images/doomlings_basegame_images/Ageback.jpg" alt="Age Deck"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <span style={{
+                            position: 'absolute', bottom: '5px', right: '6px',
+                            background: 'rgba(0,0,0,0.8)', color: 'white',
+                            fontSize: '0.85rem', fontWeight: 'bold',
+                            padding: '2px 6px', borderRadius: '4px',
+                        }}>{gameState.ageDeckSize ?? 0}</span>
+                    </div>
+                    <p style={{ fontSize: '0.65rem', opacity: 0.6 }}>Age Deck</p>
+                </div>
+
+                <div style={{ width: '90%', height: '1px', background: 'rgba(74,124,74,0.4)' }} />
+
+                {/* Draw Deck */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem' }}>
+                    <div style={{ width: '7rem', height: '9.8rem', overflow: 'hidden', borderRadius: '10px', position: 'relative' }}>
+                        <img src="/images/doomlings_basegame_images/Traitback.jpg" alt="Deck"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <span style={{
+                            position: 'absolute', bottom: '5px', right: '6px',
+                            background: 'rgba(0,0,0,0.8)', color: 'white',
+                            fontSize: '0.85rem', fontWeight: 'bold',
+                            padding: '2px 6px', borderRadius: '4px',
+                        }}>{gameState.deckSize ?? 0}</span>
+                    </div>
+                    <p style={{ fontSize: '0.65rem', opacity: 0.6 }}>Draw</p>
+                </div>
+
+                <div style={{ width: '90%', height: '1px', background: 'rgba(74,124,74,0.4)' }} />
+
+                {/* Discard */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem' }}>
+                    {gameState.discardPile?.length > 0 ? (
+                        <div
+                            style={{ width: '7rem', height: '9.8rem', overflow: 'hidden', borderRadius: '10px', border: '2px solid var(--nature-light)', cursor: 'pointer' }}
+                            onMouseEnter={() => setHoveredCard(gameState.discardPile[gameState.discardPile.length - 1])}
+                            onMouseLeave={() => setHoveredCard(null)}
+                        >
+                            <img
+                                src={`/${gameState.discardPile[gameState.discardPile.length - 1].img}`}
+                                alt="Discard"
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => { e.target.src = '/images/card_not_found.png'; }}
+                            />
+                        </div>
+                    ) : (
+                        <div className="discard-pile" style={{ width: '7rem', height: '9.8rem' }}>
+                            <span style={{ fontSize: '0.65rem' }}>Empty</span>
+                        </div>
+                    )}
+                    <p style={{ fontSize: '0.65rem', opacity: 0.6 }}>Discard</p>
+                </div>
+
+                <div style={{ width: '90%', height: '1px', background: 'rgba(74,124,74,0.4)' }} />
+
+                {/* Catastrophe counter */}
+                <p style={{ fontSize: '0.75rem', opacity: 0.6 }}>
+                    💀 {gameState.catastrophe_count ?? 0} / 3
+                </p>
+                {gameState.age?.catastrophe && (
+                    <p className="catastrophe-warning" style={{ fontSize: '0.7rem' }}>⚠ Catastrophe!</p>
+                )}
+
+                <div style={{ width: '90%', height: '1px', background: 'rgba(74,124,74,0.4)' }} />
+
+                {/* Scoreboard */}
+                <Scoreboard players={gameState.players} currentTurn={gameState.current_turn} />
+
             </div>
-            <p style={{ fontSize: '0.75rem', opacity: 0.6 }}>Age {n}</p>
+
+            {/* RIGHT TOP — Age piles + hover reader + ALL trait pools */}
+            <div style={{
+                gridColumn: '2',
+                gridRow: '1',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'flex-start',
+                gap: '1rem',
+                padding: '0.75rem 1rem',
+                overflow: 'hidden',
+            }}>
+
+                {/* Age piles + reader stacked vertically */}
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem',
+                    flexShrink: 0,
+                }}>
+                    {/* Age piles horizontal */}
+                    <div style={{
+                        display: 'inline-flex',
+                        flexDirection: 'row',
+                        gap: '0.5rem',
+                        padding: '0.5rem',
+                        background: 'rgba(0,0,0,0.2)',
+                        borderRadius: '10px',
+                    }}>
+                        {[1, 2, 3].map(n => {
+                            const pile = gameState[`agePile${n}`] ?? [];
+                            const isActive = gameState.catastrophe_count === n - 1;
+                            return (
+                                <div key={n}>
+                                    <div
+                                        className="age-pile"
+                                        style={{
+                                            width: '7rem',
+                                            height: '9.8rem',
+                                            overflow: 'hidden',
+                                            borderRadius: '10px',
+                                            cursor: pile.length > 0 ? 'pointer' : 'default',
+                                            border: isActive ? '3px solid var(--nature-yellow)' : '2px dashed rgba(74,124,74,0.5)',
+                                            boxShadow: isActive ? '0 0 12px rgba(249,202,36,0.5)' : 'none',
+                                            transition: 'border 0.2s, box-shadow 0.2s',
+                                        }}
+                                        onMouseEnter={() => { if (pile.length > 0) setHoveredCard(pile[pile.length - 1]); }}
+                                        onMouseLeave={() => setHoveredCard(null)}
+                                    >
+                                        {pile.length > 0 ? (
+                                            <img
+                                                src={`/${pile[pile.length - 1].img}.png`}
+                                                alt={`Age ${n}`}
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                onError={(e) => { e.target.src = '/images/card_not_found.png'; }}
+                                            />
+                                        ) : (
+                                            <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>—</span>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Card hover reader */}
+                    <div style={{
+                        width: '17rem',
+                        height: '24rem',
+                        background: 'rgba(26,46,26,0.95)',
+                        border: '2px solid var(--nature-light)',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                    }}>
+                        {hoveredCard ? (
+                            <img
+                                src={hoveredCard.img
+                                    ? `/${hoveredCard.img}${hoveredCard.age_name ? '.png' : ''}`
+                                    : '/images/card_not_found.png'}
+                                alt={hoveredCard.card_name ?? hoveredCard.age_name}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => { e.target.src = '/images/card_not_found.png'; }}
+                            />
+                        ) : (
+                            <p style={{ fontSize: '0.7rem', opacity: 0.35, textAlign: 'center', padding: '1rem' }}>
+                                Hover a card to preview
+                            </p>
+                        )}
+                    </div>
+                </div>
+
+                {/* All trait pools — fills remaining space evenly */}
+<div style={{
+    flex: 1,
+    display: 'grid',
+    gridTemplateRows: `repeat(${opponents.length + 1}, 1fr)`,
+    gap: '0.5rem',
+    overflow: 'hidden',
+    height: '100%',
+}}>
+    {/* Opponents */}
+    {opponents.map(opponent => (
+        <div key={opponent.id} style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.3rem',
+            overflow: 'hidden',
+            minHeight: 0,
+        }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                <p style={{ fontFamily: 'var(--font-title)', fontSize: '0.8rem', color: 'var(--nature-yellow)' }}>
+                    {opponent.name ?? `Player ${opponent.id}`}
+                </p>
+                <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>
+                    🃏 {opponent.hand?.length ?? 0} &nbsp; 🧬 {opponent.genepool}
+                </span>
             </div>
-        ))}
+            <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
+    <TraitPool traitpool={opponent.traitpool} size={80} onHover={setHoveredCard} />
+            </div>
         </div>
-        
-        {/* BOTTOM-LEFT — left opponent */}
-        <div style={{ gridColumn: '1', gridRow: '3', display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-end' }}>
-        {leftPlayer && <PlayerArea player={leftPlayer} />}
+    ))}
+
+    {/* Divider */}
+    <div style={{ height: '1px', background: 'rgba(74,124,74,0.4)', gridColumn: '1', flexShrink: 0 }} />
+
+    {/* Your trait pool */}
+    <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.3rem',
+        overflow: 'hidden',
+        minHeight: 0,
+    }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+            <p style={{ fontFamily: 'var(--font-title)', fontSize: '0.8rem', color: 'var(--nature-yellow)' }}>
+                {currentPlayer?.name ?? 'You'}
+            </p>
+            <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>
+                🃏 {currentPlayer?.hand?.length ?? 0} &nbsp; 🧬 {currentPlayer?.genepool}
+            </span>
         </div>
-        
-        {/* BOTTOM-CENTER — you */}
-        <div style={{ gridColumn: '2', gridRow: '3', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
-        <PlayerArea player={currentPlayer} isYou />
-        <Hand cards={currentPlayer?.hand || []} onPlay={onPlay} />
+        <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
+<TraitPool traitpool={currentPlayer?.traitpool} size={100} onHover={setHoveredCard} />
         </div>
-        
-        {/* BOTTOM-RIGHT — empty */}
-        <div style={{ gridColumn: '3', gridRow: '3' }} />
-        
+    </div>
+</div>
+
+            </div>
+
+            {/* RIGHT BOTTOM — Hand left + prompt area right */}
+            <div style={{
+                gridColumn: '2',
+                gridRow: '2',
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'flex-end',
+                gap: '1rem',
+                padding: '0.5rem 1rem',
+                borderTop: '1px solid rgba(74,124,74,0.3)',
+                background: 'rgba(0,0,0,0.15)',
+            }}>
+                {/* Hand on the left */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flexShrink: 0 }}>
+                    <p style={{
+                        fontFamily: 'var(--font-title)',
+                        fontSize: '0.8rem',
+                        color: 'var(--nature-yellow)',
+                        textAlign: 'center',
+                    }}>
+                        {currentPlayer?.name ?? 'You'}
+                        <span style={{ fontSize: '0.65rem', opacity: 0.6, marginLeft: '0.5rem' }}>
+                            🧬 {currentPlayer?.genepool}
+                        </span>
+                    </p>
+                    <Hand
+                        cards={currentPlayer?.hand || []}
+                        onPlay={onPlay}
+                        onHover={setHoveredCard}
+                    />
+                </div>
+
+                {/* Prompt area on the right */}
+                <div style={{
+                    flex: 1,
+                    minHeight: '8rem',
+                    background: 'rgba(0,0,0,0.2)',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(74,124,74,0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}>
+                    <p style={{ fontSize: '0.7rem', opacity: 0.3 }}>Action prompts will appear here</p>
+                </div>
+            </div>
+
         </div>
     );
 }

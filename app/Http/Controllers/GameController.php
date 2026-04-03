@@ -329,6 +329,7 @@ return [
 'current_turn'      => (int) $game->current_turn,
 'status'            => $game->status,
 'deckSize'          => $gameState['deckSize'] ?? 0,
+'ageDeckSize' => count($gameState['age_deck'] ?? []),
 'discardPile'       => $gameState['discardPile'] ?? [],
 'agePile1'          => $agePiles[0] ?? [],
 'agePile2'          => $agePiles[1] ?? [],

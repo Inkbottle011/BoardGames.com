@@ -5,6 +5,35 @@
     <link rel="stylesheet" href="/css/app.css">
     <link rel="stylesheet" href="{{ asset('css/waiting-room.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/chat.css') }}">
+    <style>
+        .scanlines {
+            display: none !important;
+        }
+
+        body::before {
+            display: none !important;
+            background: none !important;
+            animation: none !important;
+        }
+
+        body::after {
+            display: none !important;
+            background: none !important;
+        }
+
+        body {
+            background-color: #1a2e1a !important;
+            animation: none !important;
+        }
+
+        @keyframes gridScroll {
+
+            0%,
+            100% {
+                background-position: 0 0;
+            }
+        }
+    </style>
 @endpush
 
 @section('ughhh')
