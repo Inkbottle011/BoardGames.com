@@ -66,6 +66,7 @@ $discardPile = $request->input('game_state.discardPile', $gameState['discardPile
 $ageDeck     = $gameState['age_deck'] ?? [];
 $roundPlayers = $gameState['round_players'] ?? [];
 $playerOrder  = $gameState['player_order'] ?? [];
+$agePiles     = $gameState['age_piles'] ?? [[], [], []]; // ← moved here
 $currentAge   = $game->current_age;
 
 // Update each player's state, dealing cards to the player who just played
@@ -106,36 +107,35 @@ $allPlayerIds = collect($playerOrder)->map(fn($id) => (int) $id)->toArray();
 $roundComplete = count(array_intersect($allPlayerIds, $roundPlayers)) === count($allPlayerIds);
 
 if ($roundComplete) {
-// Reset round tracking
 $roundPlayers = [];
 
-// Flip next age
 if (!empty($ageDeck)) {
 $newAge = array_shift($ageDeck);
 
-// Handle catastrophe
+// Add age to correct pile based on current catastrophe count
+$pileIndex = min($catastropheCount, 2);
+$agePiles[$pileIndex][] = $newAge;
+
 if ($newAge['catastrophe']) {
 $catastropheCount++;
 
-// Rotate turn order — move first player to end
+// Rotate turn order
 if (!empty($playerOrder)) {
 $first = array_shift($playerOrder);
 $playerOrder[] = $first;
 $nextPlayerId = $playerOrder[0];
 }
 
-// Check game over
 if ($catastropheCount >= 3) {
 $gameStatus = 'worlds_end';
 }
 }
 
-// Log age flip in chat
 try {
 ChatController::systemMessage($game, "A new age begins: {$newAge['age_name']}");
 } catch (\Exception $e) {}
+
 } else {
-// No more ages — trigger worlds end
 $catastropheCount = 3;
 $gameStatus = 'worlds_end';
 }
@@ -145,13 +145,14 @@ $gameStatus = 'worlds_end';
 $game->update([
 'current_turn'      => $nextPlayerId,
 'catastrophe_count' => $catastropheCount,
-'current_age'       => $newAge,
+'current_age'       => $newAge ?? $currentAge,
 'status'            => $gameStatus,
 'game_state'        => [
-'deck'         => $deck,
-'deckSize'     => count($deck),
-'discardPile'  => $discardPile,
-'age_deck'     => $ageDeck,
+'deck'          => $deck,
+'deckSize'      => count($deck),
+'discardPile'   => $discardPile,
+'age_deck'      => $ageDeck,
+'age_piles'     => $agePiles,
 'round_players' => $roundPlayers,
 'player_order'  => $playerOrder,
 ],
@@ -256,6 +257,7 @@ $ageDeck = array_merge([$birthOfLifeFormatted], $shuffledAges);
 
 // Flip Birth of Life immediately as starting age
 $currentAge = array_shift($ageDeck);
+$agePiles = [[$currentAge], [], []]; // Birth of Life goes in pile 1
 
 // Player order — by seat
 $playerOrder = $game->players()
@@ -274,6 +276,7 @@ $game->update([
 'deckSize'      => count($remainingDeck),
 'discardPile'   => [],
 'age_deck'      => $ageDeck,
+'age_piles'     => $agePiles,
 'round_players' => [],
 'player_order'  => $playerOrder,
 ],
@@ -316,6 +319,8 @@ return response()->json(['status' => 'ok']);
 private function formatGameState(Game $game): array
 {
 $gameState = $game->game_state ?? [];
+$agePiles = $gameState['age_piles'] ?? [[], [], []];
+
 return [
 'id'                => $game->id,
 'age'               => $game->current_age,
@@ -325,6 +330,9 @@ return [
 'status'            => $game->status,
 'deckSize'          => $gameState['deckSize'] ?? 0,
 'discardPile'       => $gameState['discardPile'] ?? [],
+'agePile1'          => $agePiles[0] ?? [],
+'agePile2'          => $agePiles[1] ?? [],
+'agePile3'          => $agePiles[2] ?? [],
 'players'           => $game->players->map(fn($p) => [
 'id'        => (int) $p->user_id,
 'name'      => $p->user?->username ?? "Player {$p->user_id}",

@@ -8,16 +8,19 @@ use Illuminate\Database\Seeder;
 
 class DoomlingsAgesSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
-    {
-        $age = json_decode(file_get_contents(database_path('seeders/ages.json')), true);
+/**
+* Run the database seeds.
+*/
 
-        foreach ($age as $age) {
-            DoomlingsAges::create($age);
-        }
-    }
+public function run(): void
+{
+DoomlingsAges::truncate(); // ← add this
+
+$age = json_decode(file_get_contents(database_path('seeders/ages.json')), true);
+
+foreach ($age as $age) {
+DoomlingsAges::create($age);
+}
+}
 }
 // run php artisan db:seed --class=DoomlingsAgesSeeder to load into database

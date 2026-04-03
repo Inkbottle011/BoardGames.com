@@ -28,6 +28,8 @@ return new PrivateChannel("game.{$this->gameId}");
 public function broadcastWith(): array
 {
 $game = Game::with('players.user')->find($this->gameId);
+$gameState = $game->game_state ?? [];
+$agePiles = $gameState['age_piles'] ?? [[], [], []];
 
 return [
 'game' => [
@@ -36,9 +38,13 @@ return [
 'current_turn'      => (int) $game->current_turn,
 'catastrophe_count' => (int) $game->catastrophe_count,
 'current_age'       => $game->current_age,
+'agePile1'          => $agePiles[0] ?? [],
+'agePile2'          => $agePiles[1] ?? [],
+'agePile3'          => $agePiles[2] ?? [],
 ],
 'players' => $game->players->map(fn($p) => [
 'id'        => (int) $p->user_id,
+'name'      => $p->user?->username ?? "Player {$p->user_id}",
 'hand'      => $p->hand_cards ?? [],
 'traitpool' => $p->trait_pool ?? [],
 'genepool'  => (int) $p->genepool,

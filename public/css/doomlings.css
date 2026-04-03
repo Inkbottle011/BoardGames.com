@@ -35,16 +35,16 @@ DOOMLINGS GAME BOARD — Green Nature Theme
     position: fixed;
     inset: 0;
     background-image:
-        radial-gradient(
-            ellipse at 20% 50%,
-            rgba(106, 176, 76, 0.08) 0%,
-            transparent 60%
-        ),
-        radial-gradient(
-            ellipse at 80% 20%,
-            rgba(74, 124, 74, 0.1) 0%,
-            transparent 50%
-        );
+    radial-gradient(
+    ellipse at 20% 50%,
+    rgba(106, 176, 76, 0.08) 0%,
+    transparent 60%
+    ),
+    radial-gradient(
+    ellipse at 80% 20%,
+    rgba(74, 124, 74, 0.1) 0%,
+    transparent 50%
+    );
     pointer-events: none;
     z-index: 0;
 }
@@ -58,8 +58,8 @@ DOOMLINGS GAME BOARD — Green Nature Theme
     backdrop-filter: blur(4px);
     box-shadow: var(--glow-green);
     transition:
-        border-color 0.2s,
-        box-shadow 0.2s;
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .player-panel.active {
@@ -80,8 +80,8 @@ DOOMLINGS GAME BOARD — Green Nature Theme
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     transition:
-        transform 0.2s,
-        box-shadow 0.2s;
+    transform 0.2s,
+    box-shadow 0.2s;
     cursor: pointer;
     border: 2px solid var(--nature-light);
 }
@@ -89,8 +89,8 @@ DOOMLINGS GAME BOARD — Green Nature Theme
 .game-card:hover {
     transform: translateY(-4px) scale(1.03);
     box-shadow:
-        0 8px 20px rgba(0, 0, 0, 0.5),
-        var(--glow-green);
+    0 8px 20px rgba(0, 0, 0, 0.5),
+    var(--glow-green);
     border-color: var(--nature-yellow);
 }
 
@@ -193,7 +193,11 @@ DOOMLINGS GAME BOARD — Green Nature Theme
     padding-bottom: 4px;
     margin-bottom: 6px;
 }
-
+.deck-pile {
+    color: var(--nature-yellow);
+    font-family: var(--font-title);
+    font-size: 1.2rem;
+}
 .score-row {
     display: flex;
     justify-content: space-between;

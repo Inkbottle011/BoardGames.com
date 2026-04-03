@@ -58,6 +58,11 @@ export default function Doom() {
             catastrophe: GameState.catastropheCount >= 3,
             catastrophe_count: GameState.catastropheCount,
             status: GameState.status ?? 'active',
+            agePile1: GameState.agePile1 ?? [],
+            agePile2: GameState.agePile2 ?? [],
+            agePile3: GameState.agePile3 ?? [],
+            deckSize: GameState.deckSize ?? 0,
+            discardPile: GameState.discardPile ?? [],
         });
     }
     
@@ -106,8 +111,6 @@ export default function Doom() {
     }
     
     function applyBroadcastState(payload) {
-        console.log('applyBroadcastState payload:', JSON.stringify(payload));
-        
         const incomingCurrentTurn = parseInt(payload.game.current_turn);
         
         if (lastSentTurnRef.current === playerId && incomingCurrentTurn !== playerId) {
@@ -124,6 +127,11 @@ export default function Doom() {
             age: payload.game.current_age,
             catastrophe_count: payload.game.catastrophe_count,
             status: payload.game.status,
+            agePile1: payload.game.agePile1 ?? [],
+            agePile2: payload.game.agePile2 ?? [],
+            agePile3: payload.game.agePile3 ?? [],
+            deckSize: payload.game.deckSize ?? 0,
+            discardPile: payload.game.discardPile ?? [],
         };
         loadFromServer(serverState);
         syncState();

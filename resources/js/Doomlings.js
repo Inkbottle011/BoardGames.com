@@ -33,7 +33,12 @@ let GameState = {
     currentPlayer: null,
     currentAge: null,
     catastropheCount: 0,
-    status: 'active'
+    status: 'active',
+    agePile1: [],
+    agePile2: [],
+    agePile3: [],
+    deckSize: 0,
+    discardPile: [],
 };
 
 //================================================
@@ -218,8 +223,8 @@ function cardSearch(card_name, currentPlayer) {
 }
 
 function handSearch(card_name, currentPlayer) {
-    for (i < 0; i < currentPlayer.cards.length; i++) {
-        if (currentPlayer.cards[i].card_name === card_name) {
+    for (let i = 0; i < currentPlayer.cards.length; i++) {
+        if (currentPlayer.cards[i] && currentPlayer.cards[i].card_name === card_name) {
             return i;
         }
     }
@@ -426,10 +431,6 @@ export { isWorldsEnd };
 
 // Load game state from Laravel into doomlings.js
 export function loadFromServer(serverState) {
-    if (!serverState || !serverState.players) {
-        console.error('loadFromServer: invalid serverState', serverState);
-        return;
-    }
     GameState.status = serverState.status ?? 'active';
     GameState.players = serverState.players.map(p => {
         let hand = new PlayerHand(p.id);
@@ -443,12 +444,19 @@ export function loadFromServer(serverState) {
     GameState.currentPlayer = GameState.players.find(
         p => p.id === serverState.current_turn
     ) ?? GameState.players[0];
-    
-    // Age is now a full object not just a string
     GameState.currentAge = serverState.age ?? null;
     GameState.catastropheCount = serverState.catastrophe_count ?? 0;
+    GameState.agePile1 = serverState.agePile1 ?? [];
+    GameState.agePile2 = serverState.agePile2 ?? [];
+    GameState.agePile3 = serverState.agePile3 ?? [];
+    GameState.deckSize = serverState.deckSize ?? 0;
+    GameState.discardPile = serverState.discardPile ?? [];
     
-    // Handle game over
+    if (serverState.discardPile) {
+        discardPile.length = 0;
+        serverState.discardPile.forEach(c => discardPile.push(c));
+    }
+    
     if (serverState.status === 'worlds_end') {
         GameState.catastropheCount = 3;
     }

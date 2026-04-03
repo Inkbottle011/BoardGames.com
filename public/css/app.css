@@ -1,3 +1,4 @@
+@import "tailwindcss";
 /* --- overrides Bootstrap + global styles  --- */
 /* --- Google Font  --- */
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap');
@@ -38,8 +39,8 @@ body::before {
     position: fixed;
     inset: 0;
     background-image:
-        linear-gradient(rgba(65, 22, 151, 0.15) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(65, 22, 151, 0.15) 1px, transparent 1px);
+    linear-gradient(rgba(65, 22, 151, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(65, 22, 151, 0.15) 1px, transparent 1px);
     background-size: 40px 40px;
     animation: gridScroll 20s linear infinite;
     pointer-events: none;
@@ -66,11 +67,11 @@ body::after {
     position: fixed;
     inset: 0;
     background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.08) 2px,
-        rgba(0, 0, 0, 0.08) 4px
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
     );
     pointer-events: none;
     z-index: 9999;
@@ -85,8 +86,8 @@ body::after {
 }
 
 /* ============================================
-   NAVBAR — Overriding Bootstrap CSS variables
-   ============================================ */
+NAVBAR — Overriding Bootstrap CSS variables
+============================================ */
 .navbar {
     /* Override Bootstrap vars */
     --bs-navbar-padding-y: 0;
@@ -100,7 +101,7 @@ body::after {
     --bs-navbar-toggler-border-color: rgba(255, 0, 128, 0.5);
     /* Pink hamburger icon */
     --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23ff0080' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
-
+    
     background-color: var(--arcade-dark-mid);
     border-bottom: 2px solid var(--arcade-pink);
     box-shadow: var(--glow-pink), inset 0 -1px 0 rgba(255, 0, 128, 0.3);
@@ -203,8 +204,8 @@ body::after {
 }
 
 /* ============================================
-   MAIN CONTENT CONTAINER
-   ============================================ */
+MAIN CONTENT CONTAINER
+============================================ */
 .largecontainer {
     position: relative;
     z-index: 1;
@@ -213,8 +214,8 @@ body::after {
 }
 
 /* ============================================
-   FOOTER
-   ============================================ */
+FOOTER
+============================================ */
 .site-footer {
     background-color: var(--arcade-dark-mid) !important;
     border-top: 2px solid var(--arcade-purple);
@@ -241,8 +242,8 @@ body::after {
 }
 
 /* ============================================
-   UTILITY: Arcade-style headings & text
-   ============================================ */
+UTILITY: Arcade-style headings & text
+============================================ */
 h1, h2, h3 {
     font-family: var(--font-hud);
     font-weight: 900;
