@@ -19,19 +19,8 @@ Route::post('/profile/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/doomlings', function () {
-<<<<<<< HEAD
 return view('doomling');
 })->name('doomlings');
-=======
-    return view('doomlings');
-})->name('doomlings');
-
-
-
-
-
-
->>>>>>> 347e15a (accepted the new version of what guarab did and synced them)
 
 
 
