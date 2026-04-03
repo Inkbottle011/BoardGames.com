@@ -501,7 +501,7 @@ function Memory_Effect(currentPlayer, players) {
     let playerchoice = true
     if (playerchoice) {
         while (currentPlayer.cards.length > 0) {
-            Doomlings.discardCard(currentPlayer);
+            Doomlings.discardCard(currentPlayer, index);
         }
     }
     
@@ -946,6 +946,9 @@ function OptimisticNihilism_Effect(currentPlayer, players) {
     Doomlings.GameState.catastropheCount++;
     Doomlings.play(index);
 } // skipping player turns and bringing about a catasrohpy ignoring age effects as well.
+function Late_Effect(currentPlayer, players) {
+    return null;
+} // effect based on after stablization completed in Doomlings.js
 function RegenerativeTissue_Effect(currentPlayer, players) { } // any time you discard a trait draw 1 play immediatly Completed in Doomlings.js
 function Endurance_Effect(currentPlayer, players) { } // whenever you discard this card return to the trait pile. Completed in Doomlings.js
 function Echolocation_Effect(currentPlayer, players) { } // draw a card at the start of each of your turns Completed in Doomlings.js
@@ -976,19 +979,16 @@ function Chromatophores_Effect(currentPlayer, players) { }
 //not completed
 function Sentience_Effect() { }
 
+function SwarmHorns_Effect(currentPlayer, players) { Swarm_Effect(currentPlayer, players); }
+function SwarmMindless_Effect(currentPlayer, players) { Swarm_Effect(currentPlayer, players); }
+function SwarmSpots_Effect(currentPlayer, players) { Swarm_Effect(currentPlayer, players); }
+function SwarmStripes_Effect(currentPlayer, players) { Swarm_Effect(currentPlayer, players); }
 
-//REMOVE PROLLY IDK 
-function SwarmHorns_Effect(currentPlayer, players) { }
-function SwarmMindless_Effect(currentPlayer, players) { }
-function SwarmSpots_Effect(currentPlayer, players) { }
-function SwarmStripes_Effect(currentPlayer, players) { }
-function SwarmFur_Effect(currentPlayer, players) { }
 
 function Denial_Effect(currentPlayer, players) { } // Ignore the next catastrophe need to figure out how to make sure we only ignore the next catastraphy
 function Delicious_Effect(currentPlayer, players) { } // restricted 
 function RetractableClaws_Effect(currentPlayer, players) { } // restricted 
 function Heroic_Effect(currentPlayer, players) { } //restricted
-function Late_Effect(currentPlayer, players) { } // effect based on after stablization 
 function Morality_Effect(currentPlayer, players) { } //limitation
 function Prepper_Effect(currentPlayer, players) { } // choose a worlds end
 function TheThirdEye_Effect(currentPlayer, players) {
@@ -999,14 +999,12 @@ function Clever_Effect(currentPlayer, players) { } // oppenents reveal a card ch
 function Parasitic_Effect(currentPlayer, players) { } // steal that card and stop that trait effect 
 function Sneaky_Effect(currentPlayer, players) { } // at worlds end play immediatly for free
 
-//delete prolly idk 
-function KidneyChefsToque_Effect(currentPlayer, players) { }
-function KidneyCombover_Effect(currentPlayer, players) { }
-function KidneyElfHat_Effect(currentPlayer, players) { }
-function KidneyPartyHat_Effect(currentPlayer, players) { }
-function KidneyTiara_Effect(currentPlayer, players) { }
-function KidneyBeerHelm_Effect(currentPlayer, players) { }
 
+function KidneyChefsToque_Effect(currentPlayer, players) { Kidney_Effect(currentPlayer, players); }
+function KidneyCombover_Effect(currentPlayer, players) { Kidney_Effect(currentPlayer, players); }
+function KidneyElfHat_Effect(currentPlayer, players) { Kidney_Effect(currentPlayer, players); }
+function KidneyPartyHat_Effect(currentPlayer, players) { Kidney_Effect(currentPlayer, players); }
+function KidneyTiara_Effect(currentPlayer, players) { Kidney_Effect(currentPlayer, players); }
 
 
 //export function

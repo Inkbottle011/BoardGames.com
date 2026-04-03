@@ -1,5 +1,6 @@
 import * as CardEffects from "./CardEffects.js";
 import * as Deck from "./Deck.js";
+import axios from "axios";
 
 //================================================
 // DATA STRUCTURES
@@ -13,7 +14,7 @@ let Age = {
 };
 
 let Ages = [];
-let discardPile = [];
+export let discardPile = [];
 
 class PlayerHand extends Deck.PlayerHand {
     constructor(id) {
@@ -26,6 +27,7 @@ class PlayerHand extends Deck.PlayerHand {
 }
 
 let GameState = {
+    startindex: null,
     players: [],
     currentPlayer: null,
     currentAge: null,
@@ -36,14 +38,26 @@ let GameState = {
 //================================================
 // GAME SETUP
 //================================================
+// async function gameloop(numplayers) {
+//     gamestart(numplayers);
+//     while (!checkGameOver) {
+//         for (i = 0; i < numplayers; i++) {
+//             play(index);
+//         }
+//         startNewAge();
+//     }
+// }
 
 async function gamestart(numPlayers) {
     await Deck.loadAllCards();
     Deck.buildDeck();
+    AgesDeck();
+    GameState.currentAge = Ages[0];
     for (let i = 0; i < numPlayers; i++) {
         GameState.players.push(new PlayerHand(i));
     }
     let startIndex = Math.floor(Math.random() * numPlayers);
+    GameState.startindex = startIndex;
     GameState.currentPlayer = GameState.players[startIndex];
     for (let player of GameState.players) {
         await Deck.drawMultiple(player, player.size);
@@ -57,9 +71,54 @@ function startNewAge() {
         GameState.catastropheCount++;
     }
     checkGameOver();
+    if (GameState.currentAge.catastrophe || GameState.currentAge.age_name === "Birth of a Hero" || GameState.currentAge.age_name === "Northern Winds" || GameState.currentAge.age_name === "Awakening" || GameState.currentAge.age_name === "Flourish" || GameState.currentAge.age_name === "Age of Dracula" || GameState.currentAge.age_name === "Comet Showers" || GameState.currentAge.age_name === "The Messiah" || GameState.currentAge.age_name === "Age of Reason") {
+        runAgeEffect(null, GameState.currentPlayer, GameState.players);
+    }
 }
 
+// function AgesDeck() {
+//     Ages.push(CreateAges(41));
+//     for (i = 0; i < 3; i++) {
+//         let randomIndex = 0;
+//         for (k = 0; k < 3; k++) {
+//             randomIndex = Math.round(Math.random() * 25 + 1);
+//             Ages.push(CreateAges(randomIndex));
+//         }
+//         randomIndex = Math.round(Math.random() * 40 + 26);
+//     }
+// }
 
+// async function CreateAges(ID) {
+//     return new Promise((resolve, reject) => {
+//         con.query("SELECT * FROM doomlings_ages WHERE id = ?", [ID], (err, results) => {
+//             if (err) {
+//                 reject(err);
+//                 return;
+//             }
+//             if (results.length > 0) {
+//                 const {
+//                     age_name,
+//                     text,
+//                     card_name,
+//                     img,
+//                     catastrophe
+//                 } = results[0];
+//                 resolve(
+//                     new Age(
+//                         ID,
+//                         age_name,
+//                         text,
+//                         card_name,
+//                         img,
+//                         catastrophe
+//                     ),
+//                 );
+//             } else {
+//                 resolve(null);
+//             }
+//         });
+//     });
+// }
 
 //================================================
 // TURN MANAGEMENT
@@ -69,11 +128,22 @@ async function endTurn() {
     let currentIndex = GameState.players.indexOf(GameState.currentPlayer);
     let nextIndex = (currentIndex + 1) % GameState.players.length;
     GameState.currentPlayer = GameState.players[nextIndex];
-    
-    
-    // Late card effect - player can play after stabilizing
-    if (cardSearch("Late", GameState.currentPlayer) !== -1) {
-        // TODO: implement Late effect
+    if (currentAge.age_name === "Prosperity" || currentAge.age_name === "Age of Nietzche" || currentAge.age_name === "Enlightenment" || currentAge.age_name === "Costal Formations" || currentAge.age_name === "Age of Wonder") {
+        runAgeEffect(null, GameState.currentPlayer, GameState.players);
+    }
+    stabilize();
+}
+export function stabilize() {
+    Deck.drawMultiple(
+        GameState.currentPlayer,
+        GameState.currentPlayer.size - GameState.currentPlayer.cards.length,
+    );
+    discardCardMultiple(GameState.currentPlayer, GameState.currentPlayer.cards.length - GameState.currentPlayer.size);
+    let lateIndex = handSearch(Late, GameState.currentPlayer)
+    if (lateIndex != -1) {
+        let card = GameState.currentPlayer.cards[lateIndex];
+        GameState.currentPlayer.cards.splice(lateIndex, 1)
+        GameState.currentPlayer.traitpool.push(card);
     }
 }
 
@@ -97,10 +167,37 @@ export function play(index, player = null) {
     }
     if (index < 0 || index >= currentPlayer.cards.length) return;
     let card = currentPlayer.cards[index];
-    currentPlayer.cards.splice(index, 1);
-    onCardPlayed(card, currentPlayer, players);
-    resolveCard(card, currentPlayer, players);
-    endTurn();
+    if (!GameState.currentAge.catastrophe || GameState.currentAge.age_name != "Birth of a Hero" || GameState.currentAge.age_name != "Northern Winds" || GameState.currentAge.age_name != "Awakening" || GameState.currentAge.age_name != "Flourish" || GameState.currentAge.age_name != "Age of Dracula" || GameState.currentAge.age_name != "Comet Showers" || GameState.currentAge.age_name != "The Messiah" || GameState.currentAge.age_name != "Age of Reason" || currentAge.age_name != "Prosperity" || currentAge.age_name != "Age of Nietzche" || currentAge.age_name != "Enlightenment" || currentAge.age_name != "Costal Formations" || currentAge.age_name != "Age of Wonder") {
+        runAgeEffect(card, currentPlayer, players);
+    }
+    if (card.card_name === "Heroic") {
+        let green = 0;
+        for (i = 0; i < currentPlayer.cards.length; i++) {
+            if (currentPlayer.cards[i].color === "Green") {
+                green++;
+            }
+            if (green >= 3) {
+                currentPlayer.cards.splice(index, 1);
+                onCardPlayed(card, currentPlayer, players);
+                resolveCard(card, currentPlayer, players);
+                endTurn();
+            } else {
+                while (card.card_name === "Heroic") {
+                    if (index < 0 || index >= currentPlayer.cards.length) return;
+                    card = currentPlayer.cards[index];
+                }
+                onCardPlayed(card, currentPlayer, players);
+                resolveCard(card, currentPlayer, players);
+                endTurn();
+            }
+        }
+    } else {
+        currentPlayer.cards.splice(index, 1);
+        onCardPlayed(card, currentPlayer, players);
+        resolveCard(card, currentPlayer, players);
+        endTurn();
+    }
+
 }
 
 function cardSearch(card_name, currentPlayer) {
@@ -112,11 +209,20 @@ function cardSearch(card_name, currentPlayer) {
     return -1;
 }
 
-function runAgeEffect(currentPlayer, players) {
+function handSearch(card_name, currentPlayer) {
+    for (i < 0; i < currentPlayer.cards.length; i++) {
+        if (currentPlayer.cards[i].card_name === card_name) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+function runAgeEffect(card, currentPlayer, players) {
     let functionName =
     Ages[0].age_name.replace(/\s+/g, "").replace(/-/g, "") + "_effect";
     if (AgesEffects[functionName]) {
-        AgesEffects[functionName](currentPlayer, players);
+        AgesEffects[functionName](card, currentPlayer, players);
     } else {
         console.warn(`No function found for card: ${Ages[0].age_name}`);
     }
@@ -150,7 +256,7 @@ function runCardEffect(card, currentPlayer, players) {
     }
 }
 
-export function discardCard(playerhand,index) {
+export function discardCard(playerhand, index) {
     if (index < 0 || index >= playerhand.cards.length) return;
     let card = playerhand.cards[index];
     playerhand.cards.splice(index, 1);
@@ -165,6 +271,22 @@ export function discardCard(playerhand,index) {
         }
     }
     
+}
+
+export function discardRandomCard(playerhand) {
+    let index = Math.floor(Math.random() * playerhand.cards.length);
+    let card = playerhand.cards[index];
+    playerhand.cards.splice(index, 1);
+    if (card.card_name != "Endurance") {
+        discardPile.push(card);
+        if (cardSearch("Regenerative Tissue", playerhand) != -1) {
+            Deck.draw(playerhand);
+            let card = playerhand.cards.pop();
+            playerhand.traitpool.push(card);
+            onCardPlayed(card, playerhand, GameState.players);
+            resolveCard(card, playerhand, GameState.players);
+        }
+    }
 }
 
 export function discardCardMultiple(playerhand, num, index) {
@@ -248,7 +370,7 @@ function onCardPlayed(playedCard, playingPlayer, allPlayers) {
 // CARD ACTIONS (used by CardEffects.js)
 //================================================
 
-function StealHandCard(fromHand, toHand) {
+export function StealHandCard(fromHand, toHand) {
     if (fromHand.cards.length === 0) return;
     let randomIndex = Math.floor(Math.random() * fromHand.cards.length);
     toHand.cards.push(fromHand.cards[randomIndex]);

@@ -32,4 +32,6 @@ export default function Deck({ deckSize, discardPile }) {
             </div>
         </div>
     );
+
+
 }
