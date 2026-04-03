@@ -11,5 +11,5 @@
 
 @push('scripts')
     @viteReactRefresh
-    @vite(['resources/js/app.jsx'])
+    @vite(['../../public/css/doomlings.css', 'resources/js/app.jsx'])
 @endpush
