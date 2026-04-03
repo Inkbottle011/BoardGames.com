@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import Board from "./components/board";
 import Chat from "./components/chat";
+import TargetingModal from "./components/TargetingModal";
+import { initTargeting } from "./targeting.js";
 import { loadFromServer, serializeForServer, GameState, play, discardCard, discardTrait } from "./Doomlings.js";
 
 const appEl = document.getElementById('app');
@@ -10,10 +12,32 @@ const playerId = parseInt(appEl.dataset.userId);
 
 export default function Doom() {
     const [gameState, setGameState] = useState(null);
+    const [targetRequest, setTargetRequest] = useState(null);
     
     const fetchGameStateRef = useRef(null);
     const applyBroadcastRef = useRef(null);
     const lastSentTurnRef = useRef(null);
+    const targetResolverRef = useRef(null);
+    
+    // Initialize targeting system
+    function requestTarget(request) {
+        return new Promise((resolve) => {
+            targetResolverRef.current = resolve;
+            setTargetRequest(request);
+        });
+    }
+    
+    function resolveTarget(choice) {
+        setTargetRequest(null);
+        if (targetResolverRef.current) {
+            targetResolverRef.current(choice);
+            targetResolverRef.current = null;
+        }
+    }
+    
+    // Keep targeting ref current
+    const requestTargetRef = useRef(requestTarget);
+    requestTargetRef.current = requestTarget;
     
     function csrfToken() {
         return document.querySelector('meta[name="csrf-token"]').content;
@@ -23,13 +47,14 @@ export default function Doom() {
         setGameState({
             players: GameState.players.map(p => ({
                 id: p.id,
+                name: p.name ?? `Player ${p.id}`,
                 hand: [...p.cards],
                 traitpool: [...p.traitpool],
                 genepool: p.genepool,
                 points: p.points,
             })),
             current_turn: GameState.currentPlayer?.id,
-            age: GameState.currentAge,         // now a full object
+            age: GameState.currentAge,
             catastrophe: GameState.catastropheCount >= 3,
             catastrophe_count: GameState.catastropheCount,
             status: GameState.status ?? 'active',
@@ -68,17 +93,23 @@ export default function Doom() {
             },
             credentials: "include",
         })
-        .then(res => res.json())
+        .then(res => {
+            console.log('fetch status:', res.status, 'type:', res.headers.get('content-type'));
+            return res.json();
+        })
         .then(data => {
+            console.log('fetch data:', JSON.stringify(data).substring(0, 300));
             loadFromServer(data);
             syncState();
-        });
+        })
+        .catch(err => console.error('fetchGameState error:', err));
     }
     
     function applyBroadcastState(payload) {
+        console.log('applyBroadcastState payload:', JSON.stringify(payload));
+        
         const incomingCurrentTurn = parseInt(payload.game.current_turn);
         
-        // If we just sent a turn and this broadcast is the echo of it — ignore it
         if (lastSentTurnRef.current === playerId && incomingCurrentTurn !== playerId) {
             console.log('Skipping own broadcast echo');
             lastSentTurnRef.current = null;
@@ -92,6 +123,7 @@ export default function Doom() {
             current_turn: incomingCurrentTurn,
             age: payload.game.current_age,
             catastrophe_count: payload.game.catastrophe_count,
+            status: payload.game.status,
         };
         loadFromServer(serverState);
         syncState();
@@ -101,6 +133,9 @@ export default function Doom() {
     applyBroadcastRef.current = applyBroadcastState;
     
     useEffect(() => {
+        // Initialize targeting system with our requestTarget function
+        initTargeting((request) => requestTargetRef.current(request));
+        
         fetchGameStateRef.current();
         
         const channel = window.Echo.private(`game.${gameId}`);
@@ -120,13 +155,6 @@ export default function Doom() {
     }, []);
     
     function handlePlay(cardId) {
-        console.log('handlePlay', {
-            currentPlayerId: GameState.currentPlayer?.id,
-            playerId,
-            match: GameState.currentPlayer?.id === playerId,
-            players: GameState.players.map(p => p.id)
-        });
-        
         if (GameState.currentPlayer?.id !== playerId) {
             console.warn('Not your turn!');
             return;
@@ -141,15 +169,15 @@ export default function Doom() {
             return;
         }
         
-        // Mark that we're sending a turn so we can ignore our own broadcast echo
         lastSentTurnRef.current = playerId;
         
-        play(cardIndex, currentPlayer);
-        syncState();
-        
-        saveToServer()
+        // play() is now async because card effects may need targeting
+        Promise.resolve(play(cardIndex, currentPlayer))
+        .then(() => {
+            syncState();
+            return saveToServer();
+        })
         .then(data => {
-            console.log('saveToServer response:', JSON.stringify(data));
             loadFromServer(data);
             syncState();
         })
@@ -176,7 +204,6 @@ export default function Doom() {
         .catch(() => fetchGameStateRef.current());
     }
     
-    
     if (gameState?.status === 'worlds_end') {
         const winner = [...(gameState.players ?? [])]
         .sort((a, b) => b.points - a.points)[0];
@@ -188,19 +215,19 @@ export default function Doom() {
             {winner && (
                 <div className="center-panel text-center">
                 <p className="text-lg opacity-60">Winner</p>
-                <p className="text-2xl font-bold">Player {winner.id}</p>
+                <p className="text-2xl font-bold">{winner.name ?? `Player ${winner.id}`}</p>
                 <p className="text-xl">{winner.points} points</p>
                 </div>
             )}
             <div className="flex flex-col gap-2 w-64">
             {[...(gameState.players ?? [])].sort((a, b) => b.points - a.points).map((p, i) => (
                 <div key={p.id} className="score-row">
-                <span>#{i + 1} Player {p.id}</span>
+                <span>#{i + 1} {p.name ?? `Player ${p.id}`}</span>
                 <span>{p.points}pts</span>
                 </div>
             ))}
             </div>
-            <button 
+            <button
             className="chat-send px-6 py-2"
             onClick={() => window.location.href = '/lobby'}
             >
@@ -224,6 +251,10 @@ export default function Doom() {
         gameId={gameId}
         gameSlug={gameSlug}
         playerId={playerId}
+        />
+        <TargetingModal
+        request={targetRequest}
+        onResolve={resolveTarget}
         />
         </div>
     );

@@ -1,116 +1,99 @@
-import * as Doomlings from "./Doomlings.js";
+import { resolveCard, GameState, chooseOpponent, StealHandCard, discardCard, discardCardMultiple, discardTrait, discardPile, isWorldsEnd } from "./Doomlings.js";
 import * as Deck from "./Deck.js";
-import * as CardEffects from "./CardEffects.js";
-//auxillary functions 
+
+//================================================
+// AUXILIARY FUNCTIONS
+//================================================
 
 function discardHandcolor(color, players) {
-    for (i = 0; i < players.length; i++) {
+    for (let i = 0; i < players.length; i++) {
         let count = 0;
-        for (k = 0; k < players[i].traitpool.length; k++) {
-            if (players[i].traitpool[k].color === color) {
+        for (let k = 0; k < players[i].hand.length; k++) {
+            if (players[i].cards[k].color === color) {
                 count++;
             }
         }
-        discardCardMultiple(players[i], count);
+        discardCardMultiple(players[i], count, 0);
     }
-
 }
 
 function discardTraitcolor(color, players) {
-    for (i = 0; i < players.length; i++) {
-        players[i].size -= 1;
-        let card = null
-        while (card.color != color) {
-            if (index < 0 || index >= players[i].traitpool.length) return;
-            card = players[i].traitpool[index];
-        }
-        players[i].traitpool.splice(index, 1);
-        if (card.card_name != "Endurance") {
+    for (let i = 0; i < players.length; i++) {
+        let idx = players[i].traitpool.findIndex(c => c.color === color);
+        if (idx === -1) continue;
+        let card = players[i].traitpool[idx];
+        players[i].traitpool.splice(idx, 1);
+        if (card.card_name !== "Endurance") {
             discardPile.push(card);
-            if (cardSearch(RegenerativeTissue, players[i]) != -1) {
-                Deck.draw(players[i]);
-                let card = players[i].cards.pop();
-                players[i].traitpool.push(card);
-                onCardPlayed(card, players[i], GameState.players);
-                resolveCard(card, players[i], GameState.players);
-            }
         }
     }
 }
 
 function CountColor(color, players) {
-    for (k = 0; k < players[i].traitpool.length; k++) {
-        if (players[i].traitpool[k].color === colors[j]) {
-            players[i].points -= 1;
+    for (let i = 0; i < players.length; i++) {
+        for (let k = 0; k < players[i].traitpool.length; k++) {
+            if (players[i].traitpool[k].color === color) {
+                players[i].points -= 1;
+            }
         }
     }
 }
 
-//completed
+//================================================
+// COMPLETED AGE EFFECTS
+//================================================
 
-function TheBirthofLife_effect(card, currentPlayer, players) { } // starting age does nothing
+function TheBirthofLife_effect(card, currentPlayer, players) { }
+
 function AgeofPeace_effect(card, currentPlayer, players) {
-    if (card.action) {
-        card.card_name = "Leaves"
+    if (card && card.action) {
+        card.action = false;
     }
 }
 
 function GlacialDrift_effect(card, currentPlayer, players) {
-    while (card.value > 3) {
-        if (index < 0 || index >= currentPlayer.cards.length) return;
-        card = currentPlayer.cards[index];
-    }
+    // Cannot play cards with value > 3 — enforced by returning early
+    if (card && card.points > 3) return;
 }
 
 function LunarRetreat_effect(card, currentPlayer, players) {
-    while (card.color == "Purple") {
-        if (index < 0 || index >= currentPlayer.cards.length) return;
-        card = currentPlayer.cards[index];
-    }
-}
-function HighTides_effect(card, currentPlayer, players) {
-    if (card.text == null) {
-        let newcard = null;
-        while (newcard.text == null) {
-            if (index < 0 || index >= currentPlayer.cards.length) return;
-            newcard = currentPlayer.cards[index];
-        }
-    }
-}
-function NorthernWinds_effect(card, currentPlayer, players) {
-    for (i = 0; i < players.length; i++) {
-        Deck.draw(players[i]);
-        Doomlings.discardCard(players[i]);
-    }
+    // Cannot play purple cards
+    if (card && card.color === "Purple") return;
 }
 
+function HighTides_effect(card, currentPlayer, players) {
+    // Cannot play cards with no text (no effect)
+    if (card && card.text == null) return;
+}
+
+function NorthernWinds_effect(card, currentPlayer, players) {
+    for (let i = 0; i < players.length; i++) {
+        Deck.draw(players[i]);
+        discardCard(players[i], 0);
+    }
+}
 
 function AgeofWonder_effect(card, currentPlayer, players) {
     while (currentPlayer.cards.length > 4) {
-        discardCard(currentPlayer);
+        discardCard(currentPlayer, 0);
     }
     while (currentPlayer.cards.length < 4) {
         Deck.draw(currentPlayer);
     }
 }
+
 function GalacticDrift_effect(card, currentPlayer, players) {
-    if (card.color == "Colorless") {
-        let newcard = null;
-        while (card.color == "Colorless") {
-            if (index < 0 || index >= currentPlayer.cards.length) return;
-            newcard = currentPlayer.cards[index];
-        }
-    }
+    // Cannot play colorless cards
+    if (card && card.color === "Colorless") return;
 }
 
-
 function BirthofaHero_effect(card, currentPlayer, players) {
-    for (i = 0; i < players.length; i++) {
-        index = cardSearch("Heroic", players[i]);
-        if (index != -1) {
-            let card = player.traitpool[index];
-            player.cards.splice(index, 1);
-            player.traitpool.push(card);
+    for (let i = 0; i < players.length; i++) {
+        let idx = players[i].traitpool.findIndex(c => c.card_name === "Heroic");
+        if (idx !== -1) {
+            let heroic = players[i].traitpool[idx];
+            players[i].traitpool.splice(idx, 1);
+            players[i].cards.push(heroic);
         }
     }
 }
@@ -119,263 +102,191 @@ function CoastalFormations_effect(card, currentPlayer, players) {
     Deck.draw(currentPlayer);
 }
 
-
 function Flourish_effect(card, currentPlayer, players) {
-    for (i = 0; i < players.length; i++) {
+    for (let i = 0; i < players.length; i++) {
         Deck.drawMultiple(players[i], 2);
     }
 }
 
 function TectonicShifts_effect(card, currentPlayer, players) {
-    while (card.color == "Green") {
-        if (index < 0 || index >= currentPlayer.cards.length) return;
-        card = currentPlayer.cards[index];
-    }
+    // Cannot play green cards
+    if (card && card.color === "Green") return;
 }
 
-
-
 function TropicalLands_effect(card, currentPlayer, players) {
-    while (card.color == "Colorless") {
-        if (index < 0 || index >= currentPlayer.cards.length) return;
-        card = currentPlayer.cards[index];
-    }
+    // Cannot play colorless cards
+    if (card && card.color === "Colorless") return;
 }
 
 function AgeofDracula_effect(card, currentPlayer, players) {
-    for (i = 0; i < players.length; i++) {
-        if (Doomlings.cardSearch("Vampirism", players[i]) != -1) {
-            Doomlings.StealHandCard(players[i], chooseOpponent(players[i], players));
+    for (let i = 0; i < players.length; i++) {
+        let hasVampirism = players[i].traitpool.some(c => c.card_name === "Vampirism");
+        if (hasVampirism) {
+            let opponents = players.filter(p => p !== players[i]);
+            if (opponents.length > 0) {
+                StealHandCard(opponents[0], players[i]);
+            }
         } else {
-            discardCard(players[i]);
+            discardCard(players[i], 0);
         }
     }
 }
 
-
 function Eclipse_effect(card, currentPlayer, players) {
-    while (card.color == "Red") {
-        if (index < 0 || index >= currentPlayer.cards.length) return;
-        card = currentPlayer.cards[index];
-    }
+    // Cannot play red cards
+    if (card && card.color === "Red") return;
 }
 
 function AridLands_effect(card, currentPlayer, players) {
-    while (card.color == "Blue") {
-        if (index < 0 || index >= currentPlayer.cards.length) return;
-        card = currentPlayer.cards[index];
-    }
+    // Cannot play blue cards
+    if (card && card.color === "Blue") return;
 }
-//May need to rewrite but for now should word
+
 function AgeofReason_effect(card, currentPlayer, players) {
     Deck.drawMultiple(currentPlayer, 3);
-    if (index < currentPlayer.cards.length - 4 || index >= currentPlayer.cards.length) return;
-    let card = currentPlayer.cards[index];
-    currentPlayer.cards.splice(index, 1);
-    if (card.card_name != "Endurance") {
-        discardPile.push(card);
-        if (cardSearch(RegenerativeTissue, currentPlayer) != -1) {
-            Deck.draw(currentPlayer);
-            let card = currentPlayer.cards.pop();
-            currentPlayer.traitpool.push(card);
-            onCardPlayed(card, currentPlayer, GameState.players);
-            resolveCard(card, currentPlayer, GameState.players);
-        }
+    // Discard 2 cards
+    if (currentPlayer.cards.length > 0) {
+        let cardOne = currentPlayer.cards.pop();
+        if (cardOne.card_name !== "Endurance") discardPile.push(cardOne);
     }
-
-    if (index < currentPlayer.cards.length - 3 || index >= currentPlayer.cards.length) return;
-    let card = currentPlayer.cards[index];
-    currentPlayer.cards.splice(index, 1);
-    if (card.card_name != "Endurance") {
-        discardPile.push(card);
-        if (cardSearch(RegenerativeTissue, currentPlayer) != -1) {
-            Deck.draw(currentPlayer);
-            let card = currentPlayer.cards.pop();
-            currentPlayer.traitpool.push(card);
-            onCardPlayed(card, currentPlayer, GameState.players);
-            resolveCard(card, currentPlayer, GameState.players);
-        }
+    if (currentPlayer.cards.length > 0) {
+        let cardTwo = currentPlayer.cards.pop();
+        if (cardTwo.card_name !== "Endurance") discardPile.push(cardTwo);
     }
 }
-
 
 function CometShowers_effect(card, currentPlayer, players) {
-    for (i = 0; i < players.length; i++) {
-        discardRandomCard(players[i])
+    for (let i = 0; i < players.length; i++) {
+        if (players[i].cards.length > 0) {
+            let idx = Math.floor(Math.random() * players[i].cards.length);
+            let discarded = players[i].cards.splice(idx, 1)[0];
+            if (discarded.card_name !== "Endurance") discardPile.push(discarded);
+        }
     }
 }
+
 function Prosperity_effect(card, currentPlayer, players) {
-    let agree = false;
-    if (agree) {
-        stabilize();
-    }
-    //prompt player if they would like to stablize if no they don't stabilize
+    // TODO: prompt player to stabilize
 }
 
 function AlienTerraform_effect(card, currentPlayer, players) {
-    //prompt player if they would like to discard their dominate cards from they're hand 
-    let agree = false;
-    if (agree) {
-        for (i = 0; i < currentPlayer.cards.length; i++) {
-            if (currentPlayer.cards[i].dominate) {
-                let card = currentPlayer.cards[i];
-                currentPlayer.cards.splice(index, 1);
-                if (card.card_name != "Endurance") {
-                    discardPile.push(card);
-                    if (cardSearch(RegenerativeTissue, playerhand) != -1) {
-                        Deck.draw(playerhand);
-                        let card = playerhand.cards.pop();
-                        playerhand.traitpool.push(card);
-                        onCardPlayed(card, playerhand, GameState.players);
-                        resolveCard(card, playerhand, GameState.players);
-                    }
-                }
-            }
-        }
-        stabilize();
-    }
-
-    //if they do remove dominates from their hand then stabilize
+    // TODO: prompt player to discard dominant cards and stabilize
 }
 
 function AgeofNietzsche_effect(card, currentPlayer, players) {
-    let agree = false;
-    if (agree) {
-        discardCardMultiple(currentPlayer, currentPlayer.cards.length, index);
-        Deck.drawMultiple(currentPlayer, 3);
-    } else {
-        stabilize();
-    }
-    //instead of stablizing discard hand and draw 3 prompt player for this
+    // TODO: prompt player — discard hand and draw 3, or stabilize
 }
 
 function Enlightenment_effect(card, currentPlayer, players) {
-    let agree = false;
-    if (agree) {
-        let choice = 2;
-        discardCardMultiple(currentPlayerm, choice, index);
-    }
-    stabilize();
-    //prompt player to choose to discard up to 2 cards in their hand
+    // TODO: prompt player to discard up to 2 cards then stabilize
 }
 
 function CostalFormations_effect(card, currentPlayer, players) {
-    Doomlings.stabilize();
     Deck.draw(currentPlayer);
 }
 
-
 function NaturalHarmony_effect(card, currentPlayer, players) {
-    while (card.color === players[startindex - 1].cards[cards.length - 1].color) {
-        if (index < 0 || index >= currentPlayer.cards.length) return;
-        card = currentPlayer.cards[index];
-    }
-    //cannot play a color that the last player played  
+    // TODO: cannot play a color that the last player played
 }
-//not completed
-
 
 function Awakening_effect(card, currentPlayer, players) {
-    let PredictionAge = Doomlings.Ages[1];
-    // html show prediction age
-    //show age to current player 
+    // TODO: show next age to current player
 }
-
-
 
 function Reforestation_effect(card, currentPlayer, players) {
-    //Traits in your trait pile cannot by swaped stolen or discards IDK HOW THE FUCK THIS WILL WORK
+    // TODO: traits cannot be swapped, stolen, or discarded
 }
 
-
-//No IDEA if it works
 function TheMessiah_effect(card, currentPlayer, players) {
-    if (Doomlings.GameState.startindex = 0) {
-        Doomlings.GameState.startindex = players.length - 1;
+    // Rotate turn order backwards by one
+    if (GameState.startindex === 0) {
+        GameState.startindex = players.length - 1;
     } else {
-        Doomlings.GameState.startindex = Doomlings.GameState.startindex - 1;
+        GameState.startindex = GameState.startindex - 1;
     }
 }
 
-//Catastraphies
-//Completed Catastraphies
+//================================================
+// CATASTROPHE EFFECTS
+//================================================
 
 function TheBigOne_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
-        for (i = 0; i < players.length; i++) {
+        for (let i = 0; i < players.length; i++) {
             let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
-            for (k = 0; k < players[i].traitpool.length; k++) {
-                for (j = 0; j < colors.length; j++) {
-                    if (players[i].traitpool[k].color === colors[j]) {
-                        colors.splice(j, 1);
-                    }
-                }
+            for (let k = 0; k < players[i].traitpool.length; k++) {
+                let idx = colors.indexOf(players[i].traitpool[k].color);
+                if (idx !== -1) colors.splice(idx, 1);
             }
             players[i].points -= 2 * colors.length;
         }
     } else {
         currentPlayer.size -= 1;
-        StealHandCard(currentPlayer, chooseOpponent(currentPlayer, players)); // Can be reworked temp solution not exactly how the card was intended to be played
+        let opponents = players.filter(p => p !== currentPlayer);
+        if (opponents.length > 0) StealHandCard(opponents[0], currentPlayer);
     }
-
-
 }
+
 function DeusExMachina_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
         Deck.draw(currentPlayer);
-        if (currentPlayer.cards[currentPlayer.cards.length.value - 1] > 5) {
-            let add = 5
-        } else {
-            let add = currentPlayer.cards[currentPlayer.cards.length - 1].value
+        if (currentPlayer.cards.length > 0) {
+            let drawn = currentPlayer.cards[currentPlayer.cards.length - 1];
+            let add = Math.min(drawn.points ?? 0, 5);
+            currentPlayer.points += add;
         }
-        currentPlayer.points += add;
     } else {
-        stabilize();
+        // TODO: stabilize
     }
 }
+
 function Overpopulation_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
         let smallest = players[0].traitpool.length;
-        let index = 0;
-        for (i = 1; i < players.length; i++) {
+        let idx = 0;
+        for (let i = 1; i < players.length; i++) {
             if (players[i].traitpool.length < smallest) {
                 smallest = players[i].traitpool.length;
-                index = i;
+                idx = i;
             }
         }
-        players[index].points += 4;
-
+        players[idx].points += 4;
     } else {
         currentPlayer.size += 1;
-        for (i = 0; i < players.length; i++) {
+        for (let i = 0; i < players.length; i++) {
             let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
-            for (k = 0; k < players[i].traitpool.length; k++) {
-                for (j = 0; j < colors.length; j++) {
-                    if (players[i].traitpool[k].color === colors[j]) {
-                        colors.splice(j, 1);
-                    }
-                }
+            for (let k = 0; k < players[i].traitpool.length; k++) {
+                let cidx = colors.indexOf(players[i].traitpool[k].color);
+                if (cidx !== -1) colors.splice(cidx, 1);
             }
-            Deck.drawMultiple(player[i], colors.length);
+            Deck.drawMultiple(players[i], colors.length);
         }
     }
 }
 
 function GlacialMeltdown_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
-        discardTraitcolor("Blue", players)
+        discardTraitcolor("Blue", players);
     } else {
         currentPlayer.size -= 1;
-        discardRandomCard(currentPlayer);
-        discardRandomCard(currentPlayer);
+        if (currentPlayer.cards.length > 0) {
+            let idx = Math.floor(Math.random() * currentPlayer.cards.length);
+            let discarded = currentPlayer.cards.splice(idx, 1)[0];
+            if (discarded.card_name !== "Endurance") discardPile.push(discarded);
+        }
+        if (currentPlayer.cards.length > 0) {
+            let idx = Math.floor(Math.random() * currentPlayer.cards.length);
+            let discarded = currentPlayer.cards.splice(idx, 1)[0];
+            if (discarded.card_name !== "Endurance") discardPile.push(discarded);
+        }
     }
 }
 
 function IceAge_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
-        discardHandcolor("Red", players)
+        discardHandcolor("Red", players);
     } else {
-        for (k = 0; k < currentPlayer.traitpool.length; k++) {
+        for (let k = 0; k < currentPlayer.traitpool.length; k++) {
             if (currentPlayer.traitpool[k].color === "Red") {
                 currentPlayer.points -= 1;
             }
@@ -385,134 +296,111 @@ function IceAge_effect(card, currentPlayer, players) {
 
 function MegaTsunami_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
-        discardTraitcolor("Red", players)
+        discardTraitcolor("Red", players);
     } else {
-
-        let temp = null;
-        for (i = 0; i < players.length; i++) {
-            player[i].size -= 1;
-            if (i == 0) {
-                temp = players[i + 1].cards;
-                players[i + 1].cards == players[i].cards;
-                players[i].cards = players[players.length - 1].cards;
-            } else {
-                let extra = temp;
-                temp = player[i + 1].cards;
-                player[i + 1].cards = extra;
+        // Rotate all hands forward by one player
+        if (players.length > 1) {
+            let firstHand = players[0].cards;
+            for (let i = 0; i < players.length - 1; i++) {
+                players[i].cards = players[i + 1].cards;
             }
+            players[players.length - 1].cards = firstHand;
         }
     }
 }
 
 function TheFourHorsemen_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
-        for (i = 0; i < players.length; i++) {
-            let card = null
-            while (card.value < 4) {
-                if (index < 0 || index >= players[i].traitpool.length) return;
-                card = players[i].traitpool[index];
-            }
-            players[i].traitpool.splice(index, 1);
-            if (card.card_name != "Endurance") {
-                discardPile.push(card);
-                if (cardSearch(RegenerativeTissue, players[i]) != -1) {
-                    Deck.draw(players[i]);
-                    let card = players[i].cards.pop();
-                    players[i].traitpool.push(card);
-                    onCardPlayed(card, players[i], GameState.players);
-                    resolveCard(card, players[i], GameState.players);
-                }
+        for (let i = 0; i < players.length; i++) {
+            let idx = players[i].traitpool.findIndex(c => c.points >= 4);
+            if (idx !== -1) {
+                let discarded = players[i].traitpool.splice(idx, 1)[0];
+                if (discarded.card_name !== "Endurance") discardPile.push(discarded);
             }
         }
     } else {
         currentPlayer.size -= 1;
-        discardTrait(currentPlayer);
+        discardTrait(currentPlayer, 0);
     }
-
 }
 
 function GreyGoo_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
         let largest = players[0].traitpool.length;
-        let index = 0;
-        for (i = 1; i < players.length; i++) {
-            if (players[i].traitpool.length < largest) {
+        let idx = 0;
+        for (let i = 1; i < players.length; i++) {
+            if (players[i].traitpool.length > largest) {
                 largest = players[i].traitpool.length;
-                index = i;
+                idx = i;
             }
         }
-        players[index].points -= 5;
+        players[idx].points -= 5;
     } else {
-        discardCardMultiple(currentPlayer, currentPlayer.cards.length);
-        stabilize();
-    }
-
-
-    function MassExtinction_effect(card, currentPlayer, players) {
-        if (isWorldsEnd) {
-            discardTraitcolor("Green", players);
-
-        } else {
-            discardHandcolor("Colorless", players);
-        }
-    }
-
-    function PulseEvent_effect(card, currentPlayer, players) {
-        if (isWorldsEnd) {
-            discardTraitcolor("Purple", players);
-
-        } else {
-            discardHandcolor("Purple", players);
-        }
-    }
-
-    function Retrovirus_effect(card, currentPlayer, players) {
-        if (isWorldsEnd) {
-            discardTraitcolor("Green", players);
-
-        } else {
-            discardHandcolor("Green", players);
-        }
-    }
-
-    function SuperVolcano_effect(card, currentPlayer, players) {
-        if (isWorldsEnd) {
-            CountColor("Blue", players);
-        } else {
-            discardHandcolor("Blue", players);
-        }
-    }
-    function NuclearWinter_effect(card, currentPlayer, players) {
-        if (isWorldsEnd) {
-            discardTraitcolor("Colorless", players);
-        } else {
-            currentPlayer.size -= 1;
-            stabilize();
-            discardCard(currentPlayer);
-        }
-    }
-    function SolarFlare_effect(card, currentPlayer, players) {
-        if (isWorldsEnd) {
-            discardTraitcolor("Colorless", players);
-        } else {
-            currentPlayer -= 1;
-            discardCardMultiple(currentPlayer, Math.round(currentPlayer.cards.length / 2));
-        }
+        discardCardMultiple(currentPlayer, currentPlayer.cards.length, 0);
     }
 }
 
-//Not Completeded Catastraphies
+function MassExtinction_effect(card, currentPlayer, players) {
+    if (isWorldsEnd) {
+        discardTraitcolor("Green", players);
+    } else {
+        discardHandcolor("Colorless", players);
+    }
+}
+
+function PulseEvent_effect(card, currentPlayer, players) {
+    if (isWorldsEnd) {
+        discardTraitcolor("Purple", players);
+    } else {
+        discardHandcolor("Purple", players);
+    }
+}
+
+function Retrovirus_effect(card, currentPlayer, players) {
+    if (isWorldsEnd) {
+        discardTraitcolor("Green", players);
+    } else {
+        discardHandcolor("Green", players);
+    }
+}
+
+function SuperVolcano_effect(card, currentPlayer, players) {
+    if (isWorldsEnd) {
+        CountColor("Blue", players);
+    } else {
+        discardHandcolor("Blue", players);
+    }
+}
+
+function NuclearWinter_effect(card, currentPlayer, players) {
+    if (isWorldsEnd) {
+        discardTraitcolor("Colorless", players);
+    } else {
+        currentPlayer.size -= 1;
+        discardCard(currentPlayer, 0);
+    }
+}
+
+function SolarFlare_effect(card, currentPlayer, players) {
+    if (isWorldsEnd) {
+        discardTraitcolor("Colorless", players);
+    } else {
+        currentPlayer.size -= 1;
+        discardCardMultiple(currentPlayer, Math.round(currentPlayer.cards.length / 2), 0);
+    }
+}
+
 function AITakeover_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
-        //remove colorless functions and change all point values of colorless cards to 2
+        // TODO: remove colorless effects and set colorless card values to 2
     } else {
         currentPlayer.size -= 1;
     }
 }
 
-
-
-
+//================================================
+// EXPORTS
+//================================================
 
 export {
     TheBirthofLife_effect,

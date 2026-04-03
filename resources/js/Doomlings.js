@@ -1,5 +1,6 @@
 import * as CardEffects from "./CardEffects.js";
 import * as Deck from "./Deck.js";
+import * as AgeEffects from "./AgeEffects.js";
 import axios from "axios";
 
 //================================================
@@ -90,8 +91,8 @@ function startNewAge() {
 
 // async function CreateAges(ID) {
 //     return new Promise((resolve, reject) => {
-//         con.query("SELECT * FROM doomlings_ages WHERE id = ?", [ID], (err, results) => {
-//             if (err) {
+    //         con.query("SELECT * FROM doomlings_ages WHERE id = ?", [ID], (err, results) => {
+        //             if (err) {
 //                 reject(err);
 //                 return;
 //             }
@@ -114,7 +115,7 @@ function startNewAge() {
 //                     ),
 //                 );
 //             } else {
-//                 resolve(null);
+    //                 resolve(null);
 //             }
 //         });
 //     });
@@ -128,7 +129,13 @@ async function endTurn() {
     let currentIndex = GameState.players.indexOf(GameState.currentPlayer);
     let nextIndex = (currentIndex + 1) % GameState.players.length;
     GameState.currentPlayer = GameState.players[nextIndex];
-    if (currentAge.age_name === "Prosperity" || currentAge.age_name === "Age of Nietzche" || currentAge.age_name === "Enlightenment" || currentAge.age_name === "Costal Formations" || currentAge.age_name === "Age of Wonder") {
+    if (GameState.currentAge && (
+        GameState.currentAge.age_name === "Prosperity" ||
+        GameState.currentAge.age_name === "Age of Nietzsche" ||
+        GameState.currentAge.age_name === "Enlightenment" ||
+        GameState.currentAge.age_name === "Coastal Formations" ||
+        GameState.currentAge.age_name === "Age of Wonder"
+    )) {
         runAgeEffect(null, GameState.currentPlayer, GameState.players);
     }
     stabilize();
@@ -139,7 +146,7 @@ export function stabilize() {
         GameState.currentPlayer.size - GameState.currentPlayer.cards.length,
     );
     discardCardMultiple(GameState.currentPlayer, GameState.currentPlayer.cards.length - GameState.currentPlayer.size);
-    let lateIndex = handSearch(Late, GameState.currentPlayer)
+    let lateIndex = handSearch("Late", GameState.currentPlayer)
     if (lateIndex != -1) {
         let card = GameState.currentPlayer.cards[lateIndex];
         GameState.currentPlayer.cards.splice(lateIndex, 1)
@@ -162,47 +169,48 @@ function checkGameOver() {
 export function play(index, player = null) {
     let currentPlayer = player ?? GameState.currentPlayer;
     let players = GameState.players;
+    
     if (cardSearch("Echolocation_Effect", currentPlayer) != -1) {
         Deck.draw(currentPlayer);
     }
+    
     if (index < 0 || index >= currentPlayer.cards.length) return;
     let card = currentPlayer.cards[index];
-    if (!GameState.currentAge.catastrophe || GameState.currentAge.age_name != "Birth of a Hero" || GameState.currentAge.age_name != "Northern Winds" || GameState.currentAge.age_name != "Awakening" || GameState.currentAge.age_name != "Flourish" || GameState.currentAge.age_name != "Age of Dracula" || GameState.currentAge.age_name != "Comet Showers" || GameState.currentAge.age_name != "The Messiah" || GameState.currentAge.age_name != "Age of Reason" || currentAge.age_name != "Prosperity" || currentAge.age_name != "Age of Nietzche" || currentAge.age_name != "Enlightenment" || currentAge.age_name != "Costal Formations" || currentAge.age_name != "Age of Wonder") {
-        runAgeEffect(card, currentPlayer, players);
-    }
-    if (card.card_name === "Heroic") {
-        let green = 0;
-        for (i = 0; i < currentPlayer.cards.length; i++) {
-            if (currentPlayer.cards[i].color === "Green") {
-                green++;
-            }
-            if (green >= 3) {
-                currentPlayer.cards.splice(index, 1);
-                onCardPlayed(card, currentPlayer, players);
-                resolveCard(card, currentPlayer, players);
-                endTurn();
-            } else {
-                while (card.card_name === "Heroic") {
-                    if (index < 0 || index >= currentPlayer.cards.length) return;
-                    card = currentPlayer.cards[index];
-                }
-                onCardPlayed(card, currentPlayer, players);
-                resolveCard(card, currentPlayer, players);
-                endTurn();
-            }
+    
+    // Run age effect if age exists and it's a per-card age
+    if (GameState.currentAge) {
+        const perCardAges = [
+            "Age of Peace", "Glacial Drift", "Lunar Retreat", "High Tides",
+            "Age of Wonder", "Galactic Drift", "Tectonic Shifts", "Tropical Lands",
+            "Eclipse", "Arid Lands", "Age of Reason"
+        ];
+        if (perCardAges.includes(GameState.currentAge.age_name)) {
+            runAgeEffect(card, currentPlayer, players);
         }
-    } else {
-        currentPlayer.cards.splice(index, 1);
-        onCardPlayed(card, currentPlayer, players);
-        resolveCard(card, currentPlayer, players);
-        endTurn();
     }
-
+    
+    // Heroic requires 3+ green traits to play
+    if (card.card_name === "Heroic") {
+        let green = currentPlayer.traitpool.filter(c => c.color === "Green").length;
+        if (green >= 3) {
+            currentPlayer.cards.splice(index, 1);
+            onCardPlayed(card, currentPlayer, players);
+            resolveCard(card, currentPlayer, players);
+            endTurn();
+        } else {
+            console.warn("Cannot play Heroic — need 3+ green traits");
+        }
+        return;
+    }
+    
+    currentPlayer.cards.splice(index, 1);
+    onCardPlayed(card, currentPlayer, players);
+    resolveCard(card, currentPlayer, players);
+    endTurn();
 }
-
 function cardSearch(card_name, currentPlayer) {
     for (let i = 0; i < currentPlayer.traitpool.length; i++) {
-        if (currentPlayer.traitpool[i].card_name === card_name) {
+        if (currentPlayer.traitpool[i] && currentPlayer.traitpool[i].card_name === card_name) {
             return i;
         }
     }
@@ -219,12 +227,13 @@ function handSearch(card_name, currentPlayer) {
 }
 
 function runAgeEffect(card, currentPlayer, players) {
-    let functionName =
-    Ages[0].age_name.replace(/\s+/g, "").replace(/-/g, "") + "_effect";
-    if (AgesEffects[functionName]) {
-        AgesEffects[functionName](card, currentPlayer, players);
+    if (!GameState.currentAge) return;
+    
+    let functionName = GameState.currentAge.age_name.replace(/\s+/g, "").replace(/-/g, "") + "_effect";
+    if (AgeEffects[functionName]) {
+        AgeEffects[functionName](card, currentPlayer, players);
     } else {
-        console.warn(`No function found for card: ${Ages[0].age_name}`);
+        console.warn(`No function found for age: ${GameState.currentAge.age_name}`);
     }
 }
 
@@ -417,6 +426,10 @@ export { isWorldsEnd };
 
 // Load game state from Laravel into doomlings.js
 export function loadFromServer(serverState) {
+    if (!serverState || !serverState.players) {
+        console.error('loadFromServer: invalid serverState', serverState);
+        return;
+    }
     GameState.status = serverState.status ?? 'active';
     GameState.players = serverState.players.map(p => {
         let hand = new PlayerHand(p.id);
@@ -424,6 +437,7 @@ export function loadFromServer(serverState) {
         hand.traitpool = p.traitpool ?? [];
         hand.genepool = p.genepool ?? 0;
         hand.points = p.points ?? 0;
+        hand.name = p.name ?? `Player ${p.id}`;
         return hand;
     });
     GameState.currentPlayer = GameState.players.find(
@@ -469,8 +483,6 @@ export {
     resolveCard,
     GameState,
     chooseCard,
-    StealHandCard,
-    StealTraitCard,
     gamestart,
     endTurn,
 };

@@ -37,7 +37,7 @@ export default function Board({ gameState, gameId, playerId, onPlay }) {
             <p className="player-name">Player {i + 1}</p>
             <span className="card-count-badge">{player.hand?.length ?? 0} cards</span>
             <div className="flex flex-wrap gap-1 mt-2 justify-center">
-            {player.traitpool?.map((trait, j) => (
+            {player.traitpool?.filter(t => t != null).map((trait, j) => (
                 <span key={j} className="trait-chip">{trait.card_name}</span>
             ))}
             </div>
@@ -80,7 +80,7 @@ export default function Board({ gameState, gameId, playerId, onPlay }) {
         <p className="player-name">You</p>
         
         <div className="flex gap-2 flex-wrap justify-center">
-        {currentPlayer?.traitpool?.map((trait, i) => (
+        {currentPlayer?.traitpool?.filter(t => t != null).map((trait, i) => (
             <span key={i} className="trait-chip">{trait.card_name}</span>
         ))}
         </div>

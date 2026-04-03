@@ -14,6 +14,7 @@ public function index()
 $games = Game::where('status', 'waiting')
 ->where(function($q) {
 $q->where('visibility', 'public')
+->orWhere('visibility', 'private')  // show all games
 ->orWhereHas('players', function($q) {
 $q->where('user_id', auth()->id());
 });

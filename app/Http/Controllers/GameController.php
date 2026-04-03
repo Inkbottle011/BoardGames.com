@@ -62,7 +62,7 @@ return response()->json(['error' => $validator->errors()], 422);
 
 $gameState   = $game->game_state ?? [];
 $deck        = $gameState['deck'] ?? [];
-$discardPile = $gameState['discardPile'] ?? [];
+$discardPile = $request->input('game_state.discardPile', $gameState['discardPile'] ?? []);
 $ageDeck     = $gameState['age_deck'] ?? [];
 $roundPlayers = $gameState['round_players'] ?? [];
 $playerOrder  = $gameState['player_order'] ?? [];
@@ -327,6 +327,7 @@ return [
 'discardPile'       => $gameState['discardPile'] ?? [],
 'players'           => $game->players->map(fn($p) => [
 'id'        => (int) $p->user_id,
+'name'      => $p->user?->username ?? "Player {$p->user_id}",
 'hand'      => $p->hand_cards ?? [],
 'traitpool' => $p->trait_pool ?? [],
 'genepool'  => (int) $p->genepool,

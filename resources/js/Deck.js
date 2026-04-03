@@ -27,7 +27,7 @@ class Card {
 // DECK MANAGEMENT
 //================================================
 
-export let deck = [];
+let deck = [];
 
 function buildDeck() {
     for (let i = 1; i <= 118; i++) {

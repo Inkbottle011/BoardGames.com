@@ -1,6 +1,15 @@
+import { resolveCard, GameState, chooseOpponent as chooseOpponentFromDoomlings, triggerWorldsEnd, isWorldsEnd, play, discardCard, discardCardMultiple, discardColor, discardTrait, discardPile } from "./Doomlings.js";
 import * as Deck from "./Deck.js";
-import { resolveCard, GameState, chooseOpponent, triggerWorldsEnd } from "./Doomlings.js";
-//supplementary functions
+import {
+    chooseOpponent,
+    chooseColor,
+    chooseCardFromHand,
+    chooseCardFromTraitPool,
+    chooseCardFromDiscard,
+    chooseYesNo,
+    chooseUpToN,
+    chooseAge,
+} from "./targeting.js";
 
 function colorcounter(color, currentPlayer, card) {
     if (isWorldsEnd) {
@@ -983,6 +992,8 @@ function SwarmHorns_Effect(currentPlayer, players) { Swarm_Effect(currentPlayer,
 function SwarmMindless_Effect(currentPlayer, players) { Swarm_Effect(currentPlayer, players); }
 function SwarmSpots_Effect(currentPlayer, players) { Swarm_Effect(currentPlayer, players); }
 function SwarmStripes_Effect(currentPlayer, players) { Swarm_Effect(currentPlayer, players); }
+function SwarmFur_Effect(currentPlayer, players) { Swarm_Effect(currentPlayer, players); }
+
 
 
 function Denial_Effect(currentPlayer, players) { } // Ignore the next catastrophe need to figure out how to make sure we only ignore the next catastraphy
@@ -1005,6 +1016,8 @@ function KidneyCombover_Effect(currentPlayer, players) { Kidney_Effect(currentPl
 function KidneyElfHat_Effect(currentPlayer, players) { Kidney_Effect(currentPlayer, players); }
 function KidneyPartyHat_Effect(currentPlayer, players) { Kidney_Effect(currentPlayer, players); }
 function KidneyTiara_Effect(currentPlayer, players) { Kidney_Effect(currentPlayer, players); }
+function KidneyBeerHelm_Effect(currentPlayer, players) { Kidney_Effect(currentPlayer, players); }
+
 
 
 //export function
