@@ -6,12 +6,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 
-class AuthController extends Controller
-{
-public function showLogin()
-{
-return view('authentification');
-} 
+class AuthController extends Controller {
+    public function showProfile()
+    {
+        return view('profile');
+    }
+
+    public function showLogin()
+    {
+        return view('authentification');
+    } 
 
 public function login(Request $request)
 {

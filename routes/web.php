@@ -10,14 +10,19 @@ use Illuminate\Support\Facades\DB;
 
 Route::get('/', [GameCatalogueController::class, 'index'])->name('home');
 
+Route::get('/profile', [AuthController::class, 'showProfile'])
+    ->middleware('auth')
+    ->name('profile');
+Route::get('/authentification', [AuthController::class, 'showLogin'])->name('authentification');
+Route::post('/profile/login', [AuthController::class, 'login']);
+Route::post('/profile/register', [AuthController::class, 'register']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
 Route::get('/doomlings', function () {
 return view('doomling');
 })->name('doomlings');
 
-Route::get('/profile', [AuthController::class, 'showLogin'])->name('authentication');
-Route::post('/profile/login', [AuthController::class, 'login']);
-Route::post('/profile/register', [AuthController::class, 'register']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
 
 Route::get('/login', function() {
 return redirect('/profile');
