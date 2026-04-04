@@ -1,6 +1,7 @@
 import * as CardEffects from "./CardEffects.js";
 import * as Deck from "./Deck.js";
 import * as AgeEffects from "./AgeEffects.js";
+import * as Targeting from "./targeting.js";
 import axios from "axios";
 
 //================================================
@@ -97,8 +98,8 @@ function startNewAge() {
 
 // async function CreateAges(ID) {
 //     return new Promise((resolve, reject) => {
-    //         con.query("SELECT * FROM doomlings_ages WHERE id = ?", [ID], (err, results) => {
-        //             if (err) {
+//         con.query("SELECT * FROM doomlings_ages WHERE id = ?", [ID], (err, results) => {
+//             if (err) {
 //                 reject(err);
 //                 return;
 //             }
@@ -121,7 +122,7 @@ function startNewAge() {
 //                     ),
 //                 );
 //             } else {
-    //                 resolve(null);
+//                 resolve(null);
 //             }
 //         });
 //     });
@@ -149,10 +150,11 @@ async function endTurn() {
 export function stabilize() {
     Deck.drawMultiple(
         GameState.currentPlayer,
-        GameState.currentPlayer.size - GameState.currentPlayer.cards.length,
+        GameState.currentPlayer.size - GameState.currentPlayer.cards.length
     );
-    discardCardMultiple(GameState.currentPlayer, GameState.currentPlayer.cards.length - GameState.currentPlayer.size);
-    let lateIndex = handSearch("Late", GameState.currentPlayer)
+    let index = chooseCardFromHand(currentPlayer, prompt = 'Choose a card from Hand');
+    discardCardMultiple(GameState.currentPlayer, GameState.currentPlayer.cards.length - GameState.currentPlayer.size, index);
+    let lateIndex = handSearch("Late", GameState.currentPlayer);
     if (lateIndex != -1) {
         let card = GameState.currentPlayer.cards[lateIndex];
         GameState.currentPlayer.cards.splice(lateIndex, 1)
@@ -175,14 +177,14 @@ function checkGameOver() {
 export function play(index, player = null) {
     let currentPlayer = player ?? GameState.currentPlayer;
     let players = GameState.players;
-    
+
     if (cardSearch("Echolocation_Effect", currentPlayer) != -1) {
         Deck.draw(currentPlayer);
     }
-    
+
     if (index < 0 || index >= currentPlayer.cards.length) return;
     let card = currentPlayer.cards[index];
-    
+
     // Run age effect if age exists and it's a per-card age
     if (GameState.currentAge) {
         const perCardAges = [
@@ -194,7 +196,7 @@ export function play(index, player = null) {
             runAgeEffect(card, currentPlayer, players);
         }
     }
-    
+
     // Heroic requires 3+ green traits to play
     if (card.card_name === "Heroic") {
         let green = currentPlayer.traitpool.filter(c => c.color === "Green").length;
@@ -204,11 +206,25 @@ export function play(index, player = null) {
             resolveCard(card, currentPlayer, players);
             endTurn();
         } else {
-            console.warn("Cannot play Heroic — need 3+ green traits");
+            console.warn("Cannot play Heroic — need 3+ Green traits");
         }
         return;
     }
-    
+
+    // Delicious requires 1+ Colorless traits to play
+    if (card.card_name === "Delicious") {
+        let green = currentPlayer.traitpool.filter(c => c.color === "Colorless").length;
+        if (green >= 1) {
+            currentPlayer.cards.splice(index, 1);
+            onCardPlayed(card, currentPlayer, players);
+            resolveCard(card, currentPlayer, players);
+            endTurn();
+        } else {
+            console.warn("Cannot play Delicious — need 1+ Colorless traits");
+        }
+        return;
+    }
+
     currentPlayer.cards.splice(index, 1);
     onCardPlayed(card, currentPlayer, players);
     resolveCard(card, currentPlayer, players);
@@ -258,7 +274,7 @@ function resolveCard(card, currentPlayer, players) {
 
 function runCardEffect(card, currentPlayer, players) {
     let functionName =
-    card.card_name.replace(/\s+/g, "").replace(/-/g, "") + "_Effect";
+        card.card_name.replace(/\s+/g, "").replace(/-/g, "") + "_Effect";
     if (CardEffects[functionName]) {
         try {
             CardEffects[functionName](currentPlayer, players);
@@ -284,7 +300,7 @@ export function discardCard(playerhand, index) {
             resolveCard(card, playerhand, GameState.players);
         }
     }
-    
+
 }
 
 export function discardRandomCard(playerhand) {
@@ -303,6 +319,25 @@ export function discardRandomCard(playerhand) {
     }
 }
 
+export function discardRandomCardMultiple(playerhand, num) {
+    for (i = 0; i < num; i++) {
+        let index = Math.floor(Math.random() * playerhand.cards.length);
+        let card = playerhand.cards[index];
+        playerhand.cards.splice(index, 1);
+        if (card.card_name != "Endurance") {
+            discardPile.push(card);
+            if (cardSearch("Regenerative Tissue", playerhand) != -1) {
+                Deck.draw(playerhand);
+                let card = playerhand.cards.pop();
+                playerhand.traitpool.push(card);
+                onCardPlayed(card, playerhand, GameState.players);
+                resolveCard(card, playerhand, GameState.players);
+            }
+        }
+    }
+
+}
+
 export function discardCardMultiple(playerhand, num, index) {
     for (let i = 0; i < num; i++) {
         if (index < 0 || index >= playerhand.cards.length) return;
@@ -318,12 +353,12 @@ export function discardCardMultiple(playerhand, num, index) {
                 resolveCard(card, playerhand, GameState.players);
             }
         }
+        index = Targeting.chooseCardFromHand(playerhand, prompt = 'Choose a card from your hand');
     }
 }
 
 
-export function discardColor(playerhand, color,index) {
-    
+export function discardColor(playerhand, color, index) {
     if (index < 0 || index >= playerhand.cards.length) return;
     let card = playerhand.cards[index];
     while (card.color != color) {
@@ -371,7 +406,7 @@ function onCardPlayed(playedCard, playingPlayer, allPlayers) {
         for (let trait of player.cards) {
             if (reactiveTraits.includes(trait.card_name) && playedCard.action == true) {
                 let functionName =
-                trait.card_name.replace(/\s+/g, "") + "_Effect";
+                    trait.card_name.replace(/\s+/g, "") + "_Effect";
                 if (CardEffects[functionName]) {
                     CardEffects[functionName](player, allPlayers, playedCard);
                 }
@@ -401,6 +436,7 @@ function StealTraitCard(fromHand, toHand) {
 
 export function chooseOpponent(currentPlayer, players) {
     let opponents = Deck.getOpponents(currentPlayer, players);
+
     return opponents[0]; // replace with UI input later
 }
 
@@ -452,12 +488,12 @@ export function loadFromServer(serverState) {
     GameState.deckSize = serverState.deckSize ?? 0;
     GameState.ageDeckSize = serverState.ageDeckSize ?? 0;
     GameState.discardPile = serverState.discardPile ?? [];
-    
+
     if (serverState.discardPile) {
         discardPile.length = 0;
         serverState.discardPile.forEach(c => discardPile.push(c));
     }
-    
+
     if (serverState.status === 'worlds_end') {
         GameState.catastropheCount = 3;
     }
