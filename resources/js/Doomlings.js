@@ -198,7 +198,6 @@ function runAgeEffect(card, currentPlayer, players) {
 
 async function resolveCard(card, currentPlayer, players) {
     currentPlayer.traitpool.push(card);
-    currentPlayer.points += card.points;
     
     // Skip card effects during Age of Peace etc
     if (!shouldSkipCardEffect(card, GameState.currentAge)) {
@@ -386,6 +385,7 @@ export { isWorldsEnd };
 //================================================
 
 export function loadFromServer(serverState) {
+    const existingPlayers = [...GameState.players];
     GameState.status = serverState.status ?? 'active';
     GameState.players = serverState.players.map(p => {
         let hand = new PlayerHand(p.id);
@@ -393,8 +393,8 @@ export function loadFromServer(serverState) {
         hand.traitpool = p.traitpool ?? [];
         hand.genepool = p.genepool ?? 5;
         hand.size = p.genepool ?? 5;
-        hand.points = p.points ?? 0;
-        hand.name = p.name ?? `Player ${p.id}`;
+        const localPlayer = existingPlayers.find(ep => ep.id === p.id);
+        hand.points = (p.points !== 0) ? p.points : (localPlayer?.points ?? 0);        hand.name = p.name ?? `Player ${p.id}`;
         return hand;
     });
     GameState.currentPlayer = GameState.players.find(
@@ -420,6 +420,7 @@ export function loadFromServer(serverState) {
 }
 
 export function serializeForServer() {
+    console.log('serializing points:', JSON.stringify(GameState.players.map(p => ({ id: p.id, points: p.points, traitpool: p.traitpool.length }))));    
     return {
         current_turn: GameState.currentPlayer?.id,
         catastrophe_count: GameState.catastropheCount,

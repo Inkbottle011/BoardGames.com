@@ -51,7 +51,7 @@ export default function Doom() {
                 hand: [...p.cards],
                 traitpool: [...p.traitpool],
                 genepool: p.genepool,
-                points: p.points,
+    points: p.traitpool.reduce((sum, card) => sum + (card.points ?? 0), 0),
             })),
             current_turn: GameState.currentPlayer?.id,
             age: GameState.currentAge,
@@ -99,11 +99,9 @@ export default function Doom() {
             credentials: "include",
         })
         .then(res => {
-            console.log('fetch status:', res.status, 'type:', res.headers.get('content-type'));
             return res.json();
         })
         .then(data => {
-            console.log('fetch data:', JSON.stringify(data).substring(0, 300));
             loadFromServer(data);
             syncState();
             // Resume pending age effect if any
@@ -115,14 +113,9 @@ export default function Doom() {
     }
     
     function applyBroadcastState(payload) {
-        console.log('broadcast agePiles:',
-            payload.game.agePile1?.length,
-            payload.game.agePile2?.length,
-            payload.game.agePile3?.length
-        );
+        console.log('broadcast points:', JSON.stringify(payload.players.map(p => ({ id: p.id, points: p.points }))));
         const incomingCurrentTurn = parseInt(payload.game.current_turn);
         if (lastSentTurnRef.current === playerId) {
-            console.log('Skipping own broadcast echo');
             lastSentTurnRef.current = null;
             return;
         }
@@ -221,12 +214,10 @@ export default function Doom() {
         channel.error((e) => console.error("❌ Channel error", e));
         
         channel.listen("TurnPlayed", (payload) => {
-            console.log("TurnPlayed received", payload);
             applyBroadcastRef.current(payload);
         });
         
         channel.listen(".AgeEffectRequired", (payload) => {
-            console.log("AgeEffectRequired received", payload);
             handleAgeEffectRef.current(payload.effect);
         });
         

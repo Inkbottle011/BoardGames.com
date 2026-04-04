@@ -8,7 +8,7 @@ const COLOR_BORDER = {
     Colorless: '#555',
 };
 
-export default function TraitPool({ traitpool, small = false, onHover, size }) {
+export default function TraitPool({ traitpool, small = false, onHover, size, isActive }) {
     if (!traitpool || traitpool.length === 0) return null;
 
     const cardWidth = size ?? (small ? 40 : 56);
@@ -33,6 +33,10 @@ export default function TraitPool({ traitpool, small = false, onHover, size }) {
             padding: '0.25rem 0.5rem',
             width: '100%',
             justifyContent: 'center',
+            outline: isActive ? '2px solid var(--nature-yellow)' : 'none',
+outlineOffset: '4px',
+borderRadius: '8px',
+transition: 'outline 0.2s',
         }}>
             {colorGroups.map(color => {
                 const cards = grouped[color];

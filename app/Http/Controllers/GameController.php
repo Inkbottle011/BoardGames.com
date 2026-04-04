@@ -110,7 +110,6 @@ class GameController extends Controller
                     ->where('user_id', $playerId)
                     ->update([
                         'trait_pool' => $playerData['traitpool'],
-                        'points' => (int) ($playerData['points'] ?? 0),
                     ]);
 
                 if (isset($playerStates[$playerId])) {
@@ -631,7 +630,7 @@ class GameController extends Controller
             ->where('catastrophe', 0)
             ->where('age_name', '!=', 'The Birth of Life')
             ->inRandomOrder()
-            ->limit(12)
+            ->limit(9)
             ->get()
             ->map(
                 fn($a) => [
@@ -717,6 +716,7 @@ class GameController extends Controller
 
     private function formatGameState(Game $game): array
     {
+        \Log::info('formatGameState points', $game->players->map(fn($p) => ['id' => $p->user_id, 'points' => $p->points])->toArray());
         $gameState = $game->game_state ?? [];
         $agePiles = $gameState['age_piles'] ?? [[], [], []];
 

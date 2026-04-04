@@ -1,9 +1,10 @@
 function getCardImg(img, cardName) {
-    if (!img && !cardName) return '/images/card_not_found.png';
-    if (img) return `/${img}`;
-    // Derive from card name
-    const filename = cardName.replace(/ /g, '_').replace(/'/g, '') + '.png';
-    return `/images/doomlings_basegame_images/cards/${filename}`;
+    if (!img || img === 'undefined') {
+        if (!cardName) return '/images/card_not_found.png';
+        const filename = cardName.replace(/ /g, '_').replace(/'/g, '') + '.png';
+        return `/images/doomlings_basegame_images/cards/${filename}`;
+    }
+    return `/${img}`;
 }
 
 export default function Card({ card, onPlay, onHover }) {

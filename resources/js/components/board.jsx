@@ -238,8 +238,7 @@ export default function Board({ gameState, gameId, playerId, onPlay, prompt, tar
                 </span>
                 </div>
                 <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
-                <TraitPool traitpool={opponent.traitpool} size={80} onHover={setHoveredCard} />
-                </div>
+<TraitPool traitpool={opponent.traitpool} size={80} onHover={setHoveredCard} isActive={opponent.id === gameState.current_turn} />                </div>
                 </div>
             ))}
             
@@ -263,8 +262,7 @@ export default function Board({ gameState, gameId, playerId, onPlay, prompt, tar
             </span>
             </div>
             <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
-            <TraitPool traitpool={currentPlayer?.traitpool} size={100} onHover={setHoveredCard} />
-            </div>
+<TraitPool traitpool={currentPlayer?.traitpool} size={100} onHover={setHoveredCard} isActive={currentPlayer?.id === gameState.current_turn} />            </div>
             </div>
             </div>
             

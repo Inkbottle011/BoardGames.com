@@ -18,6 +18,11 @@ DOOMLINGS GAME BOARD — Green Nature Theme
     --font-title: "Cinzel", serif;
     --font-body: "Lato", sans-serif;
 }
+.score-row.current-turn {
+    background: rgba(249, 202, 36, 0.15);
+    border-left: 3px solid var(--nature-yellow);
+    padding-left: 0.5rem;
+}
 
 /* --- Reset game area --- */
 #app {

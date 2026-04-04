@@ -43,6 +43,7 @@ class TurnPlayed implements ShouldBroadcast
                     'card_name' => $c['card_name'] ?? '',
                     'color'     => $c['color'] ?? '',
                     'points'    => $c['points'] ?? 0,
+                    'img'       => $c['img'] ?? '',
                     'action'    => $c['action'] ?? false,
                 ])->toArray(),
                 'traitpool' => collect($p->trait_pool ?? [])->map(fn($c) => [

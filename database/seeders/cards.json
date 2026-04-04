@@ -812,7 +812,7 @@
     {
         "card_name": "Venomous",
         "points": -2,
-        "img": "images/doomlings_basegame_images/cards/Ven0mous.png",
+        "img": "images/doomlings_basegame_images/cards/Venomous.png",
         "text": "Play another trait. Then move Venomous to an opponent's trait pile.",
         "color": "Purple",
         "dominant": false,
@@ -1017,9 +1017,9 @@
         "action": false
     },
     {
-        "card_name": "Terretorial",
+        "card_name": "Territorial",
         "points": 1,
-        "img": "images/doomlings_basegame_images/cards/Terretorial.png",
+        "img": "images/doomlings_basegame_images/cards/Territorial.png",
         "text": "All opponents discard 1 red trait from thier trait pile.",
         "color": "Red",
         "dominant": false,
