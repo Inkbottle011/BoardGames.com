@@ -1,5 +1,6 @@
-import { resolveCard, GameState, chooseOpponent, StealHandCard, discardCard, discardCardMultiple, discardTrait, discardPile, isWorldsEnd } from "./Doomlings.js";
+import * as Doomlings from "./Doomlings.js";
 import * as Deck from "./Deck.js";
+import * as targeting from "./targeting.js"
 
 //================================================
 // AUXILIARY FUNCTIONS
@@ -7,13 +8,13 @@ import * as Deck from "./Deck.js";
 
 function discardHandcolor(color, players) {
     for (let i = 0; i < players.length; i++) {
-        let count = 0;
-        for (let k = 0; k < players[i].hand.length; k++) {
-            if (players[i].cards[k].color === color) {
-                count++;
-            }
+        let idx = players[i].cards.findIndex(c => c.color === color);
+        if (idx === -1) continue;
+        let card = players[i].cards[idx];
+        players[i].cards.splice(idx, 1);
+        if (card.card_name !== "Endurance") {
+            discardPile.push(card);
         }
-        discardCardMultiple(players[i], count, 0);
     }
 }
 
@@ -69,13 +70,15 @@ function HighTides_effect(card, currentPlayer, players) {
 function NorthernWinds_effect(card, currentPlayer, players) {
     for (let i = 0; i < players.length; i++) {
         Deck.draw(players[i]);
-        discardCard(players[i], 0);
+        let index = chooseCardFromHand(player, prompt = 'Choose a card from your hand');
+        discardCard(players[i], index);
     }
 }
 
 function AgeofWonder_effect(card, currentPlayer, players) {
     while (currentPlayer.cards.length > 4) {
-        discardCard(currentPlayer, 0);
+        let index = chooseCardFromHand(player, prompt = 'Choose a card from your hand');
+        discardCard(currentPlayer, index);
     }
     while (currentPlayer.cards.length < 4) {
         Deck.draw(currentPlayer);
@@ -127,7 +130,8 @@ function AgeofDracula_effect(card, currentPlayer, players) {
                 StealHandCard(opponents[0], players[i]);
             }
         } else {
-            discardCard(players[i], 0);
+            let index = chooseCardFromHand(player, prompt = 'Choose a card from your hand');
+            discardCard(players[i], index);
         }
     }
 }
@@ -167,20 +171,64 @@ function CometShowers_effect(card, currentPlayer, players) {
 
 function Prosperity_effect(card, currentPlayer, players) {
     // TODO: prompt player to stabilize
+    let agree = targeting.chooseYesNo(prompt = "Would you like to stablize?");
+    if (agree) {
+        Doomlings.stabilize();
+    } else {
+        return;
+    }
+
 }
 
 function AlienTerraform_effect(card, currentPlayer, players) {
+    let Dominate = currentPlayer.traitpool.some(c => c.card.Dominant == true);
+    let agree = targeting.chooseYesNo(prompt = "Discard Dominant cards and stablize?");
+    if (Dominate != null) {
+        if (agree) {
+            while (Dominate != null) {
+                Doomlings.discardCard(currentPlayer, Dominate);
+                Dominate = currentPlayer.traitpool.some(c => c.card.Dominant == true);
+            }
+            Doomlings.stabilize();
+        } else {
+            return;
+        }
+    } else {
+        return;
+    }
+
     // TODO: prompt player to discard dominant cards and stabilize
 }
 
 function AgeofNietzsche_effect(card, currentPlayer, players) {
+    let agree = targeting.chooseYesNo(prompt = "Would you like to discard hand and draw 3 instead of stabilizing?");
+    if (agree) {
+        Doomlings.discardRandomCardMultiple(currentPlayer, currentPlayer.cards.length);
+        Deck.drawMultiple(currentPlayer);
+    } else {
+        Doomlings.stabilize();
+    }
     // TODO: prompt player — discard hand and draw 3, or stabilize
 }
 
 function Enlightenment_effect(card, currentPlayer, players) {
-    // TODO: prompt player to discard up to 2 cards then stabilize
+    let agree = targeting.chooseYesNo(prompt = "Would you like to discard a card?");
+    if (agree) {
+        let index = targeting.chooseCardFromHand(currentPlayer, prompt = "Choose a card to discard");
+        Doomlings.discardCard(currentPlayer, index);
+        agree = targeting.chooseYesNo(prompt = "Would you like to discard another card?");
+        if (agree) {
+            index = targeting.chooseCardFromHand(currentPlayer, prompt = "Choose a card to discard");
+            Doomlings.discardCard(currentPlayer, index);
+            Doomlings.stabilize();
+        } else {
+            Doomlings.stabilize();
+        }
+    } else {
+        Doomlings.stabilize();
+    }
 }
-
+// TODO: prompt player to discard up to 2 cards then stabilize
 function CostalFormations_effect(card, currentPlayer, players) {
     Deck.draw(currentPlayer);
 }
@@ -237,6 +285,7 @@ function DeusExMachina_effect(card, currentPlayer, players) {
         }
     } else {
         // TODO: stabilize
+        Doomlings.stabilize();
     }
 }
 
@@ -320,7 +369,8 @@ function TheFourHorsemen_effect(card, currentPlayer, players) {
         }
     } else {
         currentPlayer.size -= 1;
-        discardTrait(currentPlayer, 0);
+        let index = targeting.chooseCardFromHand(currentPlayer, prompt = "Choose a card to discard");
+        discardTrait(currentPlayer, index);
     }
 }
 
@@ -336,7 +386,8 @@ function GreyGoo_effect(card, currentPlayer, players) {
         }
         players[idx].points -= 5;
     } else {
-        discardCardMultiple(currentPlayer, currentPlayer.cards.length, 0);
+        let index = targeting.chooseCardFromHand(currentPlayer, prompt = "Choose a card to discard");
+        discardCardMultiple(currentPlayer, currentPlayer.cards.length, index);
     }
 }
 
@@ -377,7 +428,8 @@ function NuclearWinter_effect(card, currentPlayer, players) {
         discardTraitcolor("Colorless", players);
     } else {
         currentPlayer.size -= 1;
-        discardCard(currentPlayer, 0);
+        let index = targeting.chooseCardFromHand(currentPlayer, prompt = "Choose a card to discard");
+        discardCard(currentPlayer, index);
     }
 }
 
@@ -386,7 +438,8 @@ function SolarFlare_effect(card, currentPlayer, players) {
         discardTraitcolor("Colorless", players);
     } else {
         currentPlayer.size -= 1;
-        discardCardMultiple(currentPlayer, Math.round(currentPlayer.cards.length / 2), 0);
+        let index = targeting.chooseCardFromHand(currentPlayer, prompt = "Choose a card to discard");
+        discardCardMultiple(currentPlayer, Math.round(currentPlayer.cards.length / 2), index);
     }
 }
 

@@ -981,11 +981,53 @@ function OptimisticNihilism_Effect(currentPlayer, players) {
     Doomlings.GameState.catastropheCount++;
     Doomlings.play(index);
 } // skipping player turns and bringing about a catasrohpy ignoring age effects as well.
+
+function Sentience_Effect() {
+    if (isWorldsEnd) {
+        let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
+        let index = chooseColor();
+        if (index < 0 || index >= colors.length) return;
+        let color = colors[index];
+        for (i = 0; i < currentPlayer.traitpool.length; i++) {
+            if (currentPlayer.traitpool[i].color === color) {
+                currentPlayer.points += 1;
+            }
+        }
+    } else {
+        player.worldsEndEffects.push(() => {
+            let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
+            let index = chooseColor();
+            if (index < 0 || index >= colors.length) return;
+            let color = colors[index];
+            for (i = 0; i < currentPlayer.traitpool.length; i++) {
+                if (currentPlayer.traitpool[i].color === color) {
+                    currentPlayer.points += 1;
+                }
+            }
+        }
+
+        )
+    }
+
+}
+
+function Morality_Effect(currentPlayer, players) {
+    player = chooseOpponent(currentPlayer, players);
+    let index = chooseCardFromTraitPool(currentPlayer, prompt = "Choose a Trait to Give your oppenent");
+    if (index < 0 || index >= currentPlayer.traitpool.length) return;
+    let card = currentPlayer.traitpool[index];
+    currentPlayer.traitpool.splice(index, 1);
+    player.traitpool.push(card);
+}
+
+
 function Late_Effect(currentPlayer, players) {
     return null;
 } // effect based on after stablization completed in Doomlings.js
 function Heroic_Effect(currentPlayer, players) { return null; } //restricted
 function Delicious_Effect(currentPlayer, players) { return null; } // restricted
+function Sneaky_Effect(currentPlayer, players) { return null; } // at worlds end play immediatly for free
+
 
 //Does nothing effects 
 function RegenerativeTissue_Effect(currentPlayer, players) { } // any time you discard a trait draw 1 play immediatly Completed in Doomlings.js
@@ -1032,15 +1074,10 @@ function SwarmFur_Effect(currentPlayer, players) { Swarm_Effect(currentPlayer, p
 function Automimicry_Effect(currentPlayer, players) { }
 function Chromatophores_Effect(currentPlayer, players) { }
 //not completed
-function Sentience_Effect() { }
-
-
-
 
 function Denial_Effect(currentPlayer, players) { } // Ignore the next catastrophe need to figure out how to make sure we only ignore the next catastraphy
 
-function RetractableClaws_Effect(currentPlayer, players) { return null; } // restricted 
-function Morality_Effect(currentPlayer, players) { return null; } //limitation
+function RetractableClaws_Effect(currentPlayer, players) { return null; } // restricted To Do: if discarded 1 red card can play this card
 
 function Prepper_Effect(currentPlayer, players) {
     let index = chooseAge(Doomlings.Ages, prompt = "Choose a Worlds end effect");
@@ -1054,18 +1091,14 @@ function Prepper_Effect(currentPlayer, players) {
         }
     }
 } // choose a worlds end
+
+
 function TheThirdEye_Effect(currentPlayer, players) {
     //HTML thing honestly 
     let PredictionAge = Doomlings.Ages[1];
 } // look at the next age 
 function Clever_Effect(currentPlayer, players) { } // oppenents reveal a card choose out of revealed cards 1 
 function Parasitic_Effect(currentPlayer, players) { } // steal that card and stop that trait effect 
-function Sneaky_Effect(currentPlayer, players) { } // at worlds end play immediatly for free
-
-
-
-
-
 
 //export function
 export {
