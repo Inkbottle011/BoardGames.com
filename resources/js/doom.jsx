@@ -13,13 +13,14 @@ const playerId = parseInt(appEl.dataset.userId);
 export default function Doom() {
     const [gameState, setGameState] = useState(null);
     const [targetRequest, setTargetRequest] = useState(null);
+    const [gamePrompt, setGamePrompt] = useState(null);
     
     const fetchGameStateRef = useRef(null);
     const applyBroadcastRef = useRef(null);
     const lastSentTurnRef = useRef(null);
     const targetResolverRef = useRef(null);
+    const handleAgeEffectRef = useRef(null);
     
-    // Initialize targeting system
     function requestTarget(request) {
         return new Promise((resolve) => {
             targetResolverRef.current = resolve;
@@ -35,7 +36,6 @@ export default function Doom() {
         }
     }
     
-    // Keep targeting ref current
     const requestTargetRef = useRef(requestTarget);
     requestTargetRef.current = requestTarget;
     
@@ -69,7 +69,6 @@ export default function Doom() {
     
     function saveToServer() {
         const data = serializeForServer();
-        
         return fetch(`/game/${gameSlug}/turn`, {
             method: "POST",
             headers: {
@@ -107,16 +106,20 @@ export default function Doom() {
             console.log('fetch data:', JSON.stringify(data).substring(0, 300));
             loadFromServer(data);
             syncState();
+            // Resume pending age effect if any
+            if (data.age_effect_pending && handleAgeEffectRef.current) {
+                handleAgeEffectRef.current(data.age_effect_pending);
+            }
         })
         .catch(err => console.error('fetchGameState error:', err));
     }
     
     function applyBroadcastState(payload) {
-        console.log('broadcast agePiles:', 
-        payload.game.agePile1?.length, 
-        payload.game.agePile2?.length, 
-        payload.game.agePile3?.length
-    );
+        console.log('broadcast agePiles:',
+            payload.game.agePile1?.length,
+            payload.game.agePile2?.length,
+            payload.game.agePile3?.length
+        );
         const incomingCurrentTurn = parseInt(payload.game.current_turn);
         if (lastSentTurnRef.current === playerId) {
             console.log('Skipping own broadcast echo');
@@ -137,7 +140,6 @@ export default function Doom() {
             agePile3: payload.game.agePile3 ?? [],
             ageDeckSize: payload.game.ageDeckSize ?? 0,
             deckSize: payload.game.deckSize ?? 0,
-            discardPile: payload.game.discardPile ?? [],
         };
         loadFromServer(serverState);
         syncState();
@@ -146,14 +148,75 @@ export default function Doom() {
     fetchGameStateRef.current = fetchGameState;
     applyBroadcastRef.current = applyBroadcastState;
     
-    useEffect(() => {
-        // Initialize targeting system with our requestTarget function
-        initTargeting((request) => requestTargetRef.current(request));
+    async function handleAgeEffect(effect) {
+        if (!effect) return;
         
+        switch (effect.type) {
+            case 'draw_discard': {
+                await fetchGameStateRef.current();
+                const currentPlayer = GameState.players.find(p => p.id === playerId);
+                if (!currentPlayer) return;
+                for (let i = 0; i < effect.discard; i++) {
+                    if (currentPlayer.cards.length === 0) break;
+                    
+                    const idx = await requestTargetRef.current({
+                        type: 'card',
+                        prompt: effect.prompt,
+                        options: currentPlayer.cards.map((c, j) => ({
+                            label: c.card_name,
+                            value: j,
+                            card: c
+                        })),
+                    });
+                    
+                    if (idx !== null && idx >= 0 && idx < currentPlayer.cards.length) {
+                        discardCard(currentPlayer, idx);
+                        syncState();
+                    }
+                }
+                await saveToServer();
+                break;
+            }
+            
+            case 'yes_no': {
+                const answer = await requestTargetRef.current({
+                    type: 'yes_no',
+                    prompt: effect.prompt,
+                    options: [{ label: 'Yes', value: true }, { label: 'No', value: false }],
+                });
+                if (answer && effect.action === 'stabilize') {
+                    await fetchGameStateRef.current();
+                }
+                break;
+            }
+            
+            case 'discard_up_to': {
+                await fetchGameStateRef.current();
+                const currentPlayer = GameState.players.find(p => p.id === playerId);
+                if (!currentPlayer) return;
+                const indices = await requestTargetRef.current({
+                    type: 'pick_n',
+                    prompt: effect.prompt,
+                    options: currentPlayer.cards.map((c, j) => ({ label: c.card_name, value: j, card: c })),
+                    max: effect.max,
+                });
+                if (indices && indices.length > 0) {
+                    indices.sort((a, b) => b - a).forEach(idx => discardCard(currentPlayer, idx));
+                    syncState();
+                    await saveToServer();
+                }
+                break;
+            }
+        }
+    }
+    
+    handleAgeEffectRef.current = handleAgeEffect;
+    
+    useEffect(() => {
+        initTargeting((request) => requestTargetRef.current(request));
         fetchGameStateRef.current();
         
         const channel = window.Echo.private(`game.${gameId}`);
-        
         channel.subscribed(() => console.log("✅ Subscribed to game", gameId));
         channel.error((e) => console.error("❌ Channel error", e));
         
@@ -162,8 +225,14 @@ export default function Doom() {
             applyBroadcastRef.current(payload);
         });
         
+        channel.listen(".AgeEffectRequired", (payload) => {
+            console.log("AgeEffectRequired received", payload);
+            handleAgeEffectRef.current(payload.effect);
+        });
+        
         return () => {
             channel.stopListening("TurnPlayed");
+            channel.stopListening(".AgeEffectRequired");
             window.Echo.leave(`game.${gameId}`);
         };
     }, []);
@@ -183,11 +252,20 @@ export default function Doom() {
             return;
         }
         
+        const handSizeBefore = currentPlayer.cards.length;
         lastSentTurnRef.current = playerId;
         
-        // play() is now async because card effects may need targeting
         Promise.resolve(play(cardIndex, currentPlayer))
         .then(() => {
+            if (currentPlayer.cards.length === handSizeBefore) {
+                lastSentTurnRef.current = null;
+                const ageName = GameState.currentAge?.age_name ?? 'current age';
+                setGamePrompt(`❌ Cannot play that card during ${ageName}`);
+                syncState();
+                return Promise.reject('blocked');
+            }
+            
+            setGamePrompt(null);
             syncState();
             return saveToServer();
         })
@@ -195,7 +273,8 @@ export default function Doom() {
             loadFromServer(data);
             syncState();
         })
-        .catch(() => {
+        .catch((reason) => {
+            if (reason === 'blocked') return;
             console.error('Save failed, restoring state from server');
             lastSentTurnRef.current = null;
             fetchGameStateRef.current();
@@ -260,15 +339,14 @@ export default function Doom() {
         onPlay={handlePlay}
         onDiscard={handleDiscard}
         onDiscardTrait={handleDiscardTrait}
+        prompt={gamePrompt}
+        targetRequest={targetRequest}
+        onResolve={resolveTarget}
         />
         <Chat
         gameId={gameId}
         gameSlug={gameSlug}
         playerId={playerId}
-        />
-        <TargetingModal
-        request={targetRequest}
-        onResolve={resolveTarget}
         />
         </div>
     );

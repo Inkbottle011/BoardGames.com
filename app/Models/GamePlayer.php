@@ -19,8 +19,8 @@ class GamePlayer extends Model
     ];
 
     protected $casts = [
-        'hand_cards'         => 'array',
-        'trait_pool'         => 'array',
+        'hand_cards' => 'array',
+        'trait_pool' => 'array',
         'worlds_end_effects' => 'array',
     ];
 

@@ -6,7 +6,6 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-  
     public function run(): void
     {
         $this->call([
@@ -17,10 +16,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             GameCatalogueSeeder::class,
         ]);
-        }
+    }
 }
 
-// To sync databses: 
+// To sync databses:
 // git pull
 // composer install
 // php artisan migrate

@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('doomlings_ages', function (Blueprint $table) {
-        $table->id();
-        $table->string('age_name');
-        $table->string('img');
-        $table->string('text')->nullable();
-        $table->boolean('catastrophe');
-        $table->string('World_End_text')->nullable();
-        $table->timestamps();
+            $table->id();
+            $table->string('age_name');
+            $table->string('img');
+            $table->string('text')->nullable();
+            $table->boolean('catastrophe');
+            $table->string('World_End_text')->nullable();
+            $table->timestamps();
         });
     }
 

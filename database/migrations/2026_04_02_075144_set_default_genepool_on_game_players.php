@@ -6,21 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-/**
-* Run the migrations.
-*/
-public function up(): void
-{
-Schema::table('game_players', function (Blueprint $table) {
-$table->integer('genepool')->default(5)->change();
-});
-}
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('game_players', function (Blueprint $table) {
+            $table->integer('genepool')->default(5)->change();
+        });
+    }
 
-/**
-* Reverse the migrations.
-*/
-public function down(): void
-{
-//
-}
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        //
+    }
 };

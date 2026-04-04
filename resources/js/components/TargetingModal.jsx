@@ -2,11 +2,13 @@ import { useState } from "react";
 
 export default function TargetingModal({ request, onResolve }) {
     const [selected, setSelected] = useState([]);
-    
-    if (!request) return null;
-    
+
+    if (!request) return (
+        <p style={{ fontSize: '0.7rem', opacity: 0.3 }}>Action prompts will appear here</p>
+    );
+
     const { type, prompt, options, max } = request;
-    
+
     function handlePick(option) {
         if (type === 'pick_n') {
             const already = selected.find(s => s.value === option.value);
@@ -19,137 +21,151 @@ export default function TargetingModal({ request, onResolve }) {
             onResolve(option.value);
         }
     }
-    
+
     function handleConfirmPickN() {
         onResolve(selected.map(s => s.value));
         setSelected([]);
     }
-    
-    function handleSkip() {
-        if (type === 'pick_n') {
-            onResolve([]);
-        } else {
-            // Auto pick random for timeout/skip
-            const random = options[Math.floor(Math.random() * options.length)];
-            onResolve(random.value);
-        }
-    }
-    
+
     return (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-        <div className="center-panel p-6 flex flex-col gap-4 max-w-lg w-full mx-4">
-        <p className="text-lg font-bold text-center">{prompt}</p>
-        
-        {/* Color picker */}
-        {type === 'color' && (
-            <div className="flex flex-wrap gap-2 justify-center">
-            {options.map((opt, i) => (
-                <button
-                key={i}
-                className="chat-send px-4 py-2"
-                style={{ backgroundColor: colorToHex(opt.value) }}
-                onClick={() => handlePick(opt)}
-                >
-                {opt.label}
-                </button>
-            ))}
-            </div>
-        )}
-        
-        {/* Opponent picker */}
-        {type === 'opponent' && (
-            <div className="flex flex-wrap gap-2 justify-center">
-            {options.map((opt, i) => (
-                <button
-                key={i}
-                className="chat-send px-4 py-2"
-                onClick={() => handlePick(opt)}
-                >
-                {opt.label}
-                </button>
-            ))}
-            </div>
-        )}
-        
-        {/* Card picker */}
-        {type === 'card' && (
-            <div className="flex flex-wrap gap-2 justify-center overflow-y-auto max-h-64">
-            {options.map((opt, i) => (
-                <div
-                key={i}
-                className="game-card cursor-pointer hover:opacity-80"
-                style={{ width: '5rem', height: '7rem' }}
-                onClick={() => handlePick(opt)}
-                >
-                <img
-                src={opt.card?.img ? `/${opt.card.img}` : '/images/card_not_found.png'}
-                alt={opt.label}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                onError={(e) => { e.target.src = '/images/card_not_found.png'; }}
-                />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
+            <p style={{ color: 'var(--nature-yellow)', fontWeight: 'bold', textAlign: 'center', fontSize: '0.85rem' }}>
+                {prompt}
+            </p>
+
+            {/* Yes/No */}
+            {(type === 'yes_no') && (
+                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    {options.map((opt, i) => (
+                        <button
+                            key={i}
+                            className="chat-send"
+                            style={{ padding: '0.4rem 1.2rem' }}
+                            onClick={() => onResolve(opt.value)}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
                 </div>
-            ))}
-            </div>
-        )}
-        
-        {/* Yes/No */}
-        {type === 'yes_no' && (
-            <div className="flex gap-4 justify-center">
-            <button className="chat-send px-6 py-2" onClick={() => onResolve(true)}>Yes</button>
-            <button className="chat-send px-6 py-2 opacity-60" onClick={() => onResolve(false)}>No</button>
-            </div>
-        )}
-        
-        {/* Pick N */}
-        {type === 'pick_n' && (
-            <>
-            <div className="flex flex-wrap gap-2 justify-center overflow-y-auto max-h-64">
-            {options.map((opt, i) => (
-                <div
-                key={i}
-                className={`game-card cursor-pointer ${selected.find(s => s.value === opt.value) ? 'ring-2 ring-yellow-400' : 'hover:opacity-80'}`}
-                style={{ width: '5rem', height: '7rem' }}
-                onClick={() => handlePick(opt)}
-                >
-                <img
-                src={opt.card?.img ? `/${opt.card.img}` : '/images/card_not_found.png'}
-                alt={opt.label}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                onError={(e) => { e.target.src = '/images/card_not_found.png'; }}
-                />
+            )}
+
+            {/* Color picker */}
+            {type === 'color' && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
+                    {options.map((opt, i) => (
+                        <button
+                            key={i}
+                            className="chat-send"
+                            style={{ backgroundColor: colorToHex(opt.value), padding: '0.4rem 1rem' }}
+                            onClick={() => handlePick(opt)}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
                 </div>
-            ))}
-            </div>
-            <div className="flex gap-4 justify-center">
-            <button className="chat-send px-4 py-2" onClick={handleConfirmPickN}>
-            Confirm ({selected.length} selected)
-            </button>
-            <button className="chat-send px-4 py-2 opacity-60" onClick={() => { onResolve([]); setSelected([]); }}>
-            Skip
-            </button>
-            </div>
-            </>
-        )}
-        
-        {/* Age picker */}
-        {type === 'age' && (
-            <div className="flex flex-wrap gap-2 justify-center">
-            {options.map((opt, i) => (
+            )}
+
+            {/* Opponent picker */}
+            {type === 'opponent' && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
+                    {options.map((opt, i) => (
+                        <button
+                            key={i}
+                            className="chat-send"
+                            style={{ padding: '0.4rem 1rem' }}
+                            onClick={() => handlePick(opt)}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+
+            {/* Card picker */}
+            {type === 'card' && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center', overflowY: 'auto', maxHeight: '7rem' }}>
+                    {options.map((opt, i) => (
+                        <div
+                            key={i}
+                            className="game-card"
+                            style={{ width: '4rem', height: '5.6rem', cursor: 'pointer' }}
+                            onClick={() => handlePick(opt)}
+                        >
+                            <img
+                                src={opt.card?.img ? `/${opt.card.img}` : '/images/card_not_found.png'}
+                                alt={opt.label}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => { e.target.src = '/images/card_not_found.png'; }}
+                            />
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Pick N */}
+            {type === 'pick_n' && (
+                <>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center', overflowY: 'auto', maxHeight: '7rem' }}>
+                        {options.map((opt, i) => (
+                            <div
+                                key={i}
+                                className="game-card"
+                                style={{
+                                    width: '4rem', height: '5.6rem', cursor: 'pointer',
+                                    outline: selected.find(s => s.value === opt.value) ? '2px solid var(--nature-yellow)' : 'none',
+                                }}
+                                onClick={() => handlePick(opt)}
+                            >
+                                <img
+                                    src={opt.card?.img ? `/${opt.card.img}` : '/images/card_not_found.png'}
+                                    alt={opt.label}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    onError={(e) => { e.target.src = '/images/card_not_found.png'; }}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                        <button className="chat-send" style={{ padding: '0.4rem 1rem' }} onClick={handleConfirmPickN}>
+                            Confirm ({selected.length} selected)
+                        </button>
+                        <button className="chat-send" style={{ padding: '0.4rem 1rem', opacity: 0.6 }} onClick={() => { onResolve([]); setSelected([]); }}>
+                            Skip
+                        </button>
+                    </div>
+                </>
+            )}
+
+            {/* Age picker */}
+            {type === 'age' && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center' }}>
+                    {options.map((opt, i) => (
+                        <button
+                            key={i}
+                            className="chat-send"
+                            style={{ padding: '0.4rem 1rem' }}
+                            onClick={() => handlePick(opt)}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+
+            {type !== 'pick_n' && (
                 <button
-                key={i}
-                className="chat-send px-4 py-2"
-                onClick={() => handlePick(opt)}
+                    style={{ fontSize: '0.65rem', opacity: 0.4, marginTop: '0.25rem', background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}
+                    onClick={() => {
+                        if (type === 'pick_n') onResolve([]);
+                        else {
+                            const random = options[Math.floor(Math.random() * options.length)];
+                            onResolve(random.value);
+                        }
+                    }}
                 >
-                {opt.label}
+                    Skip
                 </button>
-            ))}
-            </div>
-        )}
-        
-        <button className="text-xs opacity-40 mt-2 text-center" onClick={handleSkip}>
-        Skip
-        </button>
-        </div>
+            )}
         </div>
     );
 }

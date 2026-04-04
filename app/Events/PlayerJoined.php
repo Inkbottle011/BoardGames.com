@@ -28,11 +28,11 @@ class PlayerJoined implements ShouldBroadcast
     {
         return [
             'user' => [
-                'id'   => $this->user->id,
+                'id' => $this->user->id,
                 'name' => $this->user->name,
             ],
             'game' => [
-                'id'     => $this->game->id,
+                'id' => $this->game->id,
                 'status' => $this->game->status,
             ],
         ];

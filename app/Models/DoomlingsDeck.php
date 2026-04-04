@@ -15,6 +15,6 @@ class DoomlingsDeck extends Model
         'text',
         'color',
         'dominant',
-        'action'
+        'action',
     ];
 }

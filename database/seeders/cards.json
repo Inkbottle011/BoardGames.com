@@ -216,9 +216,9 @@
         "action": false
     },
     {
-        "card_name": "Apealing",
+        "card_name": "Appealing",
         "points": 3,
-        "img": "images/doomlings_basegame_images/cards/Apealing.png",
+        "img": "images/doomlings_basegame_images/cards/Appealing.png",
         "text": "",
         "color": "Green",
         "dominant": false,

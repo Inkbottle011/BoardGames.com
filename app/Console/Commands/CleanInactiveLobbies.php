@@ -8,27 +8,28 @@ use Illuminate\Console\Command;
 
 class CleanInactiveLobbies extends Command
 {
-protected $signature = 'lobbies:clean';
-protected $description = 'Remove players who have been inactive for over 3 minute in waiting games';
+    protected $signature = 'lobbies:clean';
 
-public function handle()
-{
-// Find players in waiting games who haven't sent a heartbeat in 3 minute
-$inactive = GamePlayer::whereHas('game', fn($q) => $q->where('status', 'waiting'))
-->where('last_seen', '<', now()->subMinute(3))
-->orWhereNull('last_seen')
-->whereHas('game', fn($q) => $q->where('status', 'waiting'))
-->get();
+    protected $description = 'Remove players who have been inactive for over 3 minute in waiting games';
 
-foreach ($inactive as $player) {
-$player->delete();
-}
+    public function handle()
+    {
+        // Find players in waiting games who haven't sent a heartbeat in 3 minute
+        $inactive = GamePlayer::whereHas('game', fn ($q) => $q->where('status', 'waiting'))
+            ->where('last_seen', '<', now()->subMinute(3))
+            ->orWhereNull('last_seen')
+            ->whereHas('game', fn ($q) => $q->where('status', 'waiting'))
+            ->get();
 
-// Delete empty waiting games
-Game::where('status', 'waiting')
-->doesntHave('players')
-->delete();
+        foreach ($inactive as $player) {
+            $player->delete();
+        }
 
-$this->info('Cleaned ' . $inactive->count() . ' inactive players');
-}
+        // Delete empty waiting games
+        Game::where('status', 'waiting')
+            ->doesntHave('players')
+            ->delete();
+
+        $this->info('Cleaned '.$inactive->count().' inactive players');
+    }
 }

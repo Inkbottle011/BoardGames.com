@@ -12,6 +12,6 @@ class DoomlingsAges extends Model
         'id',
         'card_name',
         'img',
-        'catastrophe'
+        'catastrophe',
     ];
 }

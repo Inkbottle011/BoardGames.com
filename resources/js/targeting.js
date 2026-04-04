@@ -13,14 +13,16 @@ export async function chooseOpponent(currentPlayer, players) {
     
     const options = opponents.map(p => ({
         label: p.name ?? `Player ${p.id}`,
-        value: p,
+        value: p.id,
     }));
     
-    return await _requestTarget({
+    const chosenId = await _requestTarget({
         type: 'opponent',
         prompt: 'Choose an opponent',
         options,
     });
+    
+    return opponents.find(o => o.id === chosenId) ?? opponents[0];
 }
 
 export async function chooseColor() {

@@ -16,12 +16,12 @@ Broadcast::channel('lobby', function ($user) {
 // game channel — only players in that game can join
 Broadcast::channel('game.{gameId}', function ($user, $gameId) {
     $player = GamePlayer::where('game_id', $gameId)
-                        ->where('user_id', $user->id)
-                        ->first();
+        ->where('user_id', $user->id)
+        ->first();
 
     if ($player) {
         return [
-            'id'   => $user->id,
+            'id' => $user->id,
             'name' => $user->name,
             'seat' => $player->seat,
         ];

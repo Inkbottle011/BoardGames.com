@@ -72,3 +72,22 @@ Polish
 12. Card animations — no animations when playing cards
 13. Sound effects
 14. Mobile layout
+
+
+
+Game Critical
+
+Age effects don't run — AgeEffects.js is imported in Doomlings.js but runAgeEffect uses Ages[0] instead of GameState.currentAge. This is the main fix needed.
+Card targeting — effects still use hardcoded index = 0
+Genepool changes — cards like Saliva increase genepool client-side but server doesn't deal extra cards
+
+Game Features
+4. Sound effects — waiting for assets
+5. Dominant card restrictions — Heroic and others not enforced
+6. World's End effects — isWorldsEnd flag exists but effects not triggering
+UI/UX
+7. Winner screen — shows player IDs not usernames
+8. Mobile layout — untested
+Infrastructure
+9. ngrok sharing — when ready
+10. Production deployment — when ready

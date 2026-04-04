@@ -1,27 +1,33 @@
-import { resolveCard, GameState, chooseOpponent, StealHandCard, discardCard, discardCardMultiple, discardTrait, discardPile, isWorldsEnd } from "./Doomlings.js";
+import { resolveCard, GameState, StealHandCard, discardCard, discardCardMultiple, discardTrait, discardPile, isWorldsEnd } from "./Doomlings.js";
 import * as Deck from "./Deck.js";
 
 //================================================
 // AUXILIARY FUNCTIONS
 //================================================
 
+/**
+ * discardHandcolor — discard all hand cards of a given color for all players.
+ * Fixed: was iterating players[i].hand but reading players[i].cards.
+ */
 function discardHandcolor(color, players) {
     for (let i = 0; i < players.length; i++) {
-        let count = 0;
-        for (let k = 0; k < players[i].hand.length; k++) {
+        // Iterate backwards so splices don't shift unprocessed indices
+        for (let k = players[i].cards.length - 1; k >= 0; k--) {
             if (players[i].cards[k].color === color) {
-                count++;
+                discardCard(players[i], k);
             }
         }
-        discardCardMultiple(players[i], count, 0);
     }
 }
 
+/**
+ * discardTraitcolor — discard one trait of a given color per player.
+ */
 function discardTraitcolor(color, players) {
     for (let i = 0; i < players.length; i++) {
-        let idx = players[i].traitpool.findIndex(c => c.color === color);
+        const idx = players[i].traitpool.findIndex(c => c.color === color);
         if (idx === -1) continue;
-        let card = players[i].traitpool[idx];
+        const card = players[i].traitpool[idx];
         players[i].traitpool.splice(idx, 1);
         if (card.card_name !== "Endurance") {
             discardPile.push(card);
@@ -29,6 +35,9 @@ function discardTraitcolor(color, players) {
     }
 }
 
+/**
+ * CountColor — subtract 1 point per trait of given color from each player.
+ */
 function CountColor(color, players) {
     for (let i = 0; i < players.length; i++) {
         for (let k = 0; k < players[i].traitpool.length; k++) {
@@ -46,24 +55,19 @@ function CountColor(color, players) {
 function TheBirthofLife_effect(card, currentPlayer, players) { }
 
 function AgeofPeace_effect(card, currentPlayer, players) {
-    if (card && card.action) {
-        card.action = false;
-    }
+    // Card effects are suppressed — handled by shouldSkipCardEffect in AgeRules.js
 }
 
 function GlacialDrift_effect(card, currentPlayer, players) {
-    // Cannot play cards with value > 3 — enforced by returning early
-    if (card && card.points > 3) return;
+    // Cannot play cards with value > 3 — enforced by checkAgeRestriction in AgeRules.js
 }
 
 function LunarRetreat_effect(card, currentPlayer, players) {
-    // Cannot play purple cards
-    if (card && card.color === "Purple") return;
+    // Cannot play purple cards — enforced by checkAgeRestriction
 }
 
 function HighTides_effect(card, currentPlayer, players) {
-    // Cannot play cards with no text (no effect)
-    if (card && card.text == null) return;
+    // Bonus play for effectless traits — enforced/handled in AgeRules.js
 }
 
 function NorthernWinds_effect(card, currentPlayer, players) {
@@ -74,6 +78,7 @@ function NorthernWinds_effect(card, currentPlayer, players) {
 }
 
 function AgeofWonder_effect(card, currentPlayer, players) {
+    // Hand size locked to 4 — handled by getAgeHandSize in AgeRules.js
     while (currentPlayer.cards.length > 4) {
         discardCard(currentPlayer, 0);
     }
@@ -83,15 +88,14 @@ function AgeofWonder_effect(card, currentPlayer, players) {
 }
 
 function GalacticDrift_effect(card, currentPlayer, players) {
-    // Cannot play colorless cards
-    if (card && card.color === "Colorless") return;
+    // Cannot play colorless cards — enforced by checkAgeRestriction
 }
 
 function BirthofaHero_effect(card, currentPlayer, players) {
     for (let i = 0; i < players.length; i++) {
-        let idx = players[i].traitpool.findIndex(c => c.card_name === "Heroic");
+        const idx = players[i].traitpool.findIndex(c => c.card_name === "Heroic");
         if (idx !== -1) {
-            let heroic = players[i].traitpool[idx];
+            const heroic = players[i].traitpool[idx];
             players[i].traitpool.splice(idx, 1);
             players[i].cards.push(heroic);
         }
@@ -109,20 +113,18 @@ function Flourish_effect(card, currentPlayer, players) {
 }
 
 function TectonicShifts_effect(card, currentPlayer, players) {
-    // Cannot play green cards
-    if (card && card.color === "Green") return;
+    // Cannot play green cards — enforced by checkAgeRestriction
 }
 
 function TropicalLands_effect(card, currentPlayer, players) {
-    // Cannot play colorless cards
-    if (card && card.color === "Colorless") return;
+    // Cannot play colorless cards — enforced by checkAgeRestriction
 }
 
 function AgeofDracula_effect(card, currentPlayer, players) {
     for (let i = 0; i < players.length; i++) {
-        let hasVampirism = players[i].traitpool.some(c => c.card_name === "Vampirism");
+        const hasVampirism = players[i].traitpool.some(c => c.card_name === "Vampirism");
         if (hasVampirism) {
-            let opponents = players.filter(p => p !== players[i]);
+            const opponents = players.filter(p => p !== players[i]);
             if (opponents.length > 0) {
                 StealHandCard(opponents[0], players[i]);
             }
@@ -133,68 +135,55 @@ function AgeofDracula_effect(card, currentPlayer, players) {
 }
 
 function Eclipse_effect(card, currentPlayer, players) {
-    // Cannot play red cards
-    if (card && card.color === "Red") return;
+    // Cannot play red cards — enforced by checkAgeRestriction
 }
 
 function AridLands_effect(card, currentPlayer, players) {
-    // Cannot play blue cards
-    if (card && card.color === "Blue") return;
+    // Cannot play blue cards — enforced by checkAgeRestriction
 }
 
 function AgeofReason_effect(card, currentPlayer, players) {
     Deck.drawMultiple(currentPlayer, 3);
-    // Discard 2 cards
-    if (currentPlayer.cards.length > 0) {
-        let cardOne = currentPlayer.cards.pop();
-        if (cardOne.card_name !== "Endurance") discardPile.push(cardOne);
-    }
-    if (currentPlayer.cards.length > 0) {
-        let cardTwo = currentPlayer.cards.pop();
-        if (cardTwo.card_name !== "Endurance") discardPile.push(cardTwo);
-    }
+    // Discard 2 — use discardCard to respect Endurance/Regenerative Tissue
+    if (currentPlayer.cards.length > 0) discardCard(currentPlayer, currentPlayer.cards.length - 1);
+    if (currentPlayer.cards.length > 0) discardCard(currentPlayer, currentPlayer.cards.length - 1);
 }
 
 function CometShowers_effect(card, currentPlayer, players) {
     for (let i = 0; i < players.length; i++) {
         if (players[i].cards.length > 0) {
-            let idx = Math.floor(Math.random() * players[i].cards.length);
-            let discarded = players[i].cards.splice(idx, 1)[0];
-            if (discarded.card_name !== "Endurance") discardPile.push(discarded);
+            const idx = Math.floor(Math.random() * players[i].cards.length);
+            discardCard(players[i], idx);
         }
     }
 }
 
 function Prosperity_effect(card, currentPlayer, players) {
-    // TODO: prompt player to stabilize
+    // Interactive — broadcast via AgeEffectRequired, handled in doom.jsx
 }
 
 function AlienTerraform_effect(card, currentPlayer, players) {
-    // TODO: prompt player to discard dominant cards and stabilize
+    // Interactive — broadcast via AgeEffectRequired
 }
 
 function AgeofNietzsche_effect(card, currentPlayer, players) {
-    // TODO: prompt player — discard hand and draw 3, or stabilize
+    // Interactive — broadcast via AgeEffectRequired
 }
 
 function Enlightenment_effect(card, currentPlayer, players) {
-    // TODO: prompt player to discard up to 2 cards then stabilize
-}
-
-function CostalFormations_effect(card, currentPlayer, players) {
-    Deck.draw(currentPlayer);
+    // Interactive — broadcast via AgeEffectRequired
 }
 
 function NaturalHarmony_effect(card, currentPlayer, players) {
-    // TODO: cannot play a color that the last player played
+    // Restriction tracked via _lastPlayedColor in AgeRules.js / applyPerCardAgeEffect
 }
 
 function Awakening_effect(card, currentPlayer, players) {
-    // TODO: show next age to current player
+    // TODO: show next age to current player — broadcast via AgeEffectRequired
 }
 
 function Reforestation_effect(card, currentPlayer, players) {
-    // TODO: traits cannot be swapped, stolen, or discarded
+    // Restrictions on stealing/swapping/discarding — enforced by shouldSkipCardEffect in AgeRules.js
 }
 
 function TheMessiah_effect(card, currentPlayer, players) {
@@ -213,16 +202,16 @@ function TheMessiah_effect(card, currentPlayer, players) {
 function TheBigOne_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
         for (let i = 0; i < players.length; i++) {
-            let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
+            const colors = new Set(["Green", "Blue", "Red", "Purple", "Colorless"]);
             for (let k = 0; k < players[i].traitpool.length; k++) {
-                let idx = colors.indexOf(players[i].traitpool[k].color);
-                if (idx !== -1) colors.splice(idx, 1);
+                colors.delete(players[i].traitpool[k].color);
             }
-            players[i].points -= 2 * colors.length;
+            players[i].points -= 2 * colors.size;
         }
     } else {
-        currentPlayer.size -= 1;
-        let opponents = players.filter(p => p !== currentPlayer);
+        currentPlayer.size = Math.max(1, (currentPlayer.size ?? 5) - 1);
+        currentPlayer.genepool = Math.max(1, (currentPlayer.genepool ?? 5) - 1);
+        const opponents = players.filter(p => p !== currentPlayer);
         if (opponents.length > 0) StealHandCard(opponents[0], currentPlayer);
     }
 }
@@ -231,12 +220,12 @@ function DeusExMachina_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
         Deck.draw(currentPlayer);
         if (currentPlayer.cards.length > 0) {
-            let drawn = currentPlayer.cards[currentPlayer.cards.length - 1];
-            let add = Math.min(drawn.points ?? 0, 5);
+            const drawn = currentPlayer.cards[currentPlayer.cards.length - 1];
+            const add = Math.min(drawn.points ?? 0, 5);
             currentPlayer.points += add;
         }
     } else {
-        // TODO: stabilize
+        // TODO: prompt stabilize
     }
 }
 
@@ -252,14 +241,14 @@ function Overpopulation_effect(card, currentPlayer, players) {
         }
         players[idx].points += 4;
     } else {
-        currentPlayer.size += 1;
+        currentPlayer.size = (currentPlayer.size ?? 5) + 1;
+        currentPlayer.genepool = (currentPlayer.genepool ?? 5) + 1;
         for (let i = 0; i < players.length; i++) {
-            let colors = ["Green", "Blue", "Red", "Purple", "Colorless"];
+            const colors = new Set(["Green", "Blue", "Red", "Purple", "Colorless"]);
             for (let k = 0; k < players[i].traitpool.length; k++) {
-                let cidx = colors.indexOf(players[i].traitpool[k].color);
-                if (cidx !== -1) colors.splice(cidx, 1);
+                colors.delete(players[i].traitpool[k].color);
             }
-            Deck.drawMultiple(players[i], colors.length);
+            Deck.drawMultiple(players[i], colors.size);
         }
     }
 }
@@ -268,16 +257,14 @@ function GlacialMeltdown_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
         discardTraitcolor("Blue", players);
     } else {
-        currentPlayer.size -= 1;
+        currentPlayer.size = Math.max(1, (currentPlayer.size ?? 5) - 1);
+        currentPlayer.genepool = Math.max(1, (currentPlayer.genepool ?? 5) - 1);
+        // Discard 2 random hand cards
         if (currentPlayer.cards.length > 0) {
-            let idx = Math.floor(Math.random() * currentPlayer.cards.length);
-            let discarded = currentPlayer.cards.splice(idx, 1)[0];
-            if (discarded.card_name !== "Endurance") discardPile.push(discarded);
+            discardCard(currentPlayer, Math.floor(Math.random() * currentPlayer.cards.length));
         }
         if (currentPlayer.cards.length > 0) {
-            let idx = Math.floor(Math.random() * currentPlayer.cards.length);
-            let discarded = currentPlayer.cards.splice(idx, 1)[0];
-            if (discarded.card_name !== "Endurance") discardPile.push(discarded);
+            discardCard(currentPlayer, Math.floor(Math.random() * currentPlayer.cards.length));
         }
     }
 }
@@ -300,7 +287,7 @@ function MegaTsunami_effect(card, currentPlayer, players) {
     } else {
         // Rotate all hands forward by one player
         if (players.length > 1) {
-            let firstHand = players[0].cards;
+            const firstHand = players[0].cards;
             for (let i = 0; i < players.length - 1; i++) {
                 players[i].cards = players[i + 1].cards;
             }
@@ -312,15 +299,15 @@ function MegaTsunami_effect(card, currentPlayer, players) {
 function TheFourHorsemen_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
         for (let i = 0; i < players.length; i++) {
-            let idx = players[i].traitpool.findIndex(c => c.points >= 4);
+            const idx = players[i].traitpool.findIndex(c => c.points >= 4);
             if (idx !== -1) {
-                let discarded = players[i].traitpool.splice(idx, 1)[0];
-                if (discarded.card_name !== "Endurance") discardPile.push(discarded);
+                discardTrait(players[i], idx);
             }
         }
     } else {
-        currentPlayer.size -= 1;
-        discardTrait(currentPlayer, 0);
+        currentPlayer.size = Math.max(1, (currentPlayer.size ?? 5) - 1);
+        currentPlayer.genepool = Math.max(1, (currentPlayer.genepool ?? 5) - 1);
+        if (currentPlayer.traitpool.length > 0) discardTrait(currentPlayer, 0);
     }
 }
 
@@ -376,7 +363,8 @@ function NuclearWinter_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
         discardTraitcolor("Colorless", players);
     } else {
-        currentPlayer.size -= 1;
+        currentPlayer.size = Math.max(1, (currentPlayer.size ?? 5) - 1);
+        currentPlayer.genepool = Math.max(1, (currentPlayer.genepool ?? 5) - 1);
         discardCard(currentPlayer, 0);
     }
 }
@@ -385,7 +373,8 @@ function SolarFlare_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
         discardTraitcolor("Colorless", players);
     } else {
-        currentPlayer.size -= 1;
+        currentPlayer.size = Math.max(1, (currentPlayer.size ?? 5) - 1);
+        currentPlayer.genepool = Math.max(1, (currentPlayer.genepool ?? 5) - 1);
         discardCardMultiple(currentPlayer, Math.round(currentPlayer.cards.length / 2), 0);
     }
 }
@@ -394,7 +383,8 @@ function AITakeover_effect(card, currentPlayer, players) {
     if (isWorldsEnd) {
         // TODO: remove colorless effects and set colorless card values to 2
     } else {
-        currentPlayer.size -= 1;
+        currentPlayer.size = Math.max(1, (currentPlayer.size ?? 5) - 1);
+        currentPlayer.genepool = Math.max(1, (currentPlayer.genepool ?? 5) - 1);
     }
 }
 

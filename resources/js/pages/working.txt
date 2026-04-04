@@ -1,0 +1,4 @@
+which age and card effects currently work:
+
+flourish
+coastalformations

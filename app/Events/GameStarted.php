@@ -23,19 +23,19 @@ class GameStarted implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'game'    => [
-                'id'           => $this->game->id,
-                'status'       => $this->game->status,
+            'game' => [
+                'id' => $this->game->id,
+                'status' => $this->game->status,
                 'current_turn' => $this->game->current_turn,
-                'game_state'   => $this->game->game_state,
+                'game_state' => $this->game->game_state,
             ],
-            'players' => $this->game->players->map(fn($p) => [
-                'id'         => $p->user->id,
-                'name'       => $p->user->name,
-                'seat'       => $p->seat,
+            'players' => $this->game->players->map(fn ($p) => [
+                'id' => $p->user->id,
+                'name' => $p->user->name,
+                'seat' => $p->seat,
                 'hand_cards' => $p->hand_cards,
                 'trait_pool' => $p->trait_pool,
-                'genepool'   => $p->genepool,
+                'genepool' => $p->genepool,
             ]),
         ];
     }
