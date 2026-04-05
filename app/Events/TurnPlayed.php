@@ -34,7 +34,15 @@ class TurnPlayed implements ShouldBroadcast
                 'agePile3'          => $agePiles[2] ? [end($agePiles[2])] : [],
                 'ageDeckSize'       => count($gameState['age_deck'] ?? []),
                 'deckSize'          => $gameState['deckSize'] ?? 0,
+                'log_message' => $gameState['log_message'] ?? null,
             ],
+            'discardPile' => collect($gameState['discardPile'] ?? [])->map(fn($c) => [
+                'id'        => $c['id'] ?? null,
+                'card_name' => $c['card_name'] ?? '',
+                'color'     => $c['color'] ?? '',
+                'points'    => $c['points'] ?? 0,
+                'img'       => $c['img'] ?? '',
+            ])->toArray(),
             'players' => $game->players->map(fn($p) => [
                 'id'       => (int) $p->user_id,
                 'name'     => $p->user?->username ?? "Player {$p->user_id}",

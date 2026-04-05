@@ -128,8 +128,8 @@ export default function Chat({ gameId, gameSlug, playerId }) {
         {messages.map((msg, i) => (
             msg?.type === 'system' ? (
                 <div key={i} className="chat-system-message">
-                ⚡ {msg.body}
-                </div>
+    ⚡ <span dangerouslySetInnerHTML={{ __html: msg.body }} />
+</div>
             ) : (
                 <div key={i} className={`chat-message ${msg?.user?.id === playerId ? 'own' : ''}`}>
                 <span className="chat-message-user">

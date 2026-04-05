@@ -2,3 +2,34 @@ which age and card effects currently work:
 
 flourish
 coastalformations
+comet showers
+age of hero and age of dracula
+all color and point restrictive ones
+The Messiah (rotate turn order)
+Natural Harmony (track last played color)
+awakening
+
+Test these first:
+
+The Big One — c rd passing to left/right neighbours is tricky, especially with 2 players
+Overpopulation — draws cards based on color count, verify count is correct
+Grey Goo — discard entire hand and restabilize, make sure deck deals correctly after
+Mega Tsunami — hand rotation direction, easy to get left/right confused
+
+These are straightforward, lower priority:
+
+Glacial Meltdown, Ice Age, Nuclear Winter, Solar Flare, The Four Horsemen, AI Takeover — all just genepool -1 plus some discards, should work fine
+Pulse Event, Retrovirus, Mass Extinction, Super Volcano — count traits and discard hand cards, simple logic
+Deus Ex Machina — does nothing, no need to test
+
+Not yet implemented:
+
+Northern Winds (interactive)
+Prosperity (interactive)
+Age of Nietzsche (interactive)
+Enlightenment (interactive)
+Alien Terraform (interactive)
+Age of Reason (interactive)
+High Tides (effectless only restriction)
+Reforestation (protect traits)
+Age of Peace (skip card effects)

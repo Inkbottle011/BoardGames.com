@@ -58,7 +58,7 @@ Route::get('/test-game', function () {
         'seat' => 1,
         'genepool' => 3,
         'points' => 0,
-        'hand_cards' => $cards->take(5)->values()->map(fn ($c) => (array) $c)->toArray(),
+        'hand_cards' => $cards->take(5)->values()->map(fn($c) => (array) $c)->toArray(),
         'trait_pool' => [],
         'worlds_end_effects' => [],
     ]);
@@ -69,7 +69,7 @@ Route::get('/test-game', function () {
         'seat' => 2,
         'genepool' => 3,
         'points' => 0,
-        'hand_cards' => $cards->slice(5, 5)->values()->map(fn ($c) => (array) $c)->toArray(),
+        'hand_cards' => $cards->slice(5, 5)->values()->map(fn($c) => (array) $c)->toArray(),
         'trait_pool' => [],
         'worlds_end_effects' => [],
     ]);
@@ -78,6 +78,7 @@ Route::get('/test-game', function () {
 })->middleware('auth');
 
 Route::middleware(['auth'])->group(function () {
+    Route::post('/game/{game}/action', [GameController::class, 'resolveAction']);
     Route::get('/game/{game}', [GameController::class, 'show']);
     Route::get('/lobby', [LobbyController::class, 'index']);
     Route::post('/lobby/create', [LobbyController::class, 'create']);

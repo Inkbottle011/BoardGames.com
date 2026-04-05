@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\AgeEffectRequired;
 use App\Events\TurnPlayed;
 use App\Models\Game;
 use App\Models\GamePlayer;
@@ -32,30 +31,11 @@ class GameController extends Controller
         }
 
         if ((int) $game->current_turn !== (int) auth()->id()) {
-            return response()->json([
-                'error' => 'Not your turn',
-                'current_turn' => $game->current_turn,
-                'your_id' => auth()->id(),
-            ], 403);
-        }
-
-        $gamePlayer = GamePlayer::where('game_id', $game->id)
-            ->where('user_id', auth()->id())
-            ->first();
-
-        if (!$gamePlayer) {
-            return response()->json(['error' => 'You are not in this game'], 403);
+            return response()->json(['error' => 'Not your turn'], 403);
         }
 
         $validator = Validator::make($request->all(), [
-            'current_turn' => 'required',
-            'catastrophe_count' => 'required|integer|min:0',
-            'players' => 'required|array',
-            'players.*.id' => 'required',
-            'players.*.cards' => 'present|array',
-            'players.*.traitpool' => 'present|array',
-            'players.*.genepool' => 'required|integer|min:0',
-            'players.*.points' => 'required|integer',
+            'card_id' => 'required|integer',
         ]);
 
         if ($validator->fails()) {
@@ -64,101 +44,119 @@ class GameController extends Controller
 
         $gameState = $game->game_state ?? [];
         $deck = $gameState['deck'] ?? [];
-        $discardPile = $request->input('game_state.discardPile', $gameState['discardPile'] ?? []);
+        $discardPile = $gameState['discardPile'] ?? [];
         $ageDeck = $gameState['age_deck'] ?? [];
         $roundPlayers = $gameState['round_players'] ?? [];
         $playerOrder = $gameState['player_order'] ?? [];
         $agePiles = $gameState['age_piles'] ?? [[], [], []];
-        $currentAge = $game->current_age ?? [];
-        $nextPlayerId = (int) $request->current_turn;
-
-        // Load all player states from DB
+        $currentAge = $game->current_age ?? ['age_name' => ''];
         $game->load(['players.user']);
         $playerStates = $game->players->keyBy('user_id');
 
-        // Update active player — deal cards back up to genepool
-        foreach ($request->players as $playerData) {
-            $playerId = (int) $playerData['id'];
-            $genepool = (int) $playerData['genepool'];
-
-            if ($playerId === (int) auth()->id()) {
-                $hand = $playerData['cards'];
-                $cardsToDraw = max(0, $genepool - count($hand));
-                for ($i = 0; $i < $cardsToDraw; $i++) {
-                    if (empty($deck)) break;
-                    $hand[] = array_shift($deck);
-                }
-                $this->applyOngoingAgeEffect($currentAge['age_name'] ?? '', $hand, $deck, $genepool);
-
-                GamePlayer::where('game_id', $game->id)
-                    ->where('user_id', $playerId)
-                    ->update([
-                        'hand_cards' => $hand,
-                        'trait_pool' => $playerData['traitpool'],
-                        'genepool' => $genepool,
-                        'points' => (int) ($playerData['points'] ?? 0),
-                    ]);
-
-                if (isset($playerStates[$playerId])) {
-                    $playerStates[$playerId]->hand_cards = $hand;
-                    $playerStates[$playerId]->trait_pool = $playerData['traitpool'];
-                    $playerStates[$playerId]->genepool = $genepool;
-                }
-            } else {
-                // Non-active players — only update traitpool and points, server owns their hand
-                GamePlayer::where('game_id', $game->id)
-                    ->where('user_id', $playerId)
-                    ->update([
-                        'trait_pool' => $playerData['traitpool'],
-                    ]);
-
-                if (isset($playerStates[$playerId])) {
-                    $playerStates[$playerId]->trait_pool = $playerData['traitpool'];
-                }
-            }
+        $activePlayer = $playerStates[(int) auth()->id()] ?? null;
+        if (!$activePlayer) {
+            return response()->json(['error' => 'Player not found'], 403);
         }
 
+        // Find card in hand
+        $cardId = (int) $request->card_id;
+        $hand = $activePlayer->hand_cards ?? [];
+        $cardIndex = collect($hand)->search(fn($c) => (int)($c['id'] ?? 0) === $cardId);
+
+        if ($cardIndex === false) {
+            return response()->json(['error' => 'Card not in hand'], 422);
+        }
+
+        $card = $hand[$cardIndex];
+
+        // Check age restrictions
+        $ageRestriction = $this->checkAgeRestriction($card, $currentAge['age_name'] ?? '', $gameState);
+        if (!$ageRestriction['allowed']) {
+            return response()->json(['error' => $ageRestriction['reason']], 422);
+        }
+
+        array_splice($hand, $cardIndex, 1);
+
+        // Add to traitpool
+        $traitPool = $activePlayer->trait_pool ?? [];
+        $traitPool[] = $card;
+
+        // Calculate points from traitpool
+        $points = collect($traitPool)->sum('points');
+
+        // Deal cards back up to genepool
+        $genepool = $activePlayer->genepool ?? 5;
+        $cardsToDraw = max(0, $genepool - count($hand));
+        for ($i = 0; $i < $cardsToDraw; $i++) {
+            if (empty($deck)) break;
+            $hand[] = array_shift($deck);
+        }
+
+        // Apply ongoing age effect
+        $this->applyOngoingAgeEffect($currentAge['age_name'] ?? '', $hand, $deck, $genepool);
+
+        // Save active player
+        GamePlayer::where('game_id', $game->id)
+            ->where('user_id', auth()->id())
+            ->update([
+                'hand_cards' => $hand,
+                'trait_pool' => $traitPool,
+                'genepool' => $genepool,
+                'points' => $points,
+            ]);
+
+        $playerStates[(int) auth()->id()]->hand_cards = $hand;
+        $playerStates[(int) auth()->id()]->trait_pool = $traitPool;
+        $playerStates[(int) auth()->id()]->points = $points;
+
+        // Advance turn
         $roundPlayers[] = (int) auth()->id();
         $roundPlayers = array_unique($roundPlayers);
-        $catastropheCount = (int) $request->catastrophe_count;
-        $newAge = $currentAge;
-        $gameStatus = $game->status;
-        $ageEffectEvent = null;
-
         $allPlayerIds = collect($playerOrder)->map(fn($id) => (int) $id)->toArray();
         $roundComplete = count(array_intersect($allPlayerIds, $roundPlayers)) === count($allPlayerIds);
 
+        $nextPlayerId = $this->getNextPlayerId($playerOrder, (int) auth()->id());
+        $catastropheCount = (int) $game->catastrophe_count;
+        $newAge = $currentAge;
+        $gameStatus = $game->status;
+        $logMessage = null;
+
         if ($roundComplete) {
             $roundPlayers = [];
+            \Log::info('ageDeck count', ['count' => count($ageDeck)]);
+            $game->load(['players.user']);
+            $playerStates = $game->players->keyBy('user_id');
 
             if (!empty($ageDeck)) {
                 $newAge = array_shift($ageDeck);
                 $pileIndex = min($catastropheCount, 2);
                 $agePiles[$pileIndex][] = $newAge;
 
-                // $this->applyAutomaticAgeEffect(
-                //     $newAge['age_name'],
-                //     $game,
-                //     $playerStates,
-                //     $playerOrder,
-                //     $deck,
-                //     $discardPile,
-                //     $nextPlayerId
-                // );
+                if (($currentAge['age_name'] ?? '') === 'The Messiah') {
+                    $playerOrder = array_reverse($playerOrder);
+                    $nextPlayerId = $playerOrder[0];
+                }
 
-                $ageEffectEvent = $this->getInteractiveAgeEffect($newAge['age_name']);
+                $this->applyAutomaticAgeEffect(
+                    $newAge['age_name'],
+                    $game,
+                    $playerStates,
+                    $playerOrder,
+                    $deck,
+                    $discardPile,
+                    $nextPlayerId
+                );
 
                 if ($newAge['catastrophe']) {
-                    $catastropheCount++;
+                    $this->applyCatastropheEffect(
+                        $newAge['age_name'],
+                        $playerStates,
+                        $playerOrder,
+                        $deck,
+                        $discardPile
+                    );
 
-                    // $this->applyCatastropheEffect(
-                    //     $newAge['age_name'],
-                    //     $game,
-                    //     $playerStates,
-                    //     $playerOrder,
-                    //     $deck,
-                    //     $discardPile
-                    // );
+                    $catastropheCount++;
 
                     if (!empty($playerOrder)) {
                         $first = array_shift($playerOrder);
@@ -170,49 +168,19 @@ class GameController extends Controller
                         $gameStatus = 'worlds_end';
                     }
                 }
-
-                // Save age effect player state changes
-                foreach ($playerStates as $userId => $player) {
-                    GamePlayer::where('game_id', $game->id)
-                        ->where('user_id', $userId)
-                        ->update([
-                            'hand_cards' => $player->hand_cards,
-                            'trait_pool' => $player->trait_pool,
-                            'genepool' => $player->genepool,
-                            'points' => $player->points,
-                        ]);
-                }
-
-                try {
-                    ChatController::systemMessage($game, "A new age begins: {$newAge['age_name']}");
-                } catch (\Exception $e) {
-                }
             } else {
                 $catastropheCount = 3;
                 $gameStatus = 'worlds_end';
             }
         }
 
-        // Deal cards to next player
-        if (isset($playerStates[$nextPlayerId])) {
-            $nextHand = $playerStates[$nextPlayerId]->hand_cards ?? [];
-            $nextGenepool = $playerStates[$nextPlayerId]->genepool ?? 5;
-            $cardsToDraw = max(0, $nextGenepool - count($nextHand));
-            for ($i = 0; $i < $cardsToDraw; $i++) {
-                if (empty($deck)) break;
-                $nextHand[] = array_shift($deck);
-            }
-            $playerStates[$nextPlayerId]->hand_cards = $nextHand;
-            GamePlayer::where('game_id', $game->id)
-                ->where('user_id', $nextPlayerId)
-                ->update(['hand_cards' => $nextHand]);
-        }
-
+        $lastPlayedColor = ($currentAge['age_name'] ?? '') === 'Natural Harmony' ? ($card['color'] ?? null) : null;
         $game->update([
             'current_turn' => $nextPlayerId,
             'catastrophe_count' => $catastropheCount,
-            'current_age' => $newAge ?? $currentAge,
+            'current_age' => $newAge,
             'status' => $gameStatus,
+            'log_message' => $logMessage,
             'game_state' => [
                 'deck' => $deck,
                 'deckSize' => count($deck),
@@ -221,27 +189,67 @@ class GameController extends Controller
                 'age_piles' => $agePiles,
                 'round_players' => $roundPlayers,
                 'player_order' => $playerOrder,
-                'age_effect_pending' => $ageEffectEvent,
+                'last_played_color' => $lastPlayedColor,
             ],
         ]);
 
         $game->load(['players.user']);
         broadcast(new TurnPlayed($game));
 
-        // if ($ageEffectEvent) {
-        //     broadcast(new AgeEffectRequired($game, $ageEffectEvent));
-        // }
-
-        try {
-            ChatController::systemMessage($game, "Player {$gamePlayer->user->name} played a card");
-        } catch (\Exception $e) {
-        }
 
         return response()->json($this->formatGameState($game));
     }
 
+    private function getNextPlayerId(array $playerOrder, int $currentId): int
+    {
+        $index = array_search($currentId, $playerOrder);
+        if ($index === false) return $playerOrder[0];
+        return $playerOrder[($index + 1) % count($playerOrder)];
+    }
 
-    //          all hte ages are currently disabled and need testing
+    private function checkAgeRestriction(array $card, string $ageName, array $gameState = []): array
+    {
+        switch ($ageName) {
+            case 'Glacial Drift':
+                if (($card['points'] ?? 0) > 3)
+                    return ['allowed' => false, 'reason' => 'Glacial Drift: only traits worth 3 or less'];
+                break;
+
+            case 'Lunar Retreat':
+                if (($card['color'] ?? '') === 'Purple')
+                    return ['allowed' => false, 'reason' => 'Lunar Retreat: cannot play purple traits'];
+                break;
+
+            case 'Galactic Drift':
+            case 'Tropical Lands':
+                if (($card['color'] ?? '') === 'Colorless')
+                    return ['allowed' => false, 'reason' => "{$ageName}: cannot play colorless traits"];
+                break;
+
+            case 'Tectonic Shifts':
+                if (($card['color'] ?? '') === 'Green')
+                    return ['allowed' => false, 'reason' => 'Tectonic Shifts: cannot play green traits'];
+                break;
+
+            case 'Eclipse':
+                if (($card['color'] ?? '') === 'Red')
+                    return ['allowed' => false, 'reason' => 'Eclipse: cannot play red traits'];
+                break;
+
+            case 'Arid Lands':
+                if (($card['color'] ?? '') === 'Blue')
+                    return ['allowed' => false, 'reason' => 'Arid Lands: cannot play blue traits'];
+                break;
+            case 'Natural Harmony':
+                $lastPlayedColor = $gameState['last_played_color'] ?? null;
+                if ($lastPlayedColor && ($card['color'] ?? '') === $lastPlayedColor) {
+                    return ['allowed' => false, 'reason' => "Natural Harmony: cannot play another {$lastPlayedColor} trait"];
+                }
+                break;
+        }
+
+        return ['allowed' => true, 'reason' => ''];
+    }
 
     private function applyOngoingAgeEffect(string $ageName, array &$hand, array &$deck, int &$genepool): void
     {
@@ -258,300 +266,6 @@ class GameController extends Controller
         }
     }
 
-    /**
-     * Apply automatic age effects that don't need player input
-     */
-    private function applyAutomaticAgeEffect(string $ageName, Game $game, $playerStates, array $playerOrder, array &$deck, array &$discardPile, int $nextPlayerId = 0): void
-    {
-        switch ($ageName) {
-            case 'Flourish':
-                foreach ($playerStates as $userId => $player) {
-                    // Stabilize first before applying Flourish
-                    $hand = $player->hand_cards ?? [];
-                    $genepool = $player->genepool ?? 5;
-                    $cardsToDraw = max(0, $genepool - count($hand));
-                    for ($i = 0; $i < $cardsToDraw; $i++) {
-                        if (empty($deck)) break;
-                        $hand[] = array_shift($deck);
-                    }
-                    // Now apply Flourish
-                    for ($i = 0; $i < 2; $i++) {
-                        if (empty($deck)) break;
-                        $hand[] = array_shift($deck);
-                    }
-                    $player->hand_cards = $hand;
-                }
-                break;
-
-
-            case 'Birth of a Hero':
-                foreach ($playerStates as $player) {
-                    $hand = $player->hand_cards ?? [];
-                    $heroicIdx = collect($hand)->search(fn($c) => $c['card_name'] === 'Heroic');
-                    if ($heroicIdx !== false) {
-                        $heroic = $hand[$heroicIdx];
-                        array_splice($hand, $heroicIdx, 1);
-                        $traitPool = $player->trait_pool ?? [];
-                        $traitPool[] = $heroic;
-                        $player->hand_cards = $hand;
-                        $player->trait_pool = $traitPool;
-                    }
-                }
-                break;
-
-            case 'Comet Showers':
-                foreach ($playerStates as $player) {
-                    $hand = $player->hand_cards ?? [];
-                    if (!empty($hand)) {
-                        $idx = array_rand($hand);
-                        $card = $hand[$idx];
-                        array_splice($hand, $idx, 1);
-                        $player->hand_cards = $hand;
-                        if ($card['card_name'] !== 'Endurance') {
-                            $discardPile[] = $card;
-                        }
-                    }
-                }
-                break;
-
-            case 'Age of Dracula':
-                foreach ($playerStates as $player) {
-                    $traitPool = $player->trait_pool ?? [];
-                    $hasVampirism = collect($traitPool)->contains(fn($t) => $t['card_name'] === 'Vampirism');
-                    $hand = $player->hand_cards ?? [];
-                    if (!$hasVampirism && !empty($hand)) {
-                        $idx = array_rand($hand);
-                        $card = $hand[$idx];
-                        array_splice($hand, $idx, 1);
-                        $player->hand_cards = $hand;
-                        if ($card['card_name'] !== 'Endurance') {
-                            $discardPile[] = $card;
-                        }
-                    }
-                }
-                break;
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    private function applyCatastropheEffect(string $ageName, Game $game, $playerStates, array $playerOrder, array &$deck, array &$discardPile): void
-    {
-        switch ($ageName) {
-            case 'The Big One':
-                foreach ($playerStates as $player) {
-                    $player->genepool = max(0, $player->genepool - 1);
-                }
-                break;
-
-            case 'Glacial Meltdown':
-                foreach ($playerStates as $player) {
-                    $hand = $player->hand_cards ?? [];
-                    for ($i = 0; $i < 2; $i++) {
-                        if (!empty($hand)) {
-                            $idx = array_rand($hand);
-                            $card = $hand[$idx];
-                            array_splice($hand, $idx, 1);
-                            if ($card['card_name'] !== 'Endurance') {
-                                $discardPile[] = $card;
-                            }
-                        }
-                    }
-                    $player->hand_cards = $hand;
-                }
-                break;
-
-            case 'Ice Age':
-                foreach ($playerStates as $player) {
-                    $redCount = collect($player->trait_pool ?? [])
-                        ->filter(fn($t) => $t['color'] === 'Red')
-                        ->count();
-                    $player->points -= $redCount;
-                }
-                break;
-
-            case 'Overpopulation':
-                foreach ($playerStates as $player) {
-                    $player->genepool += 1;
-                }
-                break;
-
-            case 'Grey Goo':
-                $maxTraits = 0;
-                $maxPlayer = null;
-                foreach ($playerStates as $player) {
-                    $count = count($player->trait_pool ?? []);
-                    if ($count > $maxTraits) {
-                        $maxTraits = $count;
-                        $maxPlayer = $player;
-                    }
-                }
-                if ($maxPlayer) {
-                    $maxPlayer->points -= 5;
-                }
-                break;
-
-            case 'The Four Horsemen':
-                foreach ($playerStates as $player) {
-                    $player->genepool = max(0, $player->genepool - 1);
-                    $traitPool = $player->trait_pool ?? [];
-                    if (!empty($traitPool)) {
-                        $idx = array_rand($traitPool);
-                        $card = $traitPool[$idx];
-                        array_splice($traitPool, $idx, 1);
-                        $player->trait_pool = $traitPool;
-                        if ($card['card_name'] !== 'Endurance') {
-                            $discardPile[] = $card;
-                        }
-                    }
-                }
-                break;
-
-            case 'Nuclear Winter':
-                foreach ($playerStates as $player) {
-                    $player->genepool = max(0, $player->genepool - 1);
-                }
-                break;
-
-            case 'Solar Flare':
-                foreach ($playerStates as $player) {
-                    $player->genepool = max(0, $player->genepool - 1);
-                    $hand = $player->hand_cards ?? [];
-                    $half = (int) floor(count($hand) / 2);
-                    for ($i = 0; $i < $half; $i++) {
-                        if (!empty($hand)) {
-                            $idx = array_rand($hand);
-                            $card = $hand[$idx];
-                            array_splice($hand, $idx, 1);
-                            if ($card['card_name'] !== 'Endurance') {
-                                $discardPile[] = $card;
-                            }
-                        }
-                    }
-                    $player->hand_cards = $hand;
-                }
-                break;
-
-            case 'Mass Extinction':
-                foreach ($playerStates as $player) {
-                    $traitPool = $player->trait_pool ?? [];
-                    $player->trait_pool = collect($traitPool)
-                        ->filter(function ($t) use (&$discardPile) {
-                            if ($t['color'] === 'Colorless' && $t['card_name'] !== 'Endurance') {
-                                $discardPile[] = $t;
-
-                                return false;
-                            }
-
-                            return true;
-                        })
-                        ->values()
-                        ->toArray();
-                }
-                break;
-
-            case 'Pulse Event':
-                foreach ($playerStates as $player) {
-                    $traitPool = $player->trait_pool ?? [];
-                    $player->trait_pool = collect($traitPool)
-                        ->filter(function ($t) use (&$discardPile) {
-                            if ($t['color'] === 'Purple' && $t['card_name'] !== 'Endurance') {
-                                $discardPile[] = $t;
-
-                                return false;
-                            }
-
-                            return true;
-                        })
-                        ->values()
-                        ->toArray();
-                }
-                break;
-
-            case 'Retrovirus':
-                foreach ($playerStates as $player) {
-                    $traitPool = $player->trait_pool ?? [];
-                    $player->trait_pool = collect($traitPool)
-                        ->filter(function ($t) use (&$discardPile) {
-                            if ($t['color'] === 'Green' && $t['card_name'] !== 'Endurance') {
-                                $discardPile[] = $t;
-
-                                return false;
-                            }
-
-                            return true;
-                        })
-                        ->values()
-                        ->toArray();
-                }
-                break;
-
-            case 'Mega Tsunami':
-                $hands = collect($playerOrder)->map(fn($id) => $playerStates[$id]->hand_cards ?? [])->toArray();
-                $first = array_shift($hands);
-                $hands[] = $first;
-                foreach ($playerOrder as $i => $userId) {
-                    if (isset($playerStates[$userId])) {
-                        $playerStates[$userId]->hand_cards = $hands[$i];
-                    }
-                }
-                break;
-
-            case 'Super Volcano':
-                foreach ($playerStates as $player) {
-                    $hand = $player->hand_cards ?? [];
-                    $player->hand_cards = collect($hand)
-                        ->filter(function ($c) use (&$discardPile) {
-                            if ($c['color'] === 'Blue' && $c['card_name'] !== 'Endurance') {
-                                $discardPile[] = $c;
-
-                                return false;
-                            }
-
-                            return true;
-                        })
-                        ->values()
-                        ->toArray();
-                }
-                break;
-        }
-    }
-
-    /**
-     * Get interactive age effect type if the age needs player input
-     */
-    private function getInteractiveAgeEffect(string $ageName): ?array
-    {
-        $interactiveAges = [
-            'Northern Winds' => ['type' => 'draw_discard', 'draw' => 1, 'discard' => 1, 'prompt' => 'Draw 1 card, then discard 1 card from your hand'],
-            'Prosperity' => ['type' => 'yes_no', 'action' => 'stabilize', 'prompt' => 'Do you want to stabilize?'],
-            'Age of Nietzsche' => ['type' => 'yes_no', 'action' => 'discard_draw3_or_stabilize', 'prompt' => 'Discard your hand and draw 3, or stabilize?'],
-            'Enlightenment' => ['type' => 'discard_up_to', 'max' => 2, 'prompt' => 'Discard up to 2 cards from your hand, then stabilize'],
-            'Alien Terraform' => ['type' => 'yes_no', 'action' => 'discard_dominants_stabilize', 'prompt' => 'Discard your dominant cards and stabilize?'],
-            'Age of Wonder' => ['type' => 'set_hand_size', 'size' => 4, 'prompt' => 'Your hand size is set to 4 this round'],
-            'Age of Reason' => ['type' => 'draw_discard', 'draw' => 3, 'discard' => 2, 'prompt' => 'Draw 3 cards, then discard 2'],
-        ];
-
-        return $interactiveAges[$ageName] ?? null;
-    }
-
     public function startGame(Game $game)
     {
         $host = $game->players()->orderBy('seat')->first();
@@ -565,18 +279,16 @@ class GameController extends Controller
 
         $allCards = DB::table('doomlings_deck')
             ->get()
-            ->map(
-                fn($c) => [
-                    'id' => $c->id,
-                    'card_name' => $c->card_name,
-                    'points' => $c->points,
-                    'img' => $c->img,
-                    'text' => $c->text,
-                    'color' => $c->color,
-                    'dominant' => $c->dominant,
-                    'action' => $c->action,
-                ],
-            )
+            ->map(fn($c) => [
+                'id' => $c->id,
+                'card_name' => $c->card_name,
+                'points' => $c->points,
+                'img' => $c->img,
+                'text' => $c->text,
+                'color' => $c->color,
+                'dominant' => $c->dominant,
+                'action' => $c->action,
+            ])
             ->shuffle()
             ->values()
             ->toArray();
@@ -590,23 +302,6 @@ class GameController extends Controller
         }
         $remainingDeck = array_slice($allCards, $cardIndex);
 
-        $impatienceCard = DB::table('doomlings_deck')->where('card_name', 'Impatience')->first();
-        if ($impatienceCard) {
-            $firstPlayer = $game->players()->orderBy('seat')->first();
-            $hand = $firstPlayer->hand_cards ?? [];
-            $hand[] = [
-                'id' => $impatienceCard->id,
-                'card_name' => $impatienceCard->card_name,
-                'points' => $impatienceCard->points,
-                'img' => $impatienceCard->img,
-                'text' => $impatienceCard->text,
-                'color' => $impatienceCard->color,
-                'dominant' => $impatienceCard->dominant,
-                'action' => $impatienceCard->action,
-            ];
-            $firstPlayer->update(['hand_cards' => $hand]);
-        }
-
         $birthOfLife = DB::table('doomlings_ages')->where('age_name', 'The Birth of Life')->first();
 
         $catastrophes = DB::table('doomlings_ages')
@@ -614,16 +309,14 @@ class GameController extends Controller
             ->inRandomOrder()
             ->limit(3)
             ->get()
-            ->map(
-                fn($a) => [
-                    'id' => $a->id,
-                    'age_name' => $a->age_name,
-                    'img' => $a->img,
-                    'text' => $a->text,
-                    'catastrophe' => (bool) $a->catastrophe,
-                    'world_end_text' => $a->World_End_text,
-                ],
-            )
+            ->map(fn($a) => [
+                'id' => $a->id,
+                'age_name' => $a->age_name,
+                'img' => $a->img,
+                'text' => $a->text,
+                'catastrophe' => (bool) $a->catastrophe,
+                'world_end_text' => $a->World_End_text,
+            ])
             ->toArray();
 
         $normalAges = DB::table('doomlings_ages')
@@ -632,20 +325,17 @@ class GameController extends Controller
             ->inRandomOrder()
             ->limit(9)
             ->get()
-            ->map(
-                fn($a) => [
-                    'id' => $a->id,
-                    'age_name' => $a->age_name,
-                    'img' => $a->img,
-                    'text' => $a->text,
-                    'catastrophe' => (bool) $a->catastrophe,
-                    'world_end_text' => $a->World_End_text,
-                ],
-            )
+            ->map(fn($a) => [
+                'id' => $a->id,
+                'age_name' => $a->age_name,
+                'img' => $a->img,
+                'text' => $a->text,
+                'catastrophe' => (bool) $a->catastrophe,
+                'world_end_text' => $a->World_End_text,
+            ])
             ->toArray();
 
         $shuffledAges = collect(array_merge($normalAges, $catastrophes))->shuffle()->values()->toArray();
-
 
         $birthOfLifeFormatted = [
             'id' => $birthOfLife->id,
@@ -655,7 +345,6 @@ class GameController extends Controller
             'catastrophe' => (bool) $birthOfLife->catastrophe,
             'world_end_text' => $birthOfLife->World_End_text,
         ];
-
 
         $ageDeck = array_merge([$birthOfLifeFormatted], $shuffledAges);
         $currentAge = array_shift($ageDeck);
@@ -676,7 +365,6 @@ class GameController extends Controller
                 'age_piles' => $agePiles,
                 'round_players' => [],
                 'player_order' => $playerOrder,
-                'age_effect_pending' => null,
             ],
         ]);
 
@@ -716,7 +404,6 @@ class GameController extends Controller
 
     private function formatGameState(Game $game): array
     {
-        \Log::info('formatGameState points', $game->players->map(fn($p) => ['id' => $p->user_id, 'points' => $p->points])->toArray());
         $gameState = $game->game_state ?? [];
         $agePiles = $gameState['age_piles'] ?? [[], [], []];
 
@@ -729,21 +416,454 @@ class GameController extends Controller
             'status' => $game->status,
             'deckSize' => $gameState['deckSize'] ?? 0,
             'ageDeckSize' => count($gameState['age_deck'] ?? []),
-            'discardPile' => $gameState['discardPile'] ?? [],
             'agePile1' => $agePiles[0] ?? [],
             'agePile2' => $agePiles[1] ?? [],
             'agePile3' => $agePiles[2] ?? [],
-            'age_effect_pending' => $gameState['age_effect_pending'] ?? null,
-            'players' => $game->players->map(
-                fn($p) => [
-                    'id' => (int) $p->user_id,
-                    'name' => $p->user?->username ?? "Player {$p->user_id}",
-                    'hand' => $p->hand_cards ?? [],
-                    'traitpool' => $p->trait_pool ?? [],
-                    'genepool' => (int) $p->genepool,
-                    'points' => (int) ($p->points ?? 0),
-                ],
-            ),
+            'discardPile' => collect($gameState['discardPile'] ?? [])->map(fn($c) => [
+                'id'        => $c['id'] ?? null,
+                'card_name' => $c['card_name'] ?? '',
+                'color'     => $c['color'] ?? '',
+                'points'    => $c['points'] ?? 0,
+                'img'       => $c['img'] ?? '',
+            ])->toArray(),
+            'players' => $game->players->map(fn($p) => [
+                'id' => (int) $p->user_id,
+                'name' => $p->user?->username ?? "Player {$p->user_id}",
+                'hand' => $p->hand_cards ?? [],
+                'traitpool' => $p->trait_pool ?? [],
+                'genepool' => (int) $p->genepool,
+                'points' => (int) ($p->points ?? 0),
+            ]),
         ];
+    }
+
+    private function applyAutomaticAgeEffect(string $ageName, Game $game, $playerStates, array $playerOrder, array &$deck, array &$discardPile, int $nextPlayerId = 0): void
+    {
+        switch ($ageName) {
+            case 'Flourish':
+                foreach ($playerStates as $userId => $player) {
+                    $hand = $player->hand_cards ?? [];
+                    $genepool = $player->genepool ?? 5;
+                    $cardsToDraw = max(0, $genepool - count($hand));
+                    for ($i = 0; $i < $cardsToDraw; $i++) {
+                        if (empty($deck)) break;
+                        $hand[] = array_shift($deck);
+                    }
+                    for ($i = 0; $i < 2; $i++) {
+                        if (empty($deck)) break;
+                        $hand[] = array_shift($deck);
+                    }
+                    $player->hand_cards = $hand;
+                    GamePlayer::where('game_id', $game->id)
+                        ->where('user_id', $userId)
+                        ->update(['hand_cards' => $hand]);
+                }
+                break;
+            case 'Comet Showers':
+                foreach ($playerStates as $userId => $player) {
+                    $hand = $player->hand_cards ?? [];
+                    if (!empty($hand)) {
+                        $idx = array_rand($hand);
+                        $card = $hand[$idx];
+                        array_splice($hand, $idx, 1);
+                        $player->hand_cards = $hand;
+                        if ($card['card_name'] !== 'Endurance') {
+                            $discardPile[] = $card;
+                        }
+                        GamePlayer::where('game_id', $game->id)
+                            ->where('user_id', $userId)
+                            ->update(['hand_cards' => $hand]);
+                    }
+                }
+                break;
+            case 'Birth of a Hero':
+                foreach ($playerStates as $userId => $player) {
+                    $hand = $player->hand_cards ?? [];
+                    $heroicIdx = collect($hand)->search(fn($c) => $c['card_name'] === 'Heroic');
+                    if ($heroicIdx !== false) {
+                        $heroic = $hand[$heroicIdx];
+                        array_splice($hand, $heroicIdx, 1);
+                        $traitPool = $player->trait_pool ?? [];
+                        $traitPool[] = $heroic;
+                        $points = collect($traitPool)->sum('points');
+                        $player->hand_cards = $hand;
+                        $player->trait_pool = $traitPool;
+                        GamePlayer::where('game_id', $game->id)
+                            ->where('user_id', $userId)
+                            ->update([
+                                'hand_cards' => $hand,
+                                'trait_pool' => $traitPool,
+                                'points' => $points,
+                            ]);
+                    }
+                }
+                break;
+
+            case 'Age of Dracula':
+                foreach ($playerStates as $userId => $player) {
+                    $traitPool = $player->trait_pool ?? [];
+                    $hasVampirism = collect($traitPool)->contains(fn($t) => $t['card_name'] === 'Vampirism');
+                    $hand = $player->hand_cards ?? [];
+                    if ($hasVampirism) {
+                        $opponents = $playerStates->filter(fn($p, $id) => $id !== $userId);
+                        $opponent = $opponents->first();
+                        $opponentId = $opponents->keys()->first();
+                        if ($opponent && !empty($opponent->hand_cards)) {
+                            $idx = array_rand($opponent->hand_cards);
+                            $stolen = $opponent->hand_cards[$idx];
+                            $opponentHand = $opponent->hand_cards;
+                            array_splice($opponentHand, $idx, 1);
+                            $opponent->hand_cards = $opponentHand;
+                            $hand[] = $stolen;
+                            $player->hand_cards = $hand;
+                            GamePlayer::where('game_id', $game->id)
+                                ->where('user_id', $userId)
+                                ->update(['hand_cards' => $hand]);
+                            GamePlayer::where('game_id', $game->id)
+                                ->where('user_id', $opponentId)
+                                ->update(['hand_cards' => $opponentHand]);
+                        }
+                    } else {
+                        if (!empty($hand)) {
+                            $idx = array_rand($hand);
+                            $card = $hand[$idx];
+                            array_splice($hand, $idx, 1);
+                            $player->hand_cards = $hand;
+                            if ($card['card_name'] !== 'Endurance') {
+                                $discardPile[] = $card;
+                            }
+                            GamePlayer::where('game_id', $game->id)
+                                ->where('user_id', $userId)
+                                ->update(['hand_cards' => $hand]);
+                        }
+                    }
+                }
+                break;
+            case 'The Messiah':
+                $playerOrder = array_reverse($playerOrder);
+                $nextPlayerId = $playerOrder[0];
+                break;
+            case 'Awakening':
+                if (!empty($ageDeck)) {
+                    $nextAge = $ageDeck[0];
+                    $logMessage = "🌅 Awakening: Next age will be <strong>{$nextAge['age_name']}</strong>";
+                }
+                break;
+        }
+    }
+    private function applyCatastropheEffect(string $ageName, $playerStates, array $playerOrder, array &$deck, array &$discardPile): void
+    {
+        switch ($ageName) {
+            case 'The Big One':
+                // -1 Gene Pool. Give 1 card to opponent on left and right.
+                foreach ($playerStates as $userId => $player) {
+                    $player->genepool = max(1, $player->genepool - 1);
+                    GamePlayer::where('user_id', $userId)->update(['genepool' => $player->genepool]);
+                }
+                // Pass 1 card to each neighbour
+                $orderKeys = array_values($playerOrder);
+                $count = count($orderKeys);
+                foreach ($orderKeys as $i => $userId) {
+                    $player = $playerStates[$userId];
+                    $hand = $player->hand_cards ?? [];
+                    if (empty($hand)) continue;
+                    $leftId = $orderKeys[($i - 1 + $count) % $count];
+                    $rightId = $orderKeys[($i + 1) % $count];
+                    // Give leftmost card to left, rightmost to right
+                    $leftCard = array_shift($hand);
+                    $rightCard = array_pop($hand);
+                    $player->hand_cards = $hand;
+                    if ($leftCard) {
+                        $leftHand = $playerStates[$leftId]->hand_cards ?? [];
+                        $leftHand[] = $leftCard;
+                        $playerStates[$leftId]->hand_cards = $leftHand;
+                    }
+                    if ($rightCard) {
+                        $rightHand = $playerStates[$rightId]->hand_cards ?? [];
+                        $rightHand[] = $rightCard;
+                        $playerStates[$rightId]->hand_cards = $rightHand;
+                    }
+                }
+                foreach ($playerStates as $userId => $player) {
+                    GamePlayer::where('user_id', $userId)->update(['hand_cards' => $player->hand_cards]);
+                }
+                break;
+
+            case 'Deus Ex Machina':
+                // +0 Gene Pool. Stabilize
+                foreach ($playerStates as $userId => $player) {
+                    $hand = $player->hand_cards ?? [];
+                    $genepool = $player->genepool ?? 5;
+                    $cardsToDraw = max(0, $genepool - count($hand));
+                    for ($i = 0; $i < $cardsToDraw; $i++) {
+                        if (empty($deck)) break;
+                        $hand[] = array_shift($deck);
+                    }
+                    $player->hand_cards = $hand;
+                    GamePlayer::where('user_id', $userId)->update(['hand_cards' => $hand]);
+                }
+                break;
+
+            case 'Overpopulation':
+                // +1 Gene Pool. Draw 1 card per color type in trait pile.
+                foreach ($playerStates as $userId => $player) {
+                    $player->genepool += 1;
+                    $colors = collect($player->trait_pool ?? [])->pluck('color')->unique()->count();
+                    $hand = $player->hand_cards ?? [];
+                    for ($i = 0; $i < $colors; $i++) {
+                        if (empty($deck)) break;
+                        $hand[] = array_shift($deck);
+                    }
+                    $player->hand_cards = $hand;
+                    GamePlayer::where('user_id', $userId)->update([
+                        'genepool' => $player->genepool,
+                        'hand_cards' => $hand,
+                    ]);
+                }
+                break;
+
+            case 'Glacial Meltdown':
+                // -1 Gene Pool. Discard 2 random hand cards.
+                foreach ($playerStates as $userId => $player) {
+                    $player->genepool = max(1, $player->genepool - 1);
+                    $hand = $player->hand_cards ?? [];
+                    for ($i = 0; $i < 2; $i++) {
+                        if (!empty($hand)) {
+                            $idx = array_rand($hand);
+                            $card = $hand[$idx];
+                            array_splice($hand, $idx, 1);
+                        }
+                    }
+                    $player->hand_cards = $hand;
+                    GamePlayer::where('user_id', $userId)->update([
+                        'genepool' => $player->genepool,
+                        'hand_cards' => $hand,
+                    ]);
+                }
+                break;
+
+            case 'Ice Age':
+                // -1 Gene Pool. Discard 1 hand card per red trait in trait pile.
+                foreach ($playerStates as $userId => $player) {
+                    $player->genepool = max(1, $player->genepool - 1);
+                    $redCount = collect($player->trait_pool ?? [])->filter(fn($t) => $t['color'] === 'Red')->count();
+                    $hand = $player->hand_cards ?? [];
+                    for ($i = 0; $i < $redCount; $i++) {
+                        if (!empty($hand)) {
+                            $idx = array_rand($hand);
+                            $card = $hand[$idx];
+                            array_splice($hand, $idx, 1);
+                        }
+                    }
+                    $player->hand_cards = $hand;
+                    GamePlayer::where('user_id', $userId)->update([
+                        'genepool' => $player->genepool,
+                        'hand_cards' => $hand,
+                    ]);
+                }
+                break;
+
+            case 'Mega Tsunami':
+                // -1 Gene Pool. Pass hand to the right.
+                foreach ($playerStates as $userId => $player) {
+                    $player->genepool = max(1, $player->genepool - 1);
+                    GamePlayer::where('user_id', $userId)->update(['genepool' => $player->genepool]);
+                }
+                $hands = collect($playerOrder)->map(fn($id) => $playerStates[$id]->hand_cards ?? [])->toArray();
+                $last = array_pop($hands);
+                array_unshift($hands, $last);
+                foreach ($playerOrder as $i => $userId) {
+                    $playerStates[$userId]->hand_cards = $hands[$i];
+                    GamePlayer::where('user_id', $userId)->update(['hand_cards' => $hands[$i]]);
+                }
+                break;
+
+            case 'The Four Horsemen':
+                // -1 Gene Pool. Discard 1 random trait.
+                foreach ($playerStates as $userId => $player) {
+                    $player->genepool = max(1, $player->genepool - 1);
+                    $traitPool = $player->trait_pool ?? [];
+                    if (!empty($traitPool)) {
+                        $idx = array_rand($traitPool);
+                        $card = $traitPool[$idx];
+                        array_splice($traitPool, $idx, 1);
+                        if ($card['card_name'] !== 'Endurance') $discardPile[] = $card;
+                        $player->trait_pool = $traitPool;
+                    }
+                    GamePlayer::where('user_id', $userId)->update([
+                        'genepool' => $player->genepool,
+                        'trait_pool' => $traitPool,
+                        'points' => collect($traitPool)->sum('points'),
+                    ]);
+                }
+                break;
+
+            case 'Grey Goo':
+                // +0 Gene Pool. Discard entire hand and stabilize.
+                foreach ($playerStates as $userId => $player) {
+                    $hand = $player->hand_cards ?? [];
+                    foreach ($hand as $card) {
+                    }
+                    $hand = [];
+                    // Stabilize — draw back up to genepool
+                    $genepool = $player->genepool ?? 5;
+                    for ($i = 0; $i < $genepool; $i++) {
+                        if (empty($deck)) break;
+                        $hand[] = array_shift($deck);
+                    }
+                    $player->hand_cards = $hand;
+                    GamePlayer::where('user_id', $userId)->update(['hand_cards' => $hand]);
+                }
+                break;
+
+            case 'Mass Extinction':
+                // -1 Gene Pool. Discard 1 hand card per colorless trait in trait pile.
+                foreach ($playerStates as $userId => $player) {
+                    $player->genepool = max(1, $player->genepool - 1);
+                    $colorlessCount = collect($player->trait_pool ?? [])->filter(fn($t) => $t['color'] === 'Colorless')->count();
+                    $hand = $player->hand_cards ?? [];
+                    for ($i = 0; $i < $colorlessCount; $i++) {
+                        if (!empty($hand)) {
+                            $idx = array_rand($hand);
+                            $card = $hand[$idx];
+                            array_splice($hand, $idx, 1);
+                        }
+                    }
+                    $player->hand_cards = $hand;
+                    GamePlayer::where('user_id', $userId)->update([
+                        'genepool' => $player->genepool,
+                        'hand_cards' => $hand,
+                    ]);
+                }
+                break;
+
+            case 'Nuclear Winter':
+                \Log::info('Nuclear Winter player', [
+                    'userId' => $userId,
+                    'handBefore' => count($player->hand_cards ?? []),
+                    'genepool' => $player->genepool,
+                ]);
+                // -1 Gene Pool. Stabilize. Then discard 1 hand card.
+                foreach ($playerStates as $userId => $player) {
+                    $player->genepool = max(1, $player->genepool - 1);
+                    $hand = $player->hand_cards ?? [];
+                    // Stabilize
+                    $cardsToDraw = max(0, $player->genepool - count($hand));
+                    for ($i = 0; $i < $cardsToDraw; $i++) {
+                        if (empty($deck)) break;
+                        $hand[] = array_shift($deck);
+                    }
+                    // Discard 1
+                    if (!empty($hand)) {
+                        $idx = array_rand($hand);
+                        $card = $hand[$idx];
+                        array_splice($hand, $idx, 1);
+                    }
+                    $player->hand_cards = $hand;
+                    GamePlayer::where('user_id', $userId)->update([
+                        'genepool' => $player->genepool,
+                        'hand_cards' => $hand,
+                    ]);
+                }
+                break;
+
+            case 'Solar Flare':
+                // -1 Gene Pool. Discard half hand rounded up.
+                foreach ($playerStates as $userId => $player) {
+                    $player->genepool = max(1, $player->genepool - 1);
+                    $hand = $player->hand_cards ?? [];
+                    $half = (int) ceil(count($hand) / 2);
+                    for ($i = 0; $i < $half; $i++) {
+                        if (!empty($hand)) {
+                            $idx = array_rand($hand);
+                            $card = $hand[$idx];
+                            array_splice($hand, $idx, 1);
+                        }
+                    }
+                    $player->hand_cards = $hand;
+                    GamePlayer::where('user_id', $userId)->update([
+                        'genepool' => $player->genepool,
+                        'hand_cards' => $hand,
+                    ]);
+                }
+                break;
+
+            case 'Super Volcano':
+                // Discard 1 hand card per blue trait in trait pile.
+                foreach ($playerStates as $userId => $player) {
+                    $blueCount = collect($player->trait_pool ?? [])->filter(fn($t) => $t['color'] === 'Blue')->count();
+                    $hand = $player->hand_cards ?? [];
+                    for ($i = 0; $i < $blueCount; $i++) {
+                        if (!empty($hand)) {
+                            $idx = array_rand($hand);
+                            $card = $hand[$idx];
+                            array_splice($hand, $idx, 1);
+                        }
+                    }
+                    $player->hand_cards = $hand;
+                    GamePlayer::where('user_id', $userId)->update(['hand_cards' => $hand]);
+                }
+                break;
+
+            case 'AI Takeover':
+                // -1 Gene Pool. Discard all but 1 card from hand.
+                foreach ($playerStates as $userId => $player) {
+                    $player->genepool = max(1, $player->genepool - 1);
+                    $hand = $player->hand_cards ?? [];
+                    while (count($hand) > 1) {
+                        $idx = array_rand($hand);
+                        $card = $hand[$idx];
+                        array_splice($hand, $idx, 1);
+                    }
+                    $player->hand_cards = $hand;
+                    GamePlayer::where('user_id', $userId)->update([
+                        'genepool' => $player->genepool,
+                        'hand_cards' => $hand,
+                    ]);
+                }
+                break;
+
+            case 'Pulse Event':
+                // -1 Gene Pool. Discard 1 hand card per purple trait in trait pile.
+                foreach ($playerStates as $userId => $player) {
+                    $player->genepool = max(1, $player->genepool - 1);
+                    $purpleCount = collect($player->trait_pool ?? [])->filter(fn($t) => $t['color'] === 'Purple')->count();
+                    $hand = $player->hand_cards ?? [];
+                    for ($i = 0; $i < $purpleCount; $i++) {
+                        if (!empty($hand)) {
+                            $idx = array_rand($hand);
+                            $card = $hand[$idx];
+                            array_splice($hand, $idx, 1);
+                        }
+                    }
+                    $player->hand_cards = $hand;
+                    GamePlayer::where('user_id', $userId)->update([
+                        'genepool' => $player->genepool,
+                        'hand_cards' => $hand,
+                    ]);
+                }
+                break;
+
+            case 'Retrovirus':
+                // -1 Gene Pool. Discard 1 hand card per green trait in trait pile.
+                foreach ($playerStates as $userId => $player) {
+                    $player->genepool = max(1, $player->genepool - 1);
+                    $greenCount = collect($player->trait_pool ?? [])->filter(fn($t) => $t['color'] === 'Green')->count();
+                    $hand = $player->hand_cards ?? [];
+                    for ($i = 0; $i < $greenCount; $i++) {
+                        if (!empty($hand)) {
+                            $idx = array_rand($hand);
+                            $card = $hand[$idx];
+                            array_splice($hand, $idx, 1);
+                        }
+                    }
+                    $player->hand_cards = $hand;
+                    GamePlayer::where('user_id', $userId)->update([
+                        'genepool' => $player->genepool,
+                        'hand_cards' => $hand,
+                    ]);
+                }
+                break;
+        }
     }
 }

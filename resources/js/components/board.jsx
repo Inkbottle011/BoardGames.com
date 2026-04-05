@@ -1,12 +1,9 @@
 import Hand from "./hand";
 import Scoreboard from "./scoreboard";
 import TraitPool from "./TraitPool";
-
 import { useState } from "react";
 
-import TargetingModal from "./TargetingModal";
-
-export default function Board({ gameState, gameId, playerId, onPlay, prompt, targetRequest, onResolve }) {
+export default function Board({ gameState, gameId, playerId, onPlay, prompt, gameLog}) {
     if (!gameState || !gameState.players) {
         return <div>Loading...</div>;
     }
@@ -79,24 +76,9 @@ export default function Board({ gameState, gameId, playerId, onPlay, prompt, tar
         
         {/* Discard */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.2rem' }}>
-        {gameState.discardPile?.length > 0 ? (
-            <div
-            style={{ width: '7rem', height: '9.8rem', overflow: 'hidden', borderRadius: '10px', border: '2px solid var(--nature-light)', cursor: 'pointer' }}
-            onMouseEnter={() => setHoveredCard(gameState.discardPile[gameState.discardPile.length - 1])}
-            onMouseLeave={() => setHoveredCard(null)}
-            >
-            <img
-            src={`/${gameState.discardPile[gameState.discardPile.length - 1].img}`}
-            alt="Discard"
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            onError={(e) => { e.target.src = '/images/card_not_found.png'; }}
-            />
-            </div>
-        ) : (
-            <div className="discard-pile" style={{ width: '7rem', height: '9.8rem' }}>
-            <span style={{ fontSize: '0.65rem' }}>Empty</span>
-            </div>
-        )}
+        <div className="discard-pile" style={{ width: '7rem', height: '9.8rem' }}>
+        <span style={{ fontSize: '0.65rem' }}>Empty</span>
+        </div>
         <p style={{ fontSize: '0.65rem', opacity: 0.6 }}>Discard</p>
         </div>
         
@@ -117,26 +99,20 @@ export default function Board({ gameState, gameId, playerId, onPlay, prompt, tar
         
         </div>
         
-        {/* RIGHT TOP — Age piles + hover reader + ALL trait pools */}
         <div style={{
-            gridColumn: '2',
-            gridRow: '1',
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'flex-start',
-            gap: '1rem',
-            padding: '0.75rem 1rem',
-            overflow: 'hidden',
-        }}>
+    gridColumn: '2',
+    gridRow: '1',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: '1rem',
+    padding: '0.75rem 1rem',
+    overflow: 'hidden',
+    minHeight: 0,
+}}>
         
-        {/* Age piles + reader stacked vertically */}
-        <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.5rem',
-            flexShrink: 0,
-        }}>
-        {/* Age piles horizontal */}
+        {/* Age piles + reader */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', flexShrink: 0 }}>
         <div style={{
             display: 'inline-flex',
             flexDirection: 'row',
@@ -211,119 +187,145 @@ export default function Board({ gameState, gameId, playerId, onPlay, prompt, tar
             </div>
             </div>
             
-            {/* All trait pools — fills remaining space evenly */}
-            <div style={{
-                flex: 1,
-                display: 'grid',
-                gridTemplateRows: `repeat(${opponents.length + 1}, 1fr)`,
-                gap: '0.5rem',
-                overflow: 'hidden',
-                height: '100%',
-            }}>
-            {/* Opponents */}
-            {opponents.map(opponent => (
-                <div key={opponent.id} style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.3rem',
-                    overflow: 'hidden',
-                    minHeight: 0,
-                }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
-                <p style={{ fontFamily: 'var(--font-title)', fontSize: '0.8rem', color: 'var(--nature-yellow)' }}>
+            {/* All trait pools */}
+<div style={{
+    flex: 1,
+    display: 'grid',
+    gridTemplateRows: `repeat(${opponents.length + 1}, 1fr)`,
+    gap: '0.5rem',
+    overflowY: 'auto',
+    height: '100%',
+    minHeight: 0,
+}}>
+{opponents.map(opponent => (
+    <div key={opponent.id} style={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: '0.5rem',
+        overflow: 'hidden',
+        minHeight: 0,
+    }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', flexShrink: 0, width: '5rem' }}>
+            <p style={{ fontFamily: 'var(--font-title)', fontSize: '0.75rem', color: 'var(--nature-yellow)' }}>
                 {opponent.name ?? `Player ${opponent.id}`}
-                </p>
-                <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>
-                🃏 {opponent.hand?.length ?? 0} &nbsp; 🧬 {opponent.genepool}
-                </span>
-                </div>
-                <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
-<TraitPool traitpool={opponent.traitpool} size={80} onHover={setHoveredCard} isActive={opponent.id === gameState.current_turn} />                </div>
-                </div>
-            ))}
-            
-            {/* Divider */}
-            <div style={{ height: '1px', background: 'rgba(74,124,74,0.4)', gridColumn: '1', flexShrink: 0 }} />
-            
-            {/* Your trait pool */}
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.3rem',
-                overflow: 'hidden',
-                minHeight: 0,
-            }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
-            <p style={{ fontFamily: 'var(--font-title)', fontSize: '0.8rem', color: 'var(--nature-yellow)' }}>
-            {currentPlayer?.name ?? 'You'}
             </p>
-            <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>
-            🃏 {currentPlayer?.hand?.length ?? 0} &nbsp; 🧬 {currentPlayer?.genepool}
+            <span style={{ fontSize: '0.6rem', opacity: 0.6 }}>
+                🃏 {opponent.hand?.length ?? 0} 🧬 {opponent.genepool}
             </span>
-            </div>
-            <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
-<TraitPool traitpool={currentPlayer?.traitpool} size={100} onHover={setHoveredCard} isActive={currentPlayer?.id === gameState.current_turn} />            </div>
-            </div>
-            </div>
-            
-            </div>
-            
-            {/* RIGHT BOTTOM — Hand left + prompt area right */}
-            <div style={{
-                gridColumn: '2',
-                gridRow: '2',
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'flex-end',
-                gap: '1rem',
-                padding: '0.5rem 1rem',
-                borderTop: '1px solid rgba(74,124,74,0.3)',
-                background: 'rgba(0,0,0,0.15)',
-            }}>
-            {/* Hand on the left */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flexShrink: 0 }}>
-            <p style={{
-                fontFamily: 'var(--font-title)',
-                fontSize: '0.8rem',
-                color: 'var(--nature-yellow)',
-                textAlign: 'center',
-            }}>
+        </div>
+        <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
+            <TraitPool traitpool={opponent.traitpool} size={80} onHover={setHoveredCard} isActive={opponent.id === gameState.current_turn} />
+        </div>
+    </div>
+))}
+
+
+{/* Your trait pool */}
+<div style={{
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: '0.5rem',
+    overflow: 'hidden',
+    minHeight: 0,
+}}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', flexShrink: 0, width: '5rem' }}>
+        <p style={{ fontFamily: 'var(--font-title)', fontSize: '0.75rem', color: 'var(--nature-yellow)' }}>
             {currentPlayer?.name ?? 'You'}
-            <span style={{ fontSize: '0.65rem', opacity: 0.6, marginLeft: '0.5rem' }}>
+        </p>
+        <span style={{ fontSize: '0.6rem', opacity: 0.6 }}>
+            🃏 {currentPlayer?.hand?.length ?? 0} 🧬 {currentPlayer?.genepool}
+        </span>
+    </div>
+    <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
+        <TraitPool traitpool={currentPlayer?.traitpool} size={80} onHover={setHoveredCard} isActive={currentPlayer?.id === gameState.current_turn} />
+    </div>
+</div>
+</div>
+
+</div>
+{/* RIGHT BOTTOM */}
+<div style={{
+    gridColumn: '2',
+    gridRow: '2',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    gap: '1rem',
+    padding: '0.5rem 1rem',
+    borderTop: '1px solid rgba(74,124,74,0.3)',
+    background: 'rgba(0,0,0,0.15)',
+    maxHeight: '16rem',
+    overflow: 'hidden',
+}}>
+<div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flexShrink: 0 }}>
+    <p style={{
+        fontFamily: 'var(--font-title)',
+        fontSize: '0.8rem',
+        color: 'var(--nature-yellow)',
+        textAlign: 'center',
+    }}>
+        {currentPlayer?.name ?? 'You'}
+        <span style={{ fontSize: '0.65rem', opacity: 0.6, marginLeft: '0.5rem' }}>
             🧬 {currentPlayer?.genepool}
-            </span>
-            </p>
-            <Hand
-            cards={currentPlayer?.hand || []}
-            onPlay={onPlay}
-            onHover={setHoveredCard}
-            />
-            </div>
-            {/* Prompt area */}
-            <div style={{
-                flex: 1,
-                minHeight: '8rem',
-                background: 'rgba(0,0,0,0.2)',
-                borderRadius: '10px',
-                border: '1px solid rgba(74,124,74,0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '1rem',
-                overflow: 'hidden',
-            }}>
-            {targetRequest ? (
-                <TargetingModal request={targetRequest} onResolve={onResolve} />
-            ) : prompt ? (
-                <p style={{ color: 'var(--nature-yellow)', fontSize: '0.85rem', textAlign: 'center' }}>
-                {prompt}
-                </p>
-            ) : (
-                <p style={{ fontSize: '0.7rem', opacity: 0.3 }}>Action prompts will appear here</p>
-            )}
-            </div>
-            </div>
-            
-            </div>
-        );
-    }
+        </span>
+    </p>
+    <Hand
+        cards={currentPlayer?.hand || []}
+        onPlay={onPlay}
+        onHover={setHoveredCard}
+    />
+</div>
+
+{/* Right side — log + prompt stacked */}
+<div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem', minHeight: 0, overflow: 'hidden' }}>
+    {/* Game log */}
+    <div style={{
+        flex: 1,
+        minHeight: 0,
+        background: 'rgba(0,0,0,0.2)',
+        borderRadius: '10px',
+        border: '1px solid rgba(74,124,74,0.2)',
+        padding: '0.5rem',
+        fontSize: '0.7rem',
+        opacity: 0.7,
+        overflowY: 'auto',
+    }}>
+        {gameLog.length === 0 ? (
+            <p style={{ opacity: 0.4 }}>Game events will appear here</p>
+        ) : (
+            gameLog.map((entry, i) => (
+                <p key={i} style={{ margin: '0.1rem 0' }}>⚡ <span dangerouslySetInnerHTML={{ __html: entry }} /></p>
+            ))
+        )}
+    </div>
+
+    {/* Prompt area */}
+    <div style={{
+        flexShrink: 0,
+        minHeight: '4rem',
+        maxHeight: '5rem',
+        background: 'rgba(0,0,0,0.2)',
+        borderRadius: '10px',
+        border: '1px solid rgba(74,124,74,0.3)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '1rem',
+        overflow: 'hidden',
+    }}>
+    {prompt ? (
+        <p style={{ color: 'var(--nature-yellow)', fontSize: '0.85rem', textAlign: 'center' }}>
+            {prompt}
+        </p>
+    ) : (
+        <p style={{ fontSize: '0.7rem', opacity: 0.3 }}>Action prompts will appear here</p>
+    )}
+    </div>
+</div>
+</div>
+
+</div>
+    );
+}
