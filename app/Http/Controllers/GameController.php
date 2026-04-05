@@ -77,7 +77,7 @@ class GameController extends Controller
 
         array_splice($hand, $cardIndex, 1);
         //run the card effect
-        $this->CardeffectRun($card, $activePlayer, $playerStates, $hand, $discardpile, $gameState);
+        $this->CardeffectRun($card, $activePlayer, $playerStates, $hand, $discardPile, $gameState);
         // Add to traitpool
         $traitPool = $activePlayer->trait_pool ?? [];
         $traitPool[] = $card;
@@ -149,6 +149,10 @@ class GameController extends Controller
                     $nextPlayerId
                 );
 
+                if ($newAge['age_name'] === 'Awakening' && !empty($ageDeck)) {
+                    $logMessage = "🌅 Awakening: Next age will be <strong>{$ageDeck[0]['age_name']}</strong>";
+                }
+
                 if ($newAge['catastrophe']) {
                     $this->applyCatastropheEffect(
                         $newAge['age_name'],
@@ -182,7 +186,6 @@ class GameController extends Controller
             'catastrophe_count' => $catastropheCount,
             'current_age' => $newAge,
             'status' => $gameStatus,
-            'log_message' => $logMessage,
             'game_state' => [
                 'deck' => $deck,
                 'deckSize' => count($deck),
@@ -192,8 +195,16 @@ class GameController extends Controller
                 'round_players' => $roundPlayers,
                 'player_order' => $playerOrder,
                 'last_played_color' => $lastPlayedColor,
+                'last_played_card' => $card['card_name'] ?? null,
+                'log_message' => $logMessage,
             ],
         ]);
+
+        if ($gameStatus === 'worlds_end') {
+            $game->load(['players.user']);
+            $playerStates = $game->players->keyBy('user_id');
+            $this->applyWorldsEndScoring($game, $playerStates);
+        }
 
         $game->load(['players.user']);
         broadcast(new TurnPlayed($game));
@@ -222,7 +233,6 @@ class GameController extends Controller
             case 'Camouflage':
             case 'Teeth':
             case 'Dreamer':
-            case 'Camouflage':
             case 'Mitochondrion':
             case 'Just':
             case 'Fecundity':
@@ -232,13 +242,12 @@ class GameController extends Controller
             case 'Brute Strength':
                 $activePlayer->genepool = max(1, $activePlayer->genepool - 1);
                 break;
-            case 'WarmBlood':
+            case 'Warm Blood':
                 $activePlayer->genepool = min(8, $activePlayer->genepool + 2);
                 break;
             case 'Introspective':
                 $this->Draw(4, $hand, $gameState);
                 break;
-            case 'Cold Blood':
             case 'Iridescent Scales':
                 $this->Draw(3, $hand, $gameState);
                 break;
@@ -249,7 +258,7 @@ class GameController extends Controller
                 $hand[] = $cardOne;
                 $hand[] = $cardTwo;
 
-                if (($cardOne['card_color'] ?? '') === 'Green' || ($cardTwo['card_color'] ?? '') === 'Green') {
+                if (($cardOne['color'] ?? '') === 'Green' || ($cardTwo['color'] ?? '') === 'Green') {
                     //play another card
                 }
                 break;
@@ -261,6 +270,28 @@ class GameController extends Controller
             case 'Sweat':
                 break;
             default:
+                break;
+            // These cards have no immediate effect — World's End handles them
+            case 'Immunity':
+            case 'Tiny':
+            case 'Egg Clusters':
+            case 'Overgrowth':
+            case 'Heat Vision':
+            case 'Sticky Secretions':
+            case 'Mindful':
+            case 'Pollination':
+            case 'Fortunate':
+            case 'Gratitude':
+            case 'Altruistic':
+            case 'Random Fertilization':
+            case 'Boredom':
+            case 'Saudade':
+            case 'Apex Predator':
+            case 'Brave':
+            case 'Symbiosis':
+            case 'Pack Behavior':
+            case 'Branches':
+                // No immediate effect — scored at World's End
                 break;
         }
     }
@@ -602,12 +633,6 @@ class GameController extends Controller
                 $playerOrder = array_reverse($playerOrder);
                 $nextPlayerId = $playerOrder[0];
                 break;
-            case 'Awakening':
-                if (!empty($ageDeck)) {
-                    $nextAge = $ageDeck[0];
-                    $logMessage = "🌅 Awakening: Next age will be <strong>{$nextAge['age_name']}</strong>";
-                }
-                break;
         }
     }
     private function applyCatastropheEffect(string $ageName, $playerStates, array $playerOrder, array &$deck, array &$discardPile): void
@@ -761,7 +786,8 @@ class GameController extends Controller
                 // +0 Gene Pool. Discard entire hand and stabilize.
                 foreach ($playerStates as $userId => $player) {
                     $hand = $player->hand_cards ?? [];
-                    foreach ($hand as $card) {
+                    foreach ($hand as $handCard) {
+                        $discardPile[] = $handCard;
                     }
                     $hand = [];
                     // Stabilize — draw back up to genepool
@@ -797,13 +823,13 @@ class GameController extends Controller
                 break;
 
             case 'Nuclear Winter':
-                \Log::info('Nuclear Winter player', [
-                    'userId' => $userId,
-                    'handBefore' => count($player->hand_cards ?? []),
-                    'genepool' => $player->genepool,
-                ]);
                 // -1 Gene Pool. Stabilize. Then discard 1 hand card.
                 foreach ($playerStates as $userId => $player) {
+                    \Log::info('Nuclear Winter player', [
+                        'userId' => $userId,
+                        'handBefore' => count($player->hand_cards ?? []),
+                        'genepool' => $player->genepool,
+                    ]);
                     $player->genepool = max(1, $player->genepool - 1);
                     $hand = $player->hand_cards ?? [];
                     // Stabilize
@@ -923,6 +949,182 @@ class GameController extends Controller
                     ]);
                 }
                 break;
+        }
+    }
+    private function applyWorldsEndScoring(Game $game, $playerStates): void
+    {
+        foreach ($playerStates as $userId => $player) {
+            $traitPool = $player->trait_pool ?? [];
+            $hand = $player->hand_cards ?? [];
+            $points = collect($traitPool)->sum('points');
+            $breakdown = ["Base: {$points}"];
+
+            foreach ($traitPool as $card) {
+                switch ($card['card_name']) {
+                    case 'Immunity':
+                        $negativeCount = collect($traitPool)->filter(fn($t) => ($t['points'] ?? 0) < 0)->count();
+                        $bonus = $negativeCount * 2;
+                        $points += $bonus;
+                        if ($bonus) $breakdown[] = "Immunity +{$bonus} ({$negativeCount} negative traits)";
+                        break;
+
+                    case 'Tiny':
+                        $penalty = count($traitPool);
+                        $points -= $penalty;
+                        $breakdown[] = "Tiny -{$penalty} ({$penalty} traits total)";
+                        break;
+
+                    case 'Egg Clusters':
+                        $count = collect($traitPool)->filter(fn($t) => $t['color'] === 'Blue')->count();
+                        $points += $count;
+                        if ($count) $breakdown[] = "Egg Clusters +{$count} ({$count} blue traits)";
+                        break;
+
+                    case 'Overgrowth':
+                        $count = collect($traitPool)->filter(fn($t) => $t['color'] === 'Green')->count();
+                        $points += $count;
+                        if ($count) $breakdown[] = "Overgrowth +{$count} ({$count} green traits)";
+                        break;
+
+                    case 'Heat Vision':
+                        $count = collect($traitPool)->filter(fn($t) => $t['color'] === 'Red')->count();
+                        $points += $count;
+                        if ($count) $breakdown[] = "Heat Vision +{$count} ({$count} red traits)";
+                        break;
+
+                    case 'Sticky Secretions':
+                        $count = collect($traitPool)->filter(fn($t) => $t['color'] === 'Purple')->count();
+                        $points += $count;
+                        if ($count) $breakdown[] = "Sticky Secretions +{$count} ({$count} purple traits)";
+                        break;
+
+                    case 'Mindful':
+                        $count = collect($traitPool)->filter(fn($t) => $t['color'] === 'Colorless')->count();
+                        $points += $count;
+                        if ($count) $breakdown[] = "Mindful +{$count} ({$count} colorless traits)";
+                        break;
+
+                    case 'Pollination':
+                        $count = collect($traitPool)->filter(fn($t) => ($t['points'] ?? 0) === 1)->count();
+                        $points += $count;
+                        if ($count) $breakdown[] = "Pollination +{$count} ({$count} 1-point traits)";
+                        break;
+
+                    case 'Fortunate':
+                        $count = count($hand);
+                        $points += $count;
+                        if ($count) $breakdown[] = "Fortunate +{$count} ({$count} cards in hand)";
+                        break;
+
+                    case 'Gratitude':
+                        $count = collect($traitPool)->pluck('color')->unique()->count();
+                        $points += $count;
+                        if ($count) $breakdown[] = "Gratitude +{$count} ({$count} unique colors)";
+                        break;
+
+                    case 'Altruistic':
+                        $genepool = $player->genepool ?? 5;
+                        $points += $genepool;
+                        $breakdown[] = "Altruistic +{$genepool} (genepool size)";
+                        break;
+
+                    case 'Random Fertilization':
+                        $genepool = $player->genepool ?? 5;
+                        $points += $genepool;
+                        $breakdown[] = "Random Fertilization +{$genepool} (genepool size)";
+                        break;
+
+                    case 'Camouflage':
+                        $genepool = $player->genepool ?? 5;
+                        $points += $genepool;
+                        $breakdown[] = "Camouflage +{$genepool} (genepool size)";
+                        break;
+
+                    case 'Boredom':
+                        $count = collect($traitPool)->filter(fn($t) => !empty($t['text']))->count();
+                        $points += $count;
+                        if ($count) $breakdown[] = "Boredom +{$count} ({$count} traits with text)";
+                        break;
+
+                    case 'Saudade':
+                        $count = collect($hand)->pluck('color')->unique()->count();
+                        $points += $count;
+                        if ($count) $breakdown[] = "Saudade +{$count} ({$count} unique colors in hand)";
+                        break;
+
+                    case 'Apex Predator':
+                        $myCount = count($traitPool);
+                        $mostTraits = true;
+                        foreach ($playerStates as $otherId => $other) {
+                            if ($otherId !== $userId && count($other->trait_pool ?? []) > $myCount) {
+                                $mostTraits = false;
+                                break;
+                            }
+                        }
+                        if ($mostTraits) {
+                            $points += 4;
+                            $breakdown[] = "Apex Predator +4 (most traits)";
+                        }
+                        break;
+
+                    case 'Brave':
+                        $dominantCount = collect($traitPool)->filter(fn($t) => !empty($t['dominant']))->count();
+                        $bonus = $dominantCount * 2;
+                        $points += $bonus;
+                        if ($bonus) $breakdown[] = "Brave +{$bonus} ({$dominantCount} dominant traits)";
+                        break;
+
+                    case 'Symbiosis':
+                        $colorCounts = collect($traitPool)->groupBy('color')->map->count();
+                        $max = $colorCounts->max() ?? 0;
+                        $points += $max;
+                        if ($max) $breakdown[] = "Symbiosis +{$max} (largest color group)";
+                        break;
+
+                    case 'Pack Behavior':
+                        $colorCounts = collect($traitPool)->groupBy('color')->map->count();
+                        $bonus = $colorCounts->sum(fn($c) => (int) floor($c / 2));
+                        $points += $bonus;
+                        if ($bonus) $breakdown[] = "Pack Behavior +{$bonus} (floor(count/2) per color)";
+                        break;
+
+                    case 'Branches':
+                        $greenCount = collect($traitPool)->filter(fn($t) => $t['color'] === 'Green')->count();
+                        $bonus = (int) floor($greenCount / 2);
+                        $points += $bonus;
+                        if ($bonus) $breakdown[] = "Branches +{$bonus} (floor({$greenCount} green / 2))";
+                        break;
+                }
+
+                if (str_starts_with($card['card_name'], 'Kidney')) {
+                    $kidneysCount = collect($traitPool)->filter(fn($t) => str_starts_with($t['card_name'], 'Kidney'))->count();
+                    $points += $kidneysCount;
+                    $breakdown[] = "{$card['card_name']} +{$kidneysCount} ({$kidneysCount} Kidney traits)";
+                }
+            }
+
+            $hasSwarm = collect($traitPool)->contains(fn($t) => str_starts_with($t['card_name'], 'Swarm'));
+            if ($hasSwarm) {
+                $totalSwarms = 0;
+                foreach ($playerStates as $other) {
+                    $totalSwarms += collect($other->trait_pool ?? [])->filter(fn($t) => str_starts_with($t['card_name'], 'Swarm'))->count();
+                }
+                $swarmCardsInPool = collect($traitPool)->filter(fn($t) => str_starts_with($t['card_name'], 'Swarm'))->count();
+                $bonus = $swarmCardsInPool * $totalSwarms;
+                $points += $bonus;
+                $breakdown[] = "Swarm +{$bonus} ({$swarmCardsInPool} own x {$totalSwarms} total)";
+            }
+
+            $breakdown[] = "Final: {$points}";
+
+            \Log::info("World's End scoring", [
+                'userId' => $userId,
+                'breakdown' => $breakdown,
+            ]);
+
+            GamePlayer::where('game_id', $game->id)
+                ->where('user_id', $userId)
+                ->update(['points' => $points]);
         }
     }
 }

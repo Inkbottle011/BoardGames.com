@@ -2,7 +2,7 @@ import Card from "./card";
 
 export default function Hand({ cards, onPlay, onHover }) {
     return (
-        <div className="hand-area flex gap-3 overflow-x-auto p-2">
+        <div className="hand-area flex gap-3 overflow-x-auto p-2"style={{ maxWidth: '100%' }}>
         {cards && cards.length > 0 ? (
             cards.filter(c => c != null).map((card, index) => (
                 <div

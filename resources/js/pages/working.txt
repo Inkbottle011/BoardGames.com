@@ -1,35 +1,24 @@
-which age and card effects currently work:
 
-flourish
-coastalformations
-comet showers
-age of hero and age of dracula
-all color and point restrictive ones
-The Messiah (rotate turn order)
-Natural Harmony (track last played color)
-awakening
 
-Test these first:
 
-The Big One — c rd passing to left/right neighbours is tricky, especially with 2 players
-Overpopulation — draws cards based on color count, verify count is correct
-Grey Goo — discard entire hand and restabilize, make sure deck deals correctly after
-Mega Tsunami — hand rotation direction, easy to get left/right confused
+**Ages:**
 
-These are straightforward, lower priority:
+Working: 16
+- The Birth of Life, Flourish, Comet Showers, Coastal Formations, Age of Wonder, Birth of a Hero, Age of Dracula, Awakening, The Messiah, Natural Harmony, Glacial Drift, Lunar Retreat, Eclipse, Arid Lands, Tectonic Shifts, Tropical Lands
 
-Glacial Meltdown, Ice Age, Nuclear Winter, Solar Flare, The Four Horsemen, AI Takeover — all just genepool -1 plus some discards, should work fine
-Pulse Event, Retrovirus, Mass Extinction, Super Volcano — count traits and discard hand cards, simple logic
-Deus Ex Machina — does nothing, no need to test
+Restrictions (6): Glacial Drift, Lunar Retreat, Eclipse, Arid Lands, Tectonic Shifts, Tropical Lands
+Automatic flip effects (7): Flourish, Comet Showers, Birth of a Hero, Age of Dracula, Awakening, The Messiah, Natural Harmony
+Ongoing per turn (2): Coastal Formations, Age of Wonder
+Default (1): The Birth of Life
 
-Not yet implemented:
+**Total working ages: 16**
 
-Northern Winds (interactive)
-Prosperity (interactive)
-Age of Nietzsche (interactive)
-Enlightenment (interactive)
-Alien Terraform (interactive)
-Age of Reason (interactive)
-High Tides (effectless only restriction)
-Reforestation (protect traits)
-Age of Peace (skip card effects)
+**Not working: 9** (Northern Winds, Prosperity, Age of Nietzsche, Enlightenment, Alien Terraform, Age of Reason, High Tides, Reforestation, Age of Peace)
+
+---
+
+Catastrophes working: 15
+
+The Big One, Deus Ex Machina, Overpopulation, Glacial Meltdown, Ice Age, Mega Tsunami, The Four Horsemen, Grey Goo, Mass Extinction, Nuclear Winter, Solar Flare, Super Volcano, AI Takeover, Pulse Event, Retrovirus
+
+World's End effects: 0 — none of the catastrophe World's End effects are implemented yet. Those would be a separate task when World's End scoring is expanded

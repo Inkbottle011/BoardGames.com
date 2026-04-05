@@ -1,24 +1,71 @@
 Cards that currently Work:
-Teeth
-Dreamer
-Camouflage
-Mitochondrion
-Just
-Fecundity
-Saliva
-Brute Strength
-WarmBlood
-Introspective
-Iridescent Scales
+Teeth ✅
+Dreamer ✅
+Camouflage ✅ (genepool +1, +genepool size points at World's End)
+Mitochondrion ✅
+Just ✅
+Fecundity ✅
+Saliva ✅
+Brute Strength ✅
+Warm Blood ✅
+Introspective ✅
+Iridescent Scales ✅
+Cold Blood ✅ (draw 3 — bonus play not implemented)
 
-Not Finished: 
+World's End Scoring (implemented, needs testing):
+Immunity ✅
+Tiny ✅
+Egg Clusters ✅
+Overgrowth ✅
+Heat Vision ✅
+Sticky Secretions ✅
+Mindful ✅
+Pollination ✅
+Fortunate ✅
+Gratitude ✅
+Altruistic ✅
+Random Fertilization ✅
+Boredom ✅
+Saudade ✅
+Apex Predator ✅
+Brave ✅
+Symbiosis ✅
+Pack Behavior ✅
+Branches ✅
+Kidney variants ✅ (World's End scoring)
+Swarm variants ✅ (World's End scoring)
 
-Cold Blood
+Not Finished:
+Sweat (needs targeting — choose card to discard)
+Cold Blood bonus play (needs targeting)
+Photosynthesis bonus play (needs targeting)
 
-Sweat
+No-ops (nothing to implement):
+Adorable, Big Ears, Fine Motor Skills, Nocturnal, Antlers, Fangs, Fire Skin,
+Stone Skin, Quick, Blubber, Gills, Migratory, Spiny, Bark, Deep Roots, Leaves,
+Woody Stems, Confusion, Fear, Flatulence, Appaling, Endurance, Heroic,
+Delicious, Late, Morality, Regenerative Tissue, Retractable Claws
 
-These should update at the end of turn but currently break the game and I'm too tired to try and fix it right now
-Kidney's
-Swarm's
+Need Targeting (skip for now):
+Vampirism, Telekinetic, Tentacles, Scutes, Doting, Impatience, Nosy,
+Selfish, Tiny Little Melons, Flight, Inventive, Reckless, Poisonous,
+Venomous, Self Awareness, Directly Register, Bad, Hot Temper, Voracious,
+Painted Shell, Memory, Persuasive, Hyper Intelligence, Territorial, Faith,
+Sweat, Propagation, Selective Memory, Self Replicating, Trunk,
+Optimistic Nihilism
 
-Rest of the Cards Don't Work as they need targeting either for card can be played, choose a card to discard, choose oppenent, choose a Color
+
+
+
+
+**Cards:**
+
+Immediate effects working: 11
+World's End scoring working: 21
+No-ops (nothing needed): 30
+Easy to add: 3
+Not finished/needs targeting: ~25
+
+**Total cards with some implementation: 32**
+**Total no-ops: 30**
+**Total needing targeting: ~25**

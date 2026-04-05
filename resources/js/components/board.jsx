@@ -259,8 +259,8 @@ export default function Board({ gameState, gameId, playerId, onPlay, prompt, gam
     maxHeight: '16rem',
     overflow: 'hidden',
 }}>
-<div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flexShrink: 0 }}>
-    <p style={{
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flexShrink: 0, maxWidth: '55vw', overflow: 'hidden' }}>
+                    <p style={{
         fontFamily: 'var(--font-title)',
         fontSize: '0.8rem',
         color: 'var(--nature-yellow)',
