@@ -1,0 +1,24 @@
+Cards that currently Work:
+Teeth
+Dreamer
+Camouflage
+Mitochondrion
+Just
+Fecundity
+Saliva
+Brute Strength
+WarmBlood
+Introspective
+Iridescent Scales
+
+Not Finished: 
+
+Cold Blood
+
+Sweat
+
+These should update at the end of turn but currently break the game and I'm too tired to try and fix it right now
+Kidney's
+Swarm's
+
+Rest of the Cards Don't Work as they need targeting either for card can be played, choose a card to discard, choose oppenent, choose a Color

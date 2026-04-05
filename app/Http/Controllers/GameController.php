@@ -76,7 +76,8 @@ class GameController extends Controller
         }
 
         array_splice($hand, $cardIndex, 1);
-
+        //run the card effect
+        $this->CardeffectRun($card, $activePlayer, $playerStates, $hand, $discardpile, $gameState);
         // Add to traitpool
         $traitPool = $activePlayer->trait_pool ?? [];
         $traitPool[] = $card;
@@ -109,6 +110,7 @@ class GameController extends Controller
         $playerStates[(int) auth()->id()]->trait_pool = $traitPool;
         $playerStates[(int) auth()->id()]->points = $points;
 
+        // $this->calculatePoints($activePlayer, $playerStates);
         // Advance turn
         $roundPlayers[] = (int) auth()->id();
         $roundPlayers = array_unique($roundPlayers);
@@ -206,6 +208,64 @@ class GameController extends Controller
         if ($index === false) return $playerOrder[0];
         return $playerOrder[($index + 1) % count($playerOrder)];
     }
+    private function Draw(int $num, &$hand, &$gameState = [])
+    {
+        for ($i = 0; $i < $num; $i++) {
+            if (empty($gameState['deck'])) break;
+            $hand[] = array_shift($gameState['deck']);
+        }
+    }
+
+    private function CardeffectRun($card, &$activePlayer, &$playerStates, &$hand, &$discardPile, &$gameState = [])
+    {
+        switch ($card['card_name'] ?? '') {
+            case 'Camouflage':
+            case 'Teeth':
+            case 'Dreamer':
+            case 'Camouflage':
+            case 'Mitochondrion':
+            case 'Just':
+            case 'Fecundity':
+            case 'Saliva':
+                $activePlayer->genepool = min(8, $activePlayer->genepool + 1);
+                break;
+            case 'Brute Strength':
+                $activePlayer->genepool = max(1, $activePlayer->genepool - 1);
+                break;
+            case 'WarmBlood':
+                $activePlayer->genepool = min(8, $activePlayer->genepool + 2);
+                break;
+            case 'Introspective':
+                $this->Draw(4, $hand, $gameState);
+                break;
+            case 'Cold Blood':
+            case 'Iridescent Scales':
+                $this->Draw(3, $hand, $gameState);
+                break;
+            case 'Photosynthesis':
+                if (empty($gameState['deck'])) break;
+                $cardOne = array_shift($gameState['deck']);
+                $cardTwo = array_shift($gameState['deck']);
+                $hand[] = $cardOne;
+                $hand[] = $cardTwo;
+
+                if (($cardOne['card_color'] ?? '') === 'Green' || ($cardTwo['card_color'] ?? '') === 'Green') {
+                    //play another card
+                }
+                break;
+
+            case 'Cold Blood':
+                //Have the drawn cards become active for play
+                break;
+
+            case 'Sweat':
+                break;
+            default:
+                break;
+        }
+    }
+
+
 
     private function checkAgeRestriction(array $card, string $ageName, array $gameState = []): array
     {
@@ -220,7 +280,6 @@ class GameController extends Controller
                     return ['allowed' => false, 'reason' => 'Lunar Retreat: cannot play purple traits'];
                 break;
 
-            case 'Galactic Drift':
             case 'Tropical Lands':
                 if (($card['color'] ?? '') === 'Colorless')
                     return ['allowed' => false, 'reason' => "{$ageName}: cannot play colorless traits"];
