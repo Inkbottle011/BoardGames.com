@@ -77,7 +77,7 @@ class GameController extends Controller
 
         array_splice($hand, $cardIndex, 1);
         //run the card effect
-        $this->CardeffectRun($card, $activePlayer, $playerStates, $hand, $discardPile, $gameState);
+        $this->CardeffectRun($card, $activePlayer, $playerStates, $hand, $discardPile, $deck, $gameState);
         // Add to traitpool
         $traitPool = $activePlayer->trait_pool ?? [];
         $traitPool[] = $card;
@@ -91,6 +91,14 @@ class GameController extends Controller
         for ($i = 0; $i < $cardsToDraw; $i++) {
             if (empty($deck)) break;
             $hand[] = array_shift($deck);
+        }
+
+        // Trim hand if over genepool
+        if (count($hand) > $genepool) {
+            $excess = array_splice($hand, $genepool);
+            foreach ($excess as $excessCard) {
+                $discardPile[] = $excessCard;
+            }
         }
 
         // Apply ongoing age effect
@@ -180,6 +188,12 @@ class GameController extends Controller
             }
         }
 
+        if ($gameStatus === 'worlds_end') {
+            $game->load(['players.user']);
+            $playerStates = $game->players->keyBy('user_id');
+            $this->applyWorldsEndScoring($game, $playerStates);
+        }
+
         $lastPlayedColor = ($currentAge['age_name'] ?? '') === 'Natural Harmony' ? ($card['color'] ?? null) : null;
         $game->update([
             'current_turn' => $nextPlayerId,
@@ -200,12 +214,6 @@ class GameController extends Controller
             ],
         ]);
 
-        if ($gameStatus === 'worlds_end') {
-            $game->load(['players.user']);
-            $playerStates = $game->players->keyBy('user_id');
-            $this->applyWorldsEndScoring($game, $playerStates);
-        }
-
         $game->load(['players.user']);
         broadcast(new TurnPlayed($game));
 
@@ -219,15 +227,15 @@ class GameController extends Controller
         if ($index === false) return $playerOrder[0];
         return $playerOrder[($index + 1) % count($playerOrder)];
     }
-    private function Draw(int $num, &$hand, &$gameState = [])
+    private function Draw(int $num, &$hand, &$deck)
     {
         for ($i = 0; $i < $num; $i++) {
-            if (empty($gameState['deck'])) break;
-            $hand[] = array_shift($gameState['deck']);
+            if (empty($deck)) break;
+            $hand[] = array_shift($deck);
         }
     }
 
-    private function CardeffectRun($card, &$activePlayer, &$playerStates, &$hand, &$discardPile, &$gameState = [])
+    private function CardeffectRun($card, &$activePlayer, &$playerStates, &$hand, &$discardPile, &$deck, &$gameState = [])
     {
         switch ($card['card_name'] ?? '') {
             case 'Camouflage':
@@ -246,18 +254,17 @@ class GameController extends Controller
                 $activePlayer->genepool = min(8, $activePlayer->genepool + 2);
                 break;
             case 'Introspective':
-                $this->Draw(4, $hand, $gameState);
+                $this->Draw(4, $hand, $deck);
                 break;
             case 'Iridescent Scales':
-                $this->Draw(3, $hand, $gameState);
+                $this->Draw(3, $hand, $deck);
                 break;
             case 'Photosynthesis':
-                if (empty($gameState['deck'])) break;
-                $cardOne = array_shift($gameState['deck']);
-                $cardTwo = array_shift($gameState['deck']);
+                if (empty($deck)) break;
+                $cardOne = array_shift($deck);
+                $cardTwo = array_shift($deck);
                 $hand[] = $cardOne;
                 $hand[] = $cardTwo;
-
                 if (($cardOne['color'] ?? '') === 'Green' || ($cardTwo['color'] ?? '') === 'Green') {
                     //play another card
                 }
@@ -268,8 +275,6 @@ class GameController extends Controller
                 break;
 
             case 'Sweat':
-                break;
-            default:
                 break;
             // These cards have no immediate effect — World's End handles them
             case 'Immunity':
@@ -292,6 +297,8 @@ class GameController extends Controller
             case 'Pack Behavior':
             case 'Branches':
                 // No immediate effect — scored at World's End
+                break;
+            default:
                 break;
         }
     }
